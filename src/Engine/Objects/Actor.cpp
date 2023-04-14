@@ -2450,7 +2450,7 @@ void Actor::ActorDamageFromMonster(signed int attacker_id,
                                    ABILITY_INDEX a4) {
     int v4;            // ebx@1
     int dmgToRecv;     // qax@8
-    int v12;    // ecx@20
+    int dmgType;    // ecx@20
     int finalDmg;      // edi@30
     int pushDistance;  // [sp+20h] [bp+Ch]@34
 
@@ -2468,45 +2468,28 @@ void Actor::ActorDamageFromMonster(signed int attacker_id,
             if (pActors[PID_ID(attacker_id)]._4273BB_DoesHitOtherActor(
                     &pActors[actor_id], v4, 0)) {
                 dmgToRecv = pActors[PID_ID(attacker_id)]._43B3E0_CalcDamage(a4);
-                if (pActors[PID_ID(attacker_id)]
-                        .pActorBuffs[ACTOR_BUFF_SHRINK]
-                        .Active()) {
-                    if (pActors[PID_ID(attacker_id)]
-                            .pActorBuffs[ACTOR_BUFF_SHRINK]
-                            .uPower > 0)
-                        dmgToRecv =
-                            dmgToRecv / pActors[PID_ID(attacker_id)]
-                                            .pActorBuffs[ACTOR_BUFF_SHRINK]
-                                            .uPower;
+                if (pActors[PID_ID(attacker_id)].pActorBuffs[ACTOR_BUFF_SHRINK].Active()) {
+                    if (pActors[PID_ID(attacker_id)].pActorBuffs[ACTOR_BUFF_SHRINK].uPower > 0)
+                        dmgToRecv = dmgToRecv / pActors[PID_ID(attacker_id)].pActorBuffs[ACTOR_BUFF_SHRINK].uPower;
                 }
                 if (pActors[actor_id].pActorBuffs[ACTOR_BUFF_STONED].Active())
                     dmgToRecv = 0;
                 if (a4 == ABILITY_ATTACK1) {
-                    v12 =
-                        pActors[PID_ID(attacker_id)].pMonsterInfo.uAttack1Type;
+                    dmgType = pActors[PID_ID(attacker_id)].pMonsterInfo.uAttack1Type;
                 } else if (a4 == ABILITY_ATTACK2) {
-                    v12 =
-                        pActors[PID_ID(attacker_id)].pMonsterInfo.uAttack2Type;
-                    if (pActors[actor_id]
-                            .pActorBuffs[ACTOR_BUFF_SHIELD]
-                            .Active())
+                    dmgType = pActors[PID_ID(attacker_id)].pMonsterInfo.uAttack2Type;
+                    if (pActors[actor_id].pActorBuffs[ACTOR_BUFF_SHIELD].Active())
                         dmgToRecv = dmgToRecv / 2;
                 } else if (a4 == ABILITY_SPELL1) {
-                    v12 = pSpellStats
-                        ->pInfos[pActors[actor_id].pMonsterInfo.uSpell1ID]
-                        .uSchool;
+                    dmgType = pSpellStats->pInfos[pActors[PID_ID(attacker_id)].pMonsterInfo.uSpell1ID].uSchool;
                 } else if (a4 == ABILITY_SPELL2) {
-                    v12 = pSpellStats
-                        ->pInfos[pActors[actor_id].pMonsterInfo.uSpell2ID]
-                        .uSchool;
+                    dmgType = pSpellStats->pInfos[pActors[PID_ID(attacker_id)].pMonsterInfo.uSpell2ID].uSchool;
                 } else if (a4 == ABILITY_SPECIAL) {
-                    v12 = pActors[PID_ID(attacker_id)]
-                        .pMonsterInfo.field_3C_some_special_attack;
+                    dmgType = pActors[PID_ID(attacker_id)].pMonsterInfo.field_3C_some_special_attack;
                 } else {
-                    v12 = 4;
+                    dmgType = 4;
                 }
-                finalDmg = pActors[actor_id].CalcMagicalDamageToActor(
-                    (DAMAGE_TYPE)v12, dmgToRecv);
+                finalDmg = pActors[actor_id].CalcMagicalDamageToActor((DAMAGE_TYPE)dmgType, dmgToRecv);
                 pActors[actor_id].sCurrentHP -= finalDmg;
                 if (finalDmg) {
                     if (pActors[actor_id].sCurrentHP > 0)
@@ -2514,24 +2497,16 @@ void Actor::ActorDamageFromMonster(signed int attacker_id,
                     else
                         Actor::Die(actor_id);
                     Actor::AggroSurroundingPeasants(actor_id, 0);
-                    pushDistance =
-                        20 * finalDmg / pActors[actor_id].pMonsterInfo.uHP;
-                    if (pushDistance > 10) pushDistance = 10;
-                    if (!MonsterStats::BelongsToSupertype(
-                            pActors[actor_id].pMonsterInfo.uID,
-                            MONSTER_SUPERTYPE_TREANT)) {
-                        pVelocity->x =
-                            (int32_t)fixpoint_mul(pushDistance, pVelocity->x);
-                        pVelocity->y =
-                            (int32_t)fixpoint_mul(pushDistance, pVelocity->y);
-                        pVelocity->z =
-                            (int32_t)fixpoint_mul(pushDistance, pVelocity->z);
-                        pActors[actor_id].vVelocity.x =
-                            50 * (short)pVelocity->x;
-                        pActors[actor_id].vVelocity.y =
-                            50 * (short)pVelocity->y;
-                        pActors[actor_id].vVelocity.z =
-                            50 * (short)pVelocity->z;
+                    pushDistance = 20 * finalDmg / pActors[actor_id].pMonsterInfo.uHP;
+                    if (pushDistance > 10)
+                        pushDistance = 10;
+                    if (!MonsterStats::BelongsToSupertype(pActors[actor_id].pMonsterInfo.uID, MONSTER_SUPERTYPE_TREANT)) {
+                        pVelocity->x = (int32_t)fixpoint_mul(pushDistance, pVelocity->x);
+                        pVelocity->y = (int32_t)fixpoint_mul(pushDistance, pVelocity->y);
+                        pVelocity->z = (int32_t)fixpoint_mul(pushDistance, pVelocity->z);
+                        pActors[actor_id].vVelocity.x = 50 * (short)pVelocity->x;
+                        pActors[actor_id].vVelocity.y = 50 * (short)pVelocity->y;
+                        pActors[actor_id].vVelocity.z = 50 * (short)pVelocity->z;
                     }
                     Actor::AddBloodsplatOnDamageOverlay(actor_id, 1, finalDmg);
                 } else {
