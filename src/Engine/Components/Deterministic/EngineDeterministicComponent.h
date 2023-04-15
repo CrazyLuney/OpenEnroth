@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "Platform/Proxy/ProxyPlatform.h"
 #include "Platform/Proxy/ProxyOpenGLContext.h"
 

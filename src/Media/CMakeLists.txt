@@ -21,7 +21,7 @@ target_compile_definitions(media PRIVATE FF_API_NEXT)
 include_directories(${INCLUDE_DIRECTORIES} ${OPENAL_INCLUDE_DIRS} ${FFMPEG_INCLUDE_DIRS})
 target_link_libraries(media ${OPENAL_LIBRARY} ${AVCODEC_LIBRARIES} ${AVFORMAT_LIBRARIES} ${AVUTIL_LIBRARIES} ${SWSCALE_LIBRARIES} ${SWRESAMPLE_LIBRARIES})
 
-target_check_style(media)
+target_precompile_headers_reuse(media utility)
 
 message(VERBOSE "FFMPEG_LIBRARIES: ${FFMPEG_LIBRARIES}")
 message(VERBOSE "OPENAL_LIBRARY: ${OPENAL_LIBRARY}")

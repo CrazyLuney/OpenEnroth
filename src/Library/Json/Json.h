@@ -1,9 +1,7 @@
 #pragma once
 
-#include <string>
-
 #define JSON_DISABLE_ENUM_SERIALIZATION 1
-#include <nlohmann/json.hpp>
+#include "nlohmann/json.hpp"
 
 #include "Library/Serialization/Serialization.h"
 

@@ -1,11 +1,8 @@
 #pragma once
 
-#include <cassert>
-#include <string>
-
 #define MAGIC_ENUM_RANGE_MIN (-256)
 #define MAGIC_ENUM_RANGE_MAX (255)
-#include <magic_enum.hpp>
+#include "magic_enum.hpp"
 
 #include "Utility/Preprocessor.h"
 

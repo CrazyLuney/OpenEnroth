@@ -1,10 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <string_view>
-#include <system_error>
-#include <type_traits>
-
 #include "Utility/Flags.h"
 
 [[noreturn]] void throwEnumSerializationError(int64_t value, std::string_view typeName, bool isFlags);

@@ -1,7 +1,5 @@
 #include "Engine/Graphics/Image.h"
 
-#include <algorithm>
-
 #include "Engine/Engine.h"
 #include "Engine/OurMath.h"
 

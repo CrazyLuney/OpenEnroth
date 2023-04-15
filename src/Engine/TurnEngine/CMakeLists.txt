@@ -8,4 +8,5 @@ set(ENGINE_TURNENGINE_HEADERS
 
 add_library(engine_turnengine STATIC ${ENGINE_TURNENGINE_SOURCES} ${ENGINE_TURNENGINE_HEADERS})
 target_link_libraries(engine_turnengine engine)
-target_check_style(engine_turnengine)
+
+target_precompile_headers_reuse(engine_turnengine utility)

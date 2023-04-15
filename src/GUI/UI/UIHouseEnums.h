@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 #include "Utility/Segment.h"
 
 enum HOUSE_ID {

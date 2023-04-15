@@ -1,7 +1,5 @@
 #include "UIHouses.h"
 
-#include <cstdlib>
-
 #include "Application/GameOver.h"
 
 #include "Arcomage/Arcomage.h"

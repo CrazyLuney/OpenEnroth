@@ -8,4 +8,5 @@ set(LIBRARY_LOGGER_HEADERS
 
 add_library(library_logger STATIC ${LIBRARY_LOGGER_SOURCES} ${LIBRARY_LOGGER_HEADERS})
 target_link_libraries(library_logger platform utility)
-target_check_style(library_logger)
+
+target_precompile_headers_reuse(library_logger utility)

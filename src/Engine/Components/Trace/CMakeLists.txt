@@ -14,7 +14,6 @@ set(ENGINE_COMPONENTS_TRACE_HEADERS
         EngineTraceRecorder.h)
 
 add_library(engine_components_trace STATIC ${ENGINE_COMPONENTS_TRACE_SOURCES} ${ENGINE_COMPONENTS_TRACE_HEADERS})
-target_check_style(engine_components_trace)
 
 target_link_libraries(engine_components_trace
         engine
@@ -25,3 +24,5 @@ target_link_libraries(engine_components_trace
         library_trace
         platform
         utility)
+
+target_precompile_headers_reuse(engine_components_trace utility)

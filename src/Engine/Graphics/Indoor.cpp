@@ -1,7 +1,5 @@
 #include "Engine/Graphics/Indoor.h"
 
-#include <algorithm>
-
 #include "Engine/Engine.h"
 #include "Engine/EngineGlobals.h"
 #include "Engine/Events.h"

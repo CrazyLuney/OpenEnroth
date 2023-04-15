@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 #include "Engine/ErrorHandling.h"
 #include "Engine/Objects/PlayerEnums.h"
 

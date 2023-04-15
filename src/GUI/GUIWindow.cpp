@@ -1,9 +1,5 @@
 #include "GUI/GUIWindow.h"
 
-#include <stdlib.h>
-#include <sstream>
-#include <utility>
-
 #include "Engine/Engine.h"
 #include "Engine/EngineGlobals.h"
 #include "Engine/AssetsManager.h"

@@ -1,6 +1,3 @@
-#include <cstdlib>
-#include <string>
-
 #include "Application/Game.h"
 
 #include "Engine/AssetsManager.h"

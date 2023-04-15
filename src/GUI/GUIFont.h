@@ -1,8 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <string>
-
 #include "Utility/Geometry/Point.h"
 
 #pragma pack(push, 1)

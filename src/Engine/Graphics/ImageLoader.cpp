@@ -1,8 +1,5 @@
 #include "ImageLoader.h"
 
-#include <unordered_set>
-#include <string_view>
-
 #include "Engine/ErrorHandling.h"
 #include "Engine/Graphics/HWLContainer.h"
 #include "Engine/Graphics/IRender.h"

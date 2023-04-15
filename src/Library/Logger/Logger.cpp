@@ -1,8 +1,5 @@
 #include "Logger.h"
 
-#include <cstdio>
-#include <string>
-
 PlatformLogger *Logger::baseLogger() const {
     return _baseLogger;
 }

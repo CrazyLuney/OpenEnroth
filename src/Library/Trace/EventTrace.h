@@ -1,10 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <string_view>
-#include <memory>
-#include <string>
-
 #include "Platform/PlatformEvents.h"
 
 struct EventTraceConfigLine {

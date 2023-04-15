@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 #include "GUI/UI/UIBooks.h"
 
 std::string GetMapBookHintText(int mouse_x, int mouse_y);  // sub_444564

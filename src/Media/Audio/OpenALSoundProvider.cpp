@@ -1,28 +1,12 @@
 #include "Media/Audio/OpenALSoundProvider.h"
 
 #ifdef __APPLE__
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
+#include "OpenAL/al.h"
+#include "OpenAL/alc.h"
 #else
-#include <AL/al.h>
-#include <AL/alc.h>
+#include "AL/al.h"
+#include "AL/alc.h"
 #endif
-
-#include <atomic>
-#include <memory>
-#include <queue>
-#include <string>
-#include <thread>
-#include <functional>
-#include <utility>
-#include <vector>
-
-#include <cassert>
-#include <cmath>
-#include <cstdarg>
-#include <cstddef>
-#include <cstdio>
-#include <cstring>
 
 #include "Engine/ErrorHandling.h"
 #include "Engine/Engine.h"

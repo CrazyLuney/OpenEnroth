@@ -1,5 +1,3 @@
-#include <stdarg.h>
-
 #include "GUI/UI/UIStatusBar.h"
 
 #include "Engine/AssetsManager.h"

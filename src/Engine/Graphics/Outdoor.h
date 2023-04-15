@@ -1,9 +1,6 @@
 #pragma once
 
-#include <vector>
-#include <string>
-
-#include <glm.hpp>
+#include "glm.hpp"
 
 #include "Engine/Tables/TileFrameTable.h"
 

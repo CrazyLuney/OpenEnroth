@@ -1,7 +1,5 @@
 #include "EngineTraceConfigurator.h"
 
-#include <string>
-
 #include "Application/GameConfig.h"
 
 #include "Library/Trace/EventTrace.h"

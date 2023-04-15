@@ -1,9 +1,5 @@
 #pragma once
 
-#include <array>
-#include <vector>
-#include <string>
-
 #include "Utility/Flags.h"
 #include "Utility/Geometry/Plane.h"
 #include "Utility/Geometry/BBox.h"

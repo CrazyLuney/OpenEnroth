@@ -1,8 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <memory>
-
 #include "Platform/Proxy/ProxyOpenGLContext.h"
 #include "Platform/Filters/PlatformEventFilter.h"
 

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <memory>
-
 #include "Media/Media.h"
 
 // MOVIE_3DOLogo  "3dologo"

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 // TODO(pskelton): combined viewport and viewing params?? or at least not have multiple places
 // where screen coords and viewport coords are held
 

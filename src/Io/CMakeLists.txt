@@ -17,4 +17,5 @@ set(IO_HEADERS
 
 add_library(io STATIC ${IO_SOURCES} ${IO_HEADERS})
 target_link_libraries(io library_serialization)
-target_check_style(io)
+
+target_precompile_headers_reuse(io utility)

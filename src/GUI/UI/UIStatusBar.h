@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 void GameUI_StatusBar_Draw();
 void GameUI_StatusBar_DrawForced();
 

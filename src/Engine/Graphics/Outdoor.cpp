@@ -1,8 +1,5 @@
 #include "Engine/Graphics/Outdoor.h"
 
-#include <algorithm>
-#include <memory>
-
 #include "Engine/Engine.h"
 #include "Engine/EngineGlobals.h"
 #include "Engine/Events.h"

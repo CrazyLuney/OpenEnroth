@@ -1,5 +1,3 @@
-#include <string>
-
 #include "Engine/Engine.h"
 #include "Engine/Graphics/IRender.h"
 #include "Engine/LOD.h"

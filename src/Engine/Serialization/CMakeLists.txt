@@ -10,4 +10,5 @@ set(ENGINE_SERIALIZATION_HEADERS
 
 add_library(engine_serialization STATIC ${ENGINE_SERIALIZATION_SOURCES} ${ENGINE_SERIALIZATION_HEADERS})
 target_link_libraries(engine_serialization engine)
-target_check_style(engine_serialization)
+
+target_precompile_headers_reuse(engine_serialization utility)

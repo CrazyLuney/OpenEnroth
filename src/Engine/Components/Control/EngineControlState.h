@@ -1,12 +1,5 @@
 #pragma once
 
-#include <mutex>
-#include <condition_variable>
-#include <queue>
-#include <functional>
-#include <memory>
-#include <exception>
-
 #include "Utility/IndexedArray.h"
 
 class PlatformEvent;

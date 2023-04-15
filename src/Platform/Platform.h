@@ -1,9 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-#include <string>
-
 #include "Utility/Geometry/Rect.h"
 #include "Utility/Flags.h"
 
@@ -62,88 +58,89 @@ class PlatformGamepad;
  *   you can think about this in terms of information content, "platform API handle doesn't expose any bits of state
  *   through its API that cannot be accessed through the underlying OS API".
  */
-class Platform {
- public:
-    virtual ~Platform() = default;
+class Platform
+{
+public:
+	virtual ~Platform() = default;
 
-    /**
-     * Creates a standard platform.
-     *
-     * @param logger                    Logger to use. Must not be null.
-     * @return                          A newly created `Platform`. This method is guaranteed to succeed.
-     */
-    static std::unique_ptr<Platform> createStandardPlatform(PlatformLogger *logger);
+	/**
+	 * Creates a standard platform.
+	 *
+	 * @param logger                    Logger to use. Must not be null.
+	 * @return                          A newly created `Platform`. This method is guaranteed to succeed.
+	 */
+	static std::unique_ptr<Platform> createStandardPlatform(PlatformLogger* logger);
 
-    /**
-     * Creates a new platform window.
-     *
-     * @return                          Newly created window, or `nullptr` on error.
-     */
-    virtual std::unique_ptr<PlatformWindow> createWindow() = 0;
+	/**
+	 * Creates a new platform window.
+	 *
+	 * @return                          Newly created window, or `nullptr` on error.
+	 */
+	virtual std::unique_ptr<PlatformWindow> createWindow() = 0;
 
-    /**
-     * Creates a new event loop.
-     *
-     * @return                          Newly created event loop, or `nullptr` on error.
-     */
-    virtual std::unique_ptr<PlatformEventLoop> createEventLoop() = 0;
+	/**
+	 * Creates a new event loop.
+	 *
+	 * @return                          Newly created event loop, or `nullptr` on error.
+	 */
+	virtual std::unique_ptr<PlatformEventLoop> createEventLoop() = 0;
 
-    /**
-     * This function lists the gamepads currently connected to the system. The gamepad objects themselves are owned
-     * by the platform and are destroyed automatically when disconnected. If you're caching them in your code, then
-     * make sure to subscribe to `EVENT_GAMEPAD_DISCONNECTED`, it is guaranteed to fire before the gamepad object
-     * is destroyed.
-     *
-     * @return                          All gamepads connected to the system.
-     */
-    virtual std::vector<PlatformGamepad *> gamepads() = 0;
+	/**
+	 * This function lists the gamepads currently connected to the system. The gamepad objects themselves are owned
+	 * by the platform and are destroyed automatically when disconnected. If you're caching them in your code, then
+	 * make sure to subscribe to `EVENT_GAMEPAD_DISCONNECTED`, it is guaranteed to fire before the gamepad object
+	 * is destroyed.
+	 *
+	 * @return                          All gamepads connected to the system.
+	 */
+	virtual std::vector<PlatformGamepad*> gamepads() = 0;
 
-    /**
-     * Shows / hides system cursor (on top of all windows created by this platform).
-     *
-     * @param cursorShown               Whether to show the system cursor.
-     */
-    virtual void setCursorShown(bool cursorShown) = 0;
+	/**
+	 * Shows / hides system cursor (on top of all windows created by this platform).
+	 *
+	 * @param cursorShown               Whether to show the system cursor.
+	 */
+	virtual void setCursorShown(bool cursorShown) = 0;
 
-    /**
-     * Getter for `setCursorShown`.
-     *
-     * @return                          Whether the system cursor is currently shown on top of windows created by this
-     *                                  platform.
-     */
-    virtual bool isCursorShown() const = 0;
+	/**
+	 * Getter for `setCursorShown`.
+	 *
+	 * @return                          Whether the system cursor is currently shown on top of windows created by this
+	 *                                  platform.
+	 */
+	virtual bool isCursorShown() const = 0;
 
-    /**
-     * @return                          Geometries of all monitors on current system, or an empty vector in case of an
-     *                                  error.
-     */
-    virtual std::vector<Recti> displayGeometries() const = 0;
+	/**
+	 * @return                          Geometries of all monitors on current system, or an empty vector in case of an
+	 *                                  error.
+	 */
+	virtual std::vector<Recti> displayGeometries() const = 0;
 
-    /**
-     * Shows a modal message box.
-     *
-     * @param title                     Title of the message box window.
-     * @param message                   Message to display.
-     */
-    virtual void showMessageBox(const std::string &title, const std::string &message) const = 0;
+	/**
+	 * Shows a modal message box.
+	 *
+	 * @param title                     Title of the message box window.
+	 * @param message                   Message to display.
+	 */
+	virtual void showMessageBox(const std::string& title, const std::string& message) const = 0;
 
-    /**
-     * @return                          Current value of a monotonic clock in milliseconds.
-     */
-    virtual int64_t tickCount() const = 0;
+	/**
+	 * @return                          Current value of a monotonic clock in milliseconds.
+	 */
+	virtual int64_t tickCount() const = 0;
 
-    /**
-     * Windows-only function for querying the registry. Always returns an empty string on non-Windows systems.
-     *
-     * @param path                      Registry path to query.
-     * @return                          Value at the given path, or an empty string in case of an error.
-     */
-    virtual std::string winQueryRegistry(const std::wstring &path) const = 0;
+	/**
+	 * Windows-only function for querying the registry. Always returns an empty string on non-Windows systems.
+	 *
+	 * @param path                      Registry path to query.
+	 * @return                          Value at the given path, or an empty string in case of an error.
+	 */
+	virtual std::string winQueryRegistry(const std::wstring& path) const = 0;
 
-    /**
-     * Get various application filesystem paths.
-     *
-     * @param type                      Storage type.
-     */
-    virtual std::string storagePath(const PlatformStorage type) const = 0;
+	/**
+	 * Get various application filesystem paths.
+	 *
+	 * @param type                      Storage type.
+	 */
+	virtual std::string storagePath(const PlatformStorage type) const = 0;
 };

@@ -15,4 +15,5 @@ set(LIBRARY_CONFIG_HEADERS
 
 add_library(library_config STATIC ${LIBRARY_CONFIG_SOURCES} ${LIBRARY_CONFIG_HEADERS})
 target_link_libraries(library_config utility library_serialization)
-target_check_style(library_config)
+
+target_precompile_headers_reuse(library_config utility)

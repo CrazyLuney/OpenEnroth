@@ -1,7 +1,5 @@
 #include "PlatformApplication.h"
 
-#include <cassert>
-
 #include "Utility/MapAccess.h"
 
 #include "Platform/Proxy/ProxyPlatform.h"

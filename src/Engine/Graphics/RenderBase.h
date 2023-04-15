@@ -1,6 +1,4 @@
 #pragma once
-#include <memory>
-#include <string>
 
 #include "Engine/Graphics/HWLContainer.h"
 #include "Engine/Graphics/IRender.h"

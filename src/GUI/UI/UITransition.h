@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 #include "GUI/GUIWindow.h"
 
 class GUIWindow_Travel : public GUIWindow {

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <array>
-
-
 class Weather {
  public:
     Weather() : bNight(false), bRenderSnow(false) {}

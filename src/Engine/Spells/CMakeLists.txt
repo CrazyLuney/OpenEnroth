@@ -11,4 +11,5 @@ set(ENGINE_SPELLS_HEADERS
 
 add_library(engine_spells STATIC ${ENGINE_SPELLS_SOURCES} ${ENGINE_SPELLS_HEADERS})
 target_link_libraries(engine_spells engine)
-target_check_style(engine_spells)
+
+target_precompile_headers_reuse(engine_spells utility)

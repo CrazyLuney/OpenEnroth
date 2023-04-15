@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cassert>
-
 /**
  * A convenient base class for other platform proxies. It provides common accessors for the base class,
  * and exposes a `nonNullBase` method for derived classes to simplify implementations.

@@ -77,6 +77,7 @@ set(GUI_HEADERS
         UI/UITransition.h)
 
 add_library(gui STATIC ${GUI_SOURCES} ${GUI_HEADERS})
-target_check_style(gui)
 
 target_link_libraries(gui arcomage engine_spells utility)
+
+target_precompile_headers_reuse(gui utility)

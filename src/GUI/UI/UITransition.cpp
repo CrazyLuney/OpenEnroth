@@ -1,5 +1,3 @@
-#include <stdlib.h>
-
 #include "Engine/Engine.h"
 #include "Engine/EngineGlobals.h"
 #include "Engine/Events2D.h"

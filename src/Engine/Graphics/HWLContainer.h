@@ -1,10 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <cstdio>
-#include <map>
-#include <string>
-
 class HWLTexture {
  public:
     inline HWLTexture() {}

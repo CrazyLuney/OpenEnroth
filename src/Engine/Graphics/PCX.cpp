@@ -1,10 +1,5 @@
 #include "Engine/Graphics/PCX.h"
 
-#include <algorithm>
-#include <cstdint>
-#include <cstdlib>
-#include <cstring>
-
 // TODO: this is not big-endian compatible!
 
 enum {

@@ -1,7 +1,5 @@
 #include "GUI/UI/UIGuilds.h"
 
-#include <string>
-
 #include "Engine/Engine.h"
 #include "Engine/Events2D.h"
 #include "Engine/Graphics/IRender.h"

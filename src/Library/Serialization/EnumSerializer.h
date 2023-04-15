@@ -1,14 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <unordered_map>
-#include <string>
-#include <string_view>
-#include <vector>
-#include <functional>
-#include <utility>
-#include <type_traits>
-
 #include "Utility/Flags.h"
 
 enum class CaseSensitivity {

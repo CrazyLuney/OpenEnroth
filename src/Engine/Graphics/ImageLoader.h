@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 #include "Engine/LOD.h"
 #include "Engine/EngineIocContainer.h"
 

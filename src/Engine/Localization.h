@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <utility>
-
 #include "Engine/Objects/NPCEnums.h"
 #include "Engine/Objects/PlayerEnums.h"
 #include "Engine/Conditions.h"
@@ -116,10 +113,10 @@
 #define LSTR_NOT_ENOUGH_GOLD                155  // "You don't have enough gold"
 #define LSTR_STAY_IN_THIS_AREA              156  // "Stay in this Area"
 #define LSTR_3DO_COPYRIGHT                  157  // ""© 1999 The 3DO Company.All Rights
-                                                 // Reserved.Might and Magic, Bloodand Honor, New World Computing, 3DO, and their
-                                                 // respective logos, are trademarksand /or service marks of The 3DO Company in the
-                                                 // U.S. and other countries.All other trademarks belong to their respective
-                                                 // owners.New World Computing is a division of The 3DO Company.""
+// Reserved.Might and Magic, Bloodand Honor, New World Computing, 3DO, and their
+// respective logos, are trademarksand /or service marks of The 3DO Company in the
+// U.S. and other countries.All other trademarks belong to their respective
+// owners.New World Computing is a division of The 3DO Company.""
 #define LSTR_DISPLAY                        159  // "Display"
 #define LSTR_LEARN_SKILLS                   160  // "Learn Skills"
 #define LSTR_PARALYZED                      162  // "Paralyzed"
@@ -219,14 +216,14 @@
 #define LSTR_FMT_DO_YOU_WISH_TO_LEAVE_S_2   409  // "Do you wish to leave %s?"
 #define LSTR_FMT_LEAVE_S                    410  // "Leave %s"
 #define LSTR_FMT_ENTER_S                    411  // "Enter %s"
-                                                 // "Войти в ^Pv[%s]"
+												 // "Войти в ^Pv[%s]"
 #define LSTR_PARTY_UNASSIGNED_POINTS        412  // "Create Party cannot be completed unless you have assigned all characters 2 extra skills and have spent all of your bonus points."
 #define LSTR_PARTY_TOO_MUCH_POINTS          413  // "You can't spend more than 50 points."
 #define LSTR_FMT_OPEN_TIME                  414  // "This place is open from %d%s to %d%s"
 #define LSTR_FMT_S_IS_IN_NO_CODITION_TO_S   427  // "%s is in no condition to %s"
 #define LSTR_SPELL_FAILED                   428  // "Spell failed"
 #define LSTR_FMT_S_THE_S                    429  // "%s the %s"
-                                                 // "^Pi[%s] %s"
+												 // "^Pi[%s] %s"
 #define LSTR_FMT_S_NOW_LEVEL_D              430  // "%s is now Level %lu and has earned %lu Skill Points!"
 #define LSTR_NORMAL                         431  // "Normal"
 #define LSTR_MASTER                         432  // "Master"
@@ -256,7 +253,7 @@
 #define LSTR_FMT_NEED_MORE_SKILL_POINTS     469  // "You need %d more Skill Points to advance here"
 #define LSTR_FMT_GET_S                      470  // "Get %s"
 #define LSTR_FMT_YOU_FOUND_ITEM             471  // "You found an item(% s)!"
-                                                 // "Вы нашли ^Pv[%s]!"
+												 // "Вы нашли ^Pv[%s]!"
 #define LSTR_FMT_RECALL_TO_S                474  // "Recall to %s"
 #define LSTR_FMT_SET_S_OVER_S               475  // "Set %s over %s"
 #define LSTR_FMT_SET_S_TO_S                 476  // "Set %s to %s"
@@ -274,7 +271,7 @@
 #define LSTR_NOT_ENOUGH_SKILL_POINTS        488  // "You don't have enough skill points!"
 #define LSTR_FMT_D_TOTAL_GOLD_D_IN_BANK     489  // ""You have %d total gold, %d in the Bank""
 #define LSTR_FMT_YOU_FOUND_GOLD_AND_ITEM    490  // "You found %d gold and an item(%s)!"
-                                                 // "Вы нашли ^I[%d] золот^L[ой;ых;ых] и предмет (%s)!"
+												 // "Вы нашли ^I[%d] золот^L[ой;ых;ых] и предмет (%s)!"
 #define LSTR_CANT_METEOR_SHOWER_INDOORS     491  // "Can't cast Meteor Shower indoors!"
 #define LSTR_CANT_INFERNO_OUTDOORS          492  // "Can't cast Inferno outdoors!"
 #define LSTR_CANT_JUMP_AIRBORNE             493  // "Can't cast Jump while airborne!"
@@ -306,7 +303,7 @@
 #define LSTR_PLEASE_TRY_BACK_IN             532  // "Please try back in "
 #define LSTR_HIRE_NO_ROOM                   533  // "I cannot join you, you're party is full"
 #define LSTR_FMT_BECOME_S_IN_S_FOR_D_GOLD   534  // "Become %s in %s for %lu gold"
-                                                 // "Получить степень ^Pr[%s] в навыке ^Pr[%s] за ^I[%lu] золот^L[ой;ых;ых]"
+												 // "Получить степень ^Pr[%s] в навыке ^Pr[%s] за ^I[%lu] золот^L[ой;ых;ых]"
 #define LSTR_LEARN                          535  // "Learn"
 #define LSTR_TEACHER_LEVEL_TOO_LOW          536  // ""With your skills, you should be working here as a teacher.""
 #define LSTR_FMT_TRAIN_LEVEL_D_FOR_D_GOLD   537  // "Train to level %d for %d gold"
@@ -323,10 +320,10 @@
 #define LSTR_SCROLL_LEFT                    572  // "Scroll Left"
 #define LSTR_SCROLL_RIGHT                   573  // "Scroll Right"
 #define LSTR_ARENA_WELCOME                  574  // "Welcome to the Arena of Life and Death.  Remember,
-                                                 // you are only allowed one arena combat per visit.  To
-                                                 // fight an arena battle, select the option that best
-                                                 // describes your abilities and return to me- if you
-                                                 // survive"
+												 // you are only allowed one arena combat per visit.  To
+												 // fight an arena battle, select the option that best
+												 // describes your abilities and return to me- if you
+												 // survive"
 #define LSTR_PLEASE_WAIT_WHILE_I_SUMMON     575  // "Please wait while I summon the monsters.  Good luck."
 #define LSTR_ARENA_REWARD                   576  // "Congratulations on your win. Here's your stuff: %u gold."
 #define LSTR_ARENA_PREMATURE_EXIT           577  // "Get back in there you wimps"
@@ -412,15 +409,15 @@
 #define LSTR_SKILL_INCREASE_HINT            671  // ""Adds a point from the highlighted skill, taking it from the bonus pool""
 #define LSTR_ONE_YEAR_SENTENCE              672  // ""For your numerous crimes and evil deeds, you have been sentenced to one year in prison.""
 #define LSTR_GOOD_ENDING                    675  // "Splendid job!  With the activation of the Gate, a thousand
-                                                 // worlds lie at your feet.  Perhaps on one of them you will
-                                                 // find the Ancients themselves, and return with the fruits
-                                                 // their great civilization has to offer your world and your
-                                                 // kingdom."
+												 // worlds lie at your feet.  Perhaps on one of them you will
+												 // find the Ancients themselves, and return with the fruits
+												 // their great civilization has to offer your world and your
+												 // kingdom."
 #define LSTR_EVIL_ENDING                    676  // "Brilliant!  The completion of the Heavenly Forge has
-                                                 // provided enough Ancient weapons to crush all resistance to
-                                                 // your plans.  Soon the world will bow to your every whim!
-                                                 // Still, you can't help but wonder what was beyond the Gate
-                                                 // the other side was trying so hard to build."
+												 // provided enough Ancient weapons to crush all resistance to
+												 // your plans.  Soon the world will bow to your every whim!
+												 // Still, you can't help but wonder what was beyond the Gate
+												 // the other side was trying so hard to build."
 
 #define MM7_LOC_STRINGS 677
 
@@ -433,158 +430,182 @@
 
 #define MAX_LOC_STRINGS MM7_LOC_STRINGS + 5
 
-class Localization {
- public:
-    bool Initialize();
+class Localization
+{
+public:
+	bool Initialize();
 
-    const char *GetString(unsigned int index) const;
-    std::string FormatString(unsigned int index, ...) const;
+	const char* GetString(unsigned int index) const;
+	std::string FormatString(unsigned int index, ...) const;
 
-    const char *GetDayName(unsigned int index) const {
-        return this->day_names[index];
-    }
+	const char* GetDayName(unsigned int index) const
+	{
+		return this->day_names[index];
+	}
 
-    const char *GetMonthName(unsigned int index) const {
-        return this->month_names[index];
-    }
+	const char* GetMonthName(unsigned int index) const
+	{
+		return this->month_names[index];
+	}
 
-    const char *GetMoonPhaseName(unsigned int index) const {
-        return this->moon_phase_names[index];
-    }
+	const char* GetMoonPhaseName(unsigned int index) const
+	{
+		return this->moon_phase_names[index];
+	}
 
-    const char *GetSpellSchoolName(unsigned int index) const {
-        return this->spell_school_names[index];
-    }
+	const char* GetSpellSchoolName(unsigned int index) const
+	{
+		return this->spell_school_names[index];
+	}
 
-    const char *GetSpellName(unsigned int index) const {
-        return this->spell_names[index];
-    }
+	const char* GetSpellName(unsigned int index) const
+	{
+		return this->spell_names[index];
+	}
 
-    const char *GetClassName(unsigned int index) const {
-        return this->class_names[index];
-    }
+	const char* GetClassName(unsigned int index) const
+	{
+		return this->class_names[index];
+	}
 
-    const char *GetClassDescription(unsigned int index) const {
-        return this->class_desciptions[index];
-    }
+	const char* GetClassDescription(unsigned int index) const
+	{
+		return this->class_desciptions[index];
+	}
 
-    const char *GetAttirubteName(unsigned int index) const {
-        return this->attribute_names[index];
-    }
+	const char* GetAttirubteName(unsigned int index) const
+	{
+		return this->attribute_names[index];
+	}
 
-    const char *GetAttributeDescription(unsigned int index) const {
-        return this->attribute_descriptions[index];
-    }
+	const char* GetAttributeDescription(unsigned int index) const
+	{
+		return this->attribute_descriptions[index];
+	}
 
-    const char *GetSkillName(PLAYER_SKILL_TYPE index) const {
-        return this->skill_names[index];
-    }
+	const char* GetSkillName(PLAYER_SKILL_TYPE index) const
+	{
+		return this->skill_names[index];
+	}
 
-    const char *MasteryName(PLAYER_SKILL_MASTERY mastery) const {
-        switch (mastery) {
-        case PLAYER_SKILL_MASTERY_NOVICE: return GetString(LSTR_NORMAL);
-        case PLAYER_SKILL_MASTERY_EXPERT: return GetString(LSTR_EXPERT);
-        case PLAYER_SKILL_MASTERY_MASTER: return GetString(LSTR_MASTER);
-        case PLAYER_SKILL_MASTERY_GRANDMASTER: return GetString(LSTR_GRAND);
-        default:
-            assert(false);
-            return nullptr;
-        }
-    }
+	const char* MasteryName(PLAYER_SKILL_MASTERY mastery) const
+	{
+		switch (mastery)
+		{
+		case PLAYER_SKILL_MASTERY_NOVICE: return GetString(LSTR_NORMAL);
+		case PLAYER_SKILL_MASTERY_EXPERT: return GetString(LSTR_EXPERT);
+		case PLAYER_SKILL_MASTERY_MASTER: return GetString(LSTR_MASTER);
+		case PLAYER_SKILL_MASTERY_GRANDMASTER: return GetString(LSTR_GRAND);
+		default:
+			assert(false);
+			return nullptr;
+		}
+	}
 
-    const char *MasteryNameLong(PLAYER_SKILL_MASTERY mastery) const {
-        return mastery == PLAYER_SKILL_MASTERY_GRANDMASTER ? GetString(LSTR_GRANDMASTER) : MasteryName(mastery);
-    }
+	const char* MasteryNameLong(PLAYER_SKILL_MASTERY mastery) const
+	{
+		return mastery == PLAYER_SKILL_MASTERY_GRANDMASTER ? GetString(LSTR_GRANDMASTER) : MasteryName(mastery);
+	}
 
-    const char *GetSkillDescription(PLAYER_SKILL_TYPE index) const {
-        return this->skill_descriptions[index];
-    }
+	const char* GetSkillDescription(PLAYER_SKILL_TYPE index) const
+	{
+		return this->skill_descriptions[index];
+	}
 
-    const char *GetSkillDescription(PLAYER_SKILL_TYPE index, PLAYER_SKILL_MASTERY mastery) const {
-        switch(mastery) {
-        case PLAYER_SKILL_MASTERY_NOVICE: return GetSkillDescriptionNormal(index);
-        case PLAYER_SKILL_MASTERY_EXPERT: return GetSkillDescriptionExpert(index);
-        case PLAYER_SKILL_MASTERY_MASTER: return GetSkillDescriptionMaster(index);
-        case PLAYER_SKILL_MASTERY_GRANDMASTER: return GetSkillDescriptionGrand(index);
-        default:
-            assert(false);
-            return nullptr;
-        }
-    }
+	const char* GetSkillDescription(PLAYER_SKILL_TYPE index, PLAYER_SKILL_MASTERY mastery) const
+	{
+		switch (mastery)
+		{
+		case PLAYER_SKILL_MASTERY_NOVICE: return GetSkillDescriptionNormal(index);
+		case PLAYER_SKILL_MASTERY_EXPERT: return GetSkillDescriptionExpert(index);
+		case PLAYER_SKILL_MASTERY_MASTER: return GetSkillDescriptionMaster(index);
+		case PLAYER_SKILL_MASTERY_GRANDMASTER: return GetSkillDescriptionGrand(index);
+		default:
+			assert(false);
+			return nullptr;
+		}
+	}
 
-    const char *GetSkillDescriptionNormal(PLAYER_SKILL_TYPE index) const {
-        return this->skill_descriptions_normal[index];
-    }
+	const char* GetSkillDescriptionNormal(PLAYER_SKILL_TYPE index) const
+	{
+		return this->skill_descriptions_normal[index];
+	}
 
-    const char *GetSkillDescriptionExpert(PLAYER_SKILL_TYPE index) const {
-        return this->skill_descriptions_expert[index];
-    }
+	const char* GetSkillDescriptionExpert(PLAYER_SKILL_TYPE index) const
+	{
+		return this->skill_descriptions_expert[index];
+	}
 
-    const char *GetSkillDescriptionMaster(PLAYER_SKILL_TYPE index) const {
-        return this->skill_descriptions_master[index];
-    }
+	const char* GetSkillDescriptionMaster(PLAYER_SKILL_TYPE index) const
+	{
+		return this->skill_descriptions_master[index];
+	}
 
-    const char *GetSkillDescriptionGrand(PLAYER_SKILL_TYPE index) const {
-        return this->skill_descriptions_grand[index];
-    }
+	const char* GetSkillDescriptionGrand(PLAYER_SKILL_TYPE index) const
+	{
+		return this->skill_descriptions_grand[index];
+	}
 
-    const char *GetCharacterConditionName(Condition index) const {
-        return this->character_conditions[std::to_underlying(index)];
-    }
+	const char* GetCharacterConditionName(Condition index) const
+	{
+		return this->character_conditions[std::to_underlying(index)];
+	}
 
-    const char *GetAmPm(unsigned int index) const {
-        return this->GetString(472 + index);
-    }
+	const char* GetAmPm(unsigned int index) const
+	{
+		return this->GetString(472 + index);
+	}
 
-    const char *GetNpcProfessionName(NPCProf prof) const {
-        return this->npc_profession_names[prof];
-    }
+	const char* GetNpcProfessionName(NPCProf prof) const
+	{
+		return this->npc_profession_names[prof];
+	}
 
- public:
-    Localization() {}
+public:
+	Localization() {}
 
- private:
-    void InitializeMm6ItemCategories();
+private:
+	void InitializeMm6ItemCategories();
 
-    void InitializeMonthNames();
-    void InitializeDayNames();
-    void InitializeMoonPhaseNames();
+	void InitializeMonthNames();
+	void InitializeDayNames();
+	void InitializeMoonPhaseNames();
 
-    void InitializeSpellSchoolNames();
-    void InitializeSpellNames();
+	void InitializeSpellSchoolNames();
+	void InitializeSpellNames();
 
-    void InitializeClassNames();
-    void InitializeAttributeNames();
-    void InitializeSkillNames();
-    void InitializeCharacterConditionNames();
+	void InitializeClassNames();
+	void InitializeAttributeNames();
+	void InitializeSkillNames();
+	void InitializeCharacterConditionNames();
 
-    void InitializeNpcProfessionNames();
+	void InitializeNpcProfessionNames();
 
- private:
-    std::string localization_raw;
-    const char **localization_strings = nullptr;
-    std::string class_desc_raw;
-    std::string attribute_desc_raw;
-    std::string skill_desc_raw;
+private:
+	std::string localization_raw;
+	const char** localization_strings = nullptr;
+	std::string class_desc_raw;
+	std::string attribute_desc_raw;
+	std::string skill_desc_raw;
 
-    const char *mm6_item_categories[14]{};
-    const char *month_names[12]{};
-    const char *day_names[7]{};
-    const char *moon_phase_names[5]{};
-    const char *spell_school_names[9]{};
-    const char *spell_names[44]{};
-    const char *class_names[36]{};
-    const char *class_desciptions[36]{};
-    const char *attribute_names[7]{};
-    const char *attribute_descriptions[7]{};
-    IndexedArray<const char *, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_names = {{}};
-    IndexedArray<const char *, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions = {{}};
-    IndexedArray<const char *, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_normal = {{}};
-    IndexedArray<const char *, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_expert = {{}};
-    IndexedArray<const char *, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_master = {{}};
-    IndexedArray<const char *, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_grand = {{}};
-    const char *character_conditions[19]{};
-    IndexedArray<const char *, NPC_PROFESSION_FIRST, NPC_PROFESSION_LAST> npc_profession_names = {{}};
+	const char* mm6_item_categories[14]{};
+	const char* month_names[12]{};
+	const char* day_names[7]{};
+	const char* moon_phase_names[5]{};
+	const char* spell_school_names[9]{};
+	const char* spell_names[44]{};
+	const char* class_names[36]{};
+	const char* class_desciptions[36]{};
+	const char* attribute_names[7]{};
+	const char* attribute_descriptions[7]{};
+	IndexedArray<const char*, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_names = { {} };
+	IndexedArray<const char*, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions = { {} };
+	IndexedArray<const char*, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_normal = { {} };
+	IndexedArray<const char*, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_expert = { {} };
+	IndexedArray<const char*, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_master = { {} };
+	IndexedArray<const char*, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_grand = { {} };
+	const char* character_conditions[19]{};
+	IndexedArray<const char*, NPC_PROFESSION_FIRST, NPC_PROFESSION_LAST> npc_profession_names = { {} };
 };
 
-extern Localization *localization;
+extern Localization* localization;

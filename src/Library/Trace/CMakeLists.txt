@@ -9,4 +9,5 @@ set(LIBRARY_TRACE_HEADERS
 
 add_library(library_trace STATIC ${LIBRARY_TRACE_SOURCES} ${LIBRARY_TRACE_HEADERS})
 target_link_libraries(library_trace library_serialization platform library_json)
-target_check_style(library_trace)
+
+target_precompile_headers_reuse(library_trace utility)

@@ -1,5 +1,75 @@
 cmake_minimum_required(VERSION 3.20.4 FATAL_ERROR)
 project("OpenEnroth")
+
+macro(target_precompile_headers_stl _TARGET)
+    target_precompile_headers(${_TARGET} PRIVATE
+        <algorithm>
+        <any>
+        <array>
+        <atomic>
+        <cassert>
+        <cerrno>
+        <cfloat>
+        <charconv>
+        <chrono>
+        <climits>
+        <cmath>
+        <compare>
+        <condition_variable>
+        <cstdarg>
+        <cstddef>
+        <cstdlib>
+        <cstdint>
+        <cstdio>
+        <ctime>
+        <exception>
+        <filesystem>
+        <fstream>
+        <functional>
+        <initializer_list>
+        <iostream>
+        <iterator>
+        <limits>
+        <list>
+        <map>
+        <memory>
+        <mutex>
+        <numeric>
+        <queue>
+        <random>
+        <sstream>
+        <stdexcept>
+        <string>
+        <string_view>
+        <system_error>
+        <thread>
+        <tuple>
+        <type_traits>
+        <typeindex>
+        <unordered_map>
+        <unordered_set>
+        <utility>
+        <variant>
+        <vector>
+        <version>
+        <xutility>
+        )
+
+    if(MSVC)
+        target_compile_options(${_TARGET} PRIVATE
+            "/FI$<TARGET_PROPERTY:BINARY_DIR>/CMakeFiles/$<TARGET_PROPERTY:NAME>.dir/$<CONFIG>/cmake_pch.hxx")
+    endif()
+endmacro()
+
+macro(target_precompile_headers_reuse _TARGET _FROM_TARGET)
+    target_precompile_headers(${_TARGET} REUSE_FROM ${_FROM_TARGET})
+
+    if(MSVC)
+        target_compile_options(${_TARGET} PRIVATE
+            "/FI$<TARGET_PROPERTY:${_FROM_TARGET},BINARY_DIR>/CMakeFiles/$<TARGET_PROPERTY:${_FROM_TARGET},NAME>.dir/$<CONFIG>/cmake_pch.hxx")
+    endif()
+endmacro()
+
 add_compile_definitions(PACKAGE_BUGREPORT="https://github.com/OpenEnroth/OpenEnroth/issues")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules)
@@ -61,16 +131,16 @@ add_subdirectory(src)
 if(BUILD_PLATFORM STREQUAL "android")
     add_library(main SHARED)
     target_sources(main PUBLIC src/Application/main.cpp src/Platform/Sdl/SdlMain.cpp)
-    target_check_style(main)
-    target_link_libraries(main application)
+    target_link_libraries(main application utility)
+    target_precompile_headers_reuse(main utility)
 else()
     add_executable(OpenEnroth MACOSX_BUNDLE WIN32 src/Application/main.cpp)
-    target_check_style(OpenEnroth)
     target_fix_libcxx_assertions(OpenEnroth)
 
-    target_link_libraries(OpenEnroth application)
+    target_link_libraries(OpenEnroth application utility)
+    target_precompile_headers_reuse(OpenEnroth utility)
 
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT OpenEnroth)
 
-    PREBUILT_DEPENDENCIES_RESOLVE(OpenEnroth)
+    lPREBUILT_DEPENDENCIES_RESOLVE(OpenEnroth)
 endif()

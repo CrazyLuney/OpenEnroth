@@ -1,5 +1,3 @@
-#include <vector>
-
 #include "Engine/Spells/CastSpellInfo.h"
 
 #include "Engine/Awards.h"

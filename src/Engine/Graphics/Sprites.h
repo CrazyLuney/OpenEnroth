@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 #include "Engine/OurMath.h"
 
 #include "Engine/Graphics/DecorationList.h"

@@ -1,19 +1,15 @@
 #pragma once
 
-#include <cassert>
-#include <cstddef>
-#include <array>
-#include <type_traits>
-#include <utility>
-
 #include "Segment.h"
 
-namespace detail {
+namespace detail
+{
 
-enum class LastIndex {
-    INVALID_LAST_INDEX
-};
-using enum LastIndex;
+	enum class LastIndex
+	{
+		INVALID_LAST_INDEX
+	};
+	using enum LastIndex;
 
 } // namespace detail
 
@@ -73,142 +69,154 @@ using enum LastIndex;
  *                                      indexed array is `LastIndex - SizeOrFirstIndex + 1`.
  */
 template<
-    class T,
-    auto SizeOrFirstIndex,
-    auto LastIndex = detail::INVALID_LAST_INDEX,
-    bool IsZeroBased = std::is_same_v<decltype(LastIndex), detail::LastIndex>,
-    ptrdiff_t Size =
-        IsZeroBased ?
-        static_cast<ptrdiff_t>(SizeOrFirstIndex) :
-        static_cast<ptrdiff_t>(LastIndex) - static_cast<ptrdiff_t>(SizeOrFirstIndex) + 1>
-class IndexedArray: public std::array<T, Size> {
-    using base_type = std::array<T, Size>;
-    using index_type = decltype(SizeOrFirstIndex);
+	class T,
+	auto SizeOrFirstIndex,
+	auto LastIndex = detail::INVALID_LAST_INDEX,
+	bool IsZeroBased = std::is_same_v<decltype(LastIndex), detail::LastIndex>,
+	ptrdiff_t Size = IsZeroBased
+		? static_cast<ptrdiff_t>(SizeOrFirstIndex)
+		: static_cast<ptrdiff_t>(LastIndex) - static_cast<ptrdiff_t>(SizeOrFirstIndex) + 1>
+class IndexedArray : public std::array<T, Size>
+{
+	using base_type = std::array<T, Size>;
+	using index_type = decltype(SizeOrFirstIndex);
 
-    static_assert(Size >= 0, "IndexedArray size must be non-negative");
-    static_assert(std::is_enum_v<index_type> || std::is_integral_v<index_type>, "SizeOrFirstIndex must be an enum or an integral type");
-    static_assert(IsZeroBased || std::is_same_v<index_type, decltype(LastIndex)>, "SizeOrFirstIndex and LastIndex must be of the same type");
+	static_assert(Size >= 0, "IndexedArray size must be non-negative");
+	static_assert(std::is_enum_v<index_type> || std::is_integral_v<index_type>, "SizeOrFirstIndex must be an enum or an integral type");
+	static_assert(IsZeroBased || std::is_same_v<index_type, decltype(LastIndex)>, "SizeOrFirstIndex and LastIndex must be of the same type");
 
-    static constexpr auto ActualFirstIndex =
-        IsZeroBased ? static_cast<index_type>(0) : SizeOrFirstIndex;
-    static constexpr auto ActualLastIndex =
-        IsZeroBased ? static_cast<index_type>(static_cast<ptrdiff_t>(SizeOrFirstIndex) - 1) : static_cast<index_type>(static_cast<ptrdiff_t>(LastIndex));
+	static constexpr auto ActualFirstIndex = IsZeroBased
+		? static_cast<index_type>(0)
+		: SizeOrFirstIndex;
+	static constexpr auto ActualLastIndex = IsZeroBased
+		? static_cast<index_type>(static_cast<ptrdiff_t>(SizeOrFirstIndex) - 1)
+		: static_cast<index_type>(static_cast<ptrdiff_t>(LastIndex));
 
- public:
-    using key_type = index_type;
-    using typename base_type::value_type;
-    using typename base_type::reference;
-    using typename base_type::const_reference;
+public:
+	using key_type = index_type;
+	using typename base_type::value_type;
+	using typename base_type::reference;
+	using typename base_type::const_reference;
 
-    /**
-     * Creates an uninitialized indexed array.
-     *
-     * This is the constructor that gets called when you use aggregate initialization, so the behavior is the same as
-     * with `std::array`:
-     * @code
-     * IndexedArray<int, TriBool_Size> uninitializedIntegers = {};
-     * @endcode
-     *
-     * If you want to default-initialize array elements, see the other constructor.
-     */
-    constexpr IndexedArray() {}
+	/**
+	 * Creates an uninitialized indexed array.
+	 *
+	 * This is the constructor that gets called when you use aggregate initialization, so the behavior is the same as
+	 * with `std::array`:
+	 * @code
+	 * IndexedArray<int, TriBool_Size> uninitializedIntegers = {};
+	 * @endcode
+	 *
+	 * If you want to default-initialize array elements, see the other constructor.
+	 */
+	constexpr IndexedArray() {}
 
-    /**
-     * An `std::map`-like constructor for indexed array. The size of the provided initializer list must match
-     * array size. Alternatively, this constructor can be used to default-initialize the indexed array using the same
-     * syntax as is used for `std::array`.
-     *
-     * Example usage:
-     * @code
-     * enum class Monster {
-     *     Peasant,
-     *     AzureDragon,
-     *     MonsterCount
-     * };
-     * using enum Monster;
-     *
-     * constinit IndexedArray<int, MonsterCount> maxHP = {
-     *     {Peasant, 1}
-     *     {AzureDragon, 1000}
-     * };
-     *
-     * IndexedArray<int, MonsterCount> killCount = {{}}; // ints inside the array are default-initialized to zero.
-     * @endcode
-     *
-     * @param init                      Initializer list of key-value pairs.
-     */
-    constexpr IndexedArray(std::initializer_list<std::pair<key_type, value_type>> init) {
-        assert(init.size() == size() || init.size() == 1);
-        assert(is_unique(init));
+	/**
+	 * An `std::map`-like constructor for indexed array. The size of the provided initializer list must match
+	 * array size. Alternatively, this constructor can be used to default-initialize the indexed array using the same
+	 * syntax as is used for `std::array`.
+	 *
+	 * Example usage:
+	 * @code
+	 * enum class Monster {
+	 *     Peasant,
+	 *     AzureDragon,
+	 *     MonsterCount
+	 * };
+	 * using enum Monster;
+	 *
+	 * constinit IndexedArray<int, MonsterCount> maxHP = {
+	 *     {Peasant, 1}
+	 *     {AzureDragon, 1000}
+	 * };
+	 *
+	 * IndexedArray<int, MonsterCount> killCount = {{}}; // ints inside the array are default-initialized to zero.
+	 * @endcode
+	 *
+	 * @param init                      Initializer list of key-value pairs.
+	 */
+	constexpr IndexedArray(std::initializer_list<std::pair<key_type, value_type>> init)
+	{
+		assert(init.size() == size() || init.size() == 1);
+		assert(is_unique(init));
 
-        if (init.size() == 1) {
-            // This is support for = {{}} initialization syntax, the same one as for std::array.
-            for (value_type &value : *this)
-                value = init.begin()->second;
-        } else {
-            // And this is a normal map-like constructor.
-            for (const auto &pair : init)
-                (*this)[pair.first] = pair.second;
-        }
-    }
+		if (init.size() == 1)
+		{
+			// This is support for = {{}} initialization syntax, the same one as for std::array.
+			for (value_type& value : *this)
+				value = init.begin()->second;
+		}
+		else
+		{
+			// And this is a normal map-like constructor.
+			for (const auto& pair : init)
+				(*this)[pair.first] = pair.second;
+		}
+	}
 
-    // default operator= is OK
+	// default operator= is OK
 
-    /**
-     * Use this function is you want to iterate over this indexed array like it's a normal array, e.g.:
-     * @code
-     * for (SomeEnum i : array.keys()) {
-     *     // use i and array[i]
-     * }
-     * @endcode
-     *
-     * @return                          View over the valid indices for the elements of this indexed array.
-     */
-    constexpr Segment<key_type> indices() const {
-        return Segment(ActualFirstIndex, ActualLastIndex);
-    }
+	/**
+	 * Use this function is you want to iterate over this indexed array like it's a normal array, e.g.:
+	 * @code
+	 * for (SomeEnum i : array.keys()) {
+	 *     // use i and array[i]
+	 * }
+	 * @endcode
+	 *
+	 * @return                          View over the valid indices for the elements of this indexed array.
+	 */
+	constexpr Segment<key_type> indices() const
+	{
+		return Segment(ActualFirstIndex, ActualLastIndex);
+	}
 
-    using base_type::begin;
-    using base_type::end;
-    using base_type::cbegin;
-    using base_type::cend;
-    using base_type::rbegin;
-    using base_type::rend;
-    using base_type::crbegin;
-    using base_type::crend;
+	using base_type::begin;
+	using base_type::end;
+	using base_type::cbegin;
+	using base_type::cend;
+	using base_type::rbegin;
+	using base_type::rend;
+	using base_type::crbegin;
+	using base_type::crend;
 
-    using base_type::size;
-    using base_type::max_size;
-    using base_type::data;
-    using base_type::empty;
-    using base_type::front;
-    using base_type::back;
+	using base_type::size;
+	using base_type::max_size;
+	using base_type::data;
+	using base_type::empty;
+	using base_type::front;
+	using base_type::back;
 
-    using base_type::fill;
-    using base_type::swap;
+	using base_type::fill;
+	using base_type::swap;
 
-    constexpr reference at(key_type n) {
-        return base_type::at(static_cast<ptrdiff_t>(n) - static_cast<ptrdiff_t>(ActualFirstIndex));
-    }
+	constexpr reference at(key_type n)
+	{
+		return base_type::at(static_cast<ptrdiff_t>(n) - static_cast<ptrdiff_t>(ActualFirstIndex));
+	}
 
-    constexpr const_reference at(key_type n) const {
-        return base_type::at(static_cast<ptrdiff_t>(n) - static_cast<ptrdiff_t>(ActualFirstIndex));
-    }
+	constexpr const_reference at(key_type n) const
+	{
+		return base_type::at(static_cast<ptrdiff_t>(n) - static_cast<ptrdiff_t>(ActualFirstIndex));
+	}
 
-    constexpr reference operator[](key_type n) noexcept {
-        return base_type::operator[](static_cast<ptrdiff_t>(n) - static_cast<ptrdiff_t>(ActualFirstIndex));
-    }
+	constexpr reference operator[](key_type n) noexcept
+	{
+		return base_type::operator[](static_cast<ptrdiff_t>(n) - static_cast<ptrdiff_t>(ActualFirstIndex));
+	}
 
-    constexpr const_reference operator[](key_type n) const noexcept {
-        return base_type::operator[](static_cast<ptrdiff_t>(n) - static_cast<ptrdiff_t>(ActualFirstIndex));
-    }
+	constexpr const_reference operator[](key_type n) const noexcept
+	{
+		return base_type::operator[](static_cast<ptrdiff_t>(n) - static_cast<ptrdiff_t>(ActualFirstIndex));
+	}
 
- private:
-    constexpr static bool is_unique(std::initializer_list<std::pair<key_type, value_type>> init) {
-        for (auto i = init.begin(); i < init.end(); i++)
-            for (auto j = i + 1; j < init.end(); j++)
-                if (i->first == j->first)
-                    return false;
-        return true;
-    }
+private:
+	constexpr static bool is_unique(std::initializer_list<std::pair<key_type, value_type>> init)
+	{
+		for (auto i = init.begin(); i < init.end(); i++)
+			for (auto j = i + 1; j < init.end(); j++)
+				if (i->first == j->first)
+					return false;
+		return true;
+	}
 };

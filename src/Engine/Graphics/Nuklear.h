@@ -1,11 +1,9 @@
 #pragma once
 
-#include <memory>
-
 #include "GUI/GUIWindow.h"
 #include "Platform/PlatformEnums.h"
 
-#include <lua.hpp>
+#include "lua.hpp"
 #include "nuklear/nuklear_config.h"
 
 #define NUKLEAR_MAX_VERTEX_MEMORY 512 * 1024

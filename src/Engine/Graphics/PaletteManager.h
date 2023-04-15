@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 #include "Engine/Graphics/Sprites.h"
 
 /*  148 */

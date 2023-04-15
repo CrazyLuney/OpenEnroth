@@ -1,6 +1,4 @@
 #pragma once
-#include <array>
-
 
 class Texture;
 struct ODMFace;

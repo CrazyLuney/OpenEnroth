@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 #include "GUI/GUIWindow.h"
 
 #include "Engine/Events2D.h"

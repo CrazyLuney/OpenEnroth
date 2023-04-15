@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 class FrameLimiter {
  public:
     FrameLimiter();

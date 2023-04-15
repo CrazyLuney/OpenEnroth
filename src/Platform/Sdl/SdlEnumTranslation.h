@@ -1,8 +1,6 @@
 #pragma once
 
-#include <SDL.h>
-
-#include <utility>
+#include "SDL.h"
 
 #include "Platform/PlatformEnums.h"
 #include "Platform/PlatformOpenGLOptions.h"

@@ -1,10 +1,5 @@
 #include "EngineTraceRecorder.h"
 
-#include <cassert>
-#include <filesystem>
-#include <utility>
-#include <memory>
-
 #include "Application/GameKeyboardController.h" // TODO(captainurist): Engine -> Application dependency
 
 #include "Engine/Engine.h"

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 typedef bool (*ImageFormatConverter)(unsigned int num_pixels, const void *src, void *dst);
 
 inline uint32_t R5G6B5_to_A8B8G8R8(uint16_t color16, unsigned char alpha) {

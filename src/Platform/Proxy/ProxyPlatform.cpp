@@ -1,7 +1,4 @@
 #include "ProxyPlatform.h"
-
-#include <cassert>
-
 #include "Platform/PlatformWindow.h"
 #include "Platform/PlatformEventLoop.h"
 

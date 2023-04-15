@@ -1,12 +1,5 @@
 #pragma once
 
-#include <cassert>
-#include <memory>
-#include <string>
-#include <type_traits>
-#include <utility>
-#include <vector>
-
 #include "Utility/Memory/Blob.h"
 #include "Utility/Streams/InputStream.h"
 #include "Utility/Streams/MemoryInputStream.h"

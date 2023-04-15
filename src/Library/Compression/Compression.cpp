@@ -1,10 +1,6 @@
 #include "Compression.h"
 
-#include <zlib.h>
-
-#include <cstring>
-#include <algorithm>
-#include <memory>
+#include "zlib.h"
 
 #include "Utility/Memory/FreeDeleter.h"
 

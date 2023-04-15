@@ -1,9 +1,5 @@
 #include "LodReader.h"
 
-#include <algorithm>
-#include <cassert>
-#include <map>
-
 // TODO(captainurist): errorhandling should be moved to utility/library out of the engine
 #include "Engine/ErrorHandling.h"
 #include "Library/Compression/Compression.h"

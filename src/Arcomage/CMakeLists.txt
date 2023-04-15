@@ -10,4 +10,4 @@ set(ACROMAGE_HEADERS
 add_library(arcomage STATIC ${ACROMAGE_SOURCES} ${ACROMAGE_HEADERS})
 target_link_libraries(arcomage utility engine gui media)
 
-target_check_style(arcomage)
+target_precompile_headers_reuse(arcomage utility)

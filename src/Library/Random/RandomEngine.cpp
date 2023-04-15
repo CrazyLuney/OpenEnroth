@@ -1,7 +1,5 @@
 #include "RandomEngine.h"
 
-#include <cassert>
-
 int RandomEngine::randomInSegment(int min, int max) {
     assert(max >= min);
 

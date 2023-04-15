@@ -2,19 +2,20 @@
 
 #include "InputStream.h"
 
-class MemoryInputStream: public InputStream {
- public:
-    MemoryInputStream();
-    MemoryInputStream(const void *data, size_t size);
-    virtual ~MemoryInputStream();
+class MemoryInputStream : public InputStream
+{
+public:
+	MemoryInputStream();
+	MemoryInputStream(const void* data, size_t size);
+	virtual ~MemoryInputStream();
 
-    void reset(const void *data, size_t size);
+	void reset(const void* data, size_t size);
 
-    virtual size_t read(void *data, size_t size) override;
-    virtual size_t skip(size_t size) override;
-    virtual void close() override;
+	virtual size_t read(void* data, size_t size) override;
+	virtual size_t skip(size_t size) override;
+	virtual void close() override;
 
- private:
-    const char *pos_ = nullptr;
-    const char *end_ = nullptr;
+private:
+	const char* pos_ = nullptr;
+	const char* end_ = nullptr;
 };

@@ -1,9 +1,5 @@
 #pragma once
 
-#include <map>
-#include <string>
-#include <vector>
-
 #include "ConfigFwd.h"
 #include "ConfigSection.h"
 #include "ConfigEntry.h"

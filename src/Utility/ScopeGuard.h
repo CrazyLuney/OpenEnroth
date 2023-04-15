@@ -1,7 +1,5 @@
 #pragma once
 
-#include <utility>
-
 #include "Preprocessor.h"
 
 /**
@@ -14,16 +12,21 @@
  * \endcode
  */
 template<class T>
-class ScopeGuard {
- public:
-    explicit ScopeGuard(T &&callable): _callable(std::move(callable)) {}
+class ScopeGuard
+{
+public:
+	explicit ScopeGuard(T&& callable)
+		: _callable(std::move(callable))
+	{
+	}
 
-    ~ScopeGuard() {
-        _callable();
-    }
+	~ScopeGuard()
+	{
+		_callable();
+	}
 
- private:
-    T _callable;
+private:
+	T _callable;
 };
 
 /**

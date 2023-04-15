@@ -1,10 +1,5 @@
 #include "GUI/UI/UICharacter.h"
 
-#include <algorithm>
-#include <vector>
-#include <string>
-#include <unordered_map>
-
 #include "Engine/AssetsManager.h"
 #include "Engine/Awards.h"
 #include "Engine/Engine.h"

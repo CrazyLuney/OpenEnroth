@@ -9,6 +9,7 @@ set(LIBRARY_COMPRESSION_HEADERS
 add_library(library_compression STATIC ${LIBRARY_COMPRESSION_SOURCES} ${LIBRARY_COMPRESSION_HEADERS})
 target_link_libraries(library_compression utility ${ZLIB_LIBRARIES})
 target_include_directories(library_compression PRIVATE ${ZLIB_INCLUDE_DIRS})
-target_check_style(library_compression)
+
+target_precompile_headers_reuse(library_compression utility)
 
 message(VERBOSE "ZLIB_LIBRARIES: ${ZLIB_LIBRARIES}")

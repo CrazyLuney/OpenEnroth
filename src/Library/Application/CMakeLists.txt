@@ -10,4 +10,5 @@ set(LIBRARY_APPLICATION_HEADERS
 
 add_library(library_application STATIC ${LIBRARY_APPLICATION_SOURCES} ${LIBRARY_APPLICATION_HEADERS})
 target_link_libraries(library_application platform)
-target_check_style(library_application)
+
+target_precompile_headers_reuse(library_application utility)

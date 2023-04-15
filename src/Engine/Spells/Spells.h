@@ -1,8 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <array>
-
 #include "SpellEnums.h"
 
 #include "Engine/Objects/ItemEnums.h"

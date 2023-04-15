@@ -1,10 +1,5 @@
 #include "Engine/Objects/Items.h"
 
-#include <map>
-#include <string>
-#include <vector>
-#include <unordered_map>
-
 #include "Engine/Engine.h"
 #include "Engine/Localization.h"
 #include "Engine/Objects/ItemEnchantment.h"
@@ -19,785 +14,852 @@
 #include "Utility/MapAccess.h"
 #include "Library/Random/Random.h"
 
-ItemGen *ptr_50C9A4_ItemToEnchant;
+ItemGen* ptr_50C9A4_ItemToEnchant;
 
-struct ItemTable *pItemTable;  // 005D29E0
+struct ItemTable* pItemTable;  // 005D29E0
 
 static std::map<int, std::map<CHARACTER_ATTRIBUTE_TYPE, CEnchantment>> regularBonusMap;
 static std::map<int, std::map<CHARACTER_ATTRIBUTE_TYPE, CEnchantment>> specialBonusMap;
 static std::map<ITEM_TYPE, std::map<CHARACTER_ATTRIBUTE_TYPE, CEnchantment>> artifactBonusMap;
 
 static std::unordered_map<ITEM_TYPE, ITEM_TYPE> itemTextureIdByItemId = {
-    { ITEM_RELIC_HARECKS_LEATHER,       ITEM_POTION_STONESKIN },
-    { ITEM_ARTIFACT_YORUBA,             ITEM_POTION_HARDEN_ITEM },
-    { ITEM_ARTIFACT_GOVERNORS_ARMOR,    ITEM_POTION_WATER_BREATHING },
-    { ITEM_ARTIFACT_ELVEN_CHAINMAIL,    ITEM_FINE_CHAIN_MAIL },
-    { ITEM_ARTIFACT_SEVEN_LEAGUE_BOOTS, ITEM_SCROLL_FEATHER_FALL },
-    { ITEM_RELIC_TALEDONS_HELM,         ITEM_POTION_CURE_INSANITY },
-    { ITEM_RELIC_SCHOLARS_CAP,          ITEM_POTION_MIGHT_BOOST },
-    { ITEM_RELIC_PHYNAXIAN_CROWN,       ITEM_POTION_INTELLECT_BOOST },
-    { ITEM_ARTIFACT_MINDS_EYE,          ITEM_MOGRED_HELM },
-    { ITEM_RARE_SHADOWS_MASK,           ITEM_SCROLL_DETECT_LIFE },
-    { ITEM_RELIC_TITANS_BELT,           ITEM_SCROLL_WATER_RESISTANCE },
-    { ITEM_ARTIFACT_HEROS_BELT,         ITEM_GILDED_BELT },
-    { ITEM_RELIC_TWILIGHT,              ITEM_SCROLL_ICE_BOLT },
-    { ITEM_ARTIFACT_CLOAK_OF_THE_SHEEP, ITEM_SCROLL_TOWN_PORTAL },
-    { ITEM_RARE_SUN_CLOAK,              ITEM_SCROLL_TURN_UNDEAD },
-    { ITEM_RARE_MOON_CLOAK,             ITEM_SCROLL_REMOVE_CURSE },
-    { ITEM_RARE_VAMPIRES_CAPE,          ITEM_SCROLL_HEROISM }
+	{ ITEM_RELIC_HARECKS_LEATHER,       ITEM_POTION_STONESKIN },
+	{ ITEM_ARTIFACT_YORUBA,             ITEM_POTION_HARDEN_ITEM },
+	{ ITEM_ARTIFACT_GOVERNORS_ARMOR,    ITEM_POTION_WATER_BREATHING },
+	{ ITEM_ARTIFACT_ELVEN_CHAINMAIL,    ITEM_FINE_CHAIN_MAIL },
+	{ ITEM_ARTIFACT_SEVEN_LEAGUE_BOOTS, ITEM_SCROLL_FEATHER_FALL },
+	{ ITEM_RELIC_TALEDONS_HELM,         ITEM_POTION_CURE_INSANITY },
+	{ ITEM_RELIC_SCHOLARS_CAP,          ITEM_POTION_MIGHT_BOOST },
+	{ ITEM_RELIC_PHYNAXIAN_CROWN,       ITEM_POTION_INTELLECT_BOOST },
+	{ ITEM_ARTIFACT_MINDS_EYE,          ITEM_MOGRED_HELM },
+	{ ITEM_RARE_SHADOWS_MASK,           ITEM_SCROLL_DETECT_LIFE },
+	{ ITEM_RELIC_TITANS_BELT,           ITEM_SCROLL_WATER_RESISTANCE },
+	{ ITEM_ARTIFACT_HEROS_BELT,         ITEM_GILDED_BELT },
+	{ ITEM_RELIC_TWILIGHT,              ITEM_SCROLL_ICE_BOLT },
+	{ ITEM_ARTIFACT_CLOAK_OF_THE_SHEEP, ITEM_SCROLL_TOWN_PORTAL },
+	{ ITEM_RARE_SUN_CLOAK,              ITEM_SCROLL_TURN_UNDEAD },
+	{ ITEM_RARE_MOON_CLOAK,             ITEM_SCROLL_REMOVE_CURSE },
+	{ ITEM_RARE_VAMPIRES_CAPE,          ITEM_SCROLL_HEROISM }
 };
 
 //----- (00439DF3) --------------------------------------------------------
-int ItemGen::_439DF3_get_additional_damage(DAMAGE_TYPE *damage_type,
-                                           bool *draintargetHP) {
-    *draintargetHP = false;
-    *damage_type = DMGT_FIRE;
-    if (uItemID == ITEM_NULL) return 0;
+int ItemGen::_439DF3_get_additional_damage(DAMAGE_TYPE* damage_type,
+	bool* draintargetHP)
+{
+	*draintargetHP = false;
+	*damage_type = DMGT_FIRE;
+	if (uItemID == ITEM_NULL) return 0;
 
-    UpdateTempBonus(pParty->GetPlayingTime());
-    if (uItemID == ITEM_ARTIFACT_IRON_FEATHER) {
-        *damage_type = DMGT_ELECTR;
-        return grng->random(10) + 6;
-    }
-    if (uItemID == ITEM_ARTIFACT_GHOULSBANE) {
-        *damage_type = DMGT_FIRE;
-        return grng->random(16) + 3;
-    }
-    if (uItemID == ITEM_ARTIFACT_ULLYSES) {
-        *damage_type = DMGT_COLD;
-        return grng->random(4) + 9;
-    }
-    if (uItemID == ITEM_RELIC_OLD_NICK) {
-        *damage_type = DMGT_BODY;
-        return 8;
-    }
+	UpdateTempBonus(pParty->GetPlayingTime());
+	if (uItemID == ITEM_ARTIFACT_IRON_FEATHER)
+	{
+		*damage_type = DMGT_ELECTR;
+		return grng->random(10) + 6;
+	}
+	if (uItemID == ITEM_ARTIFACT_GHOULSBANE)
+	{
+		*damage_type = DMGT_FIRE;
+		return grng->random(16) + 3;
+	}
+	if (uItemID == ITEM_ARTIFACT_ULLYSES)
+	{
+		*damage_type = DMGT_COLD;
+		return grng->random(4) + 9;
+	}
+	if (uItemID == ITEM_RELIC_OLD_NICK)
+	{
+		*damage_type = DMGT_BODY;
+		return 8;
+	}
 
-    switch (special_enchantment) {
-        case ITEM_ENCHANTMENT_OF_COLD:
-            *damage_type = DMGT_COLD;
-            return grng->random(2) + 3;
-            break;
-        case ITEM_ENCHANTMENT_OF_FROST:
-            *damage_type = DMGT_COLD;
-            return grng->random(3) + 6;
-            break;
-        case ITEM_ENCHANTMENT_OF_ICE:
-            *damage_type = DMGT_COLD;
-            return grng->random(4) + 9;
-            break;
-        case ITEM_ENCHANTMENT_OF_SPARKS:
-            *damage_type = DMGT_ELECTR;
-            return grng->random(4) + 2;
-            break;
-        case ITEM_ENCHANTMENT_OF_LIGHTNING:
-            *damage_type = DMGT_ELECTR;
-            return grng->random(7) + 4;
-            break;
-        case ITEM_ENCHANTMENT_OF_THUNDERBOLTS:
-            *damage_type = DMGT_ELECTR;
-            return grng->random(10) + 6;
-            break;
-        case ITEM_ENCHANTMENT_OF_FIRE:
-            *damage_type = DMGT_FIRE;
-            return grng->randomDice(1, 6);
-            break;
-        case ITEM_ENCHANTMENT_OF_FLAME:
-            *damage_type = DMGT_FIRE;
-            return grng->randomDice(2, 6);
-            break;
-        case ITEM_ENCHANTMENT_OF_INFERNOS:
-            *damage_type = DMGT_FIRE;
-            return grng->randomDice(3, 6);
-            break;
-        case ITEM_ENCHANTMENT_OF_POISON:
-            *damage_type = DMGT_BODY;
-            return 5;
-            break;
-        case ITEM_ENCHANTMENT_OF_VENOM:
-            *damage_type = DMGT_BODY;
-            return 8;
-            break;
-        case ITEM_ENCHANTMENT_OF_ACID:
-            *damage_type = DMGT_BODY;
-            return 12;
-            break;
-        case ITEM_ENCHANTMENT_VAMPIRIC:
-        case ITEM_ENCHANTMENT_OF_DARKNESS:
-            *damage_type = DMGT_DARK;
-            *draintargetHP = true;
-            return 0;
-            break;
+	switch (special_enchantment)
+	{
+	case ITEM_ENCHANTMENT_OF_COLD:
+		*damage_type = DMGT_COLD;
+		return grng->random(2) + 3;
+		break;
+	case ITEM_ENCHANTMENT_OF_FROST:
+		*damage_type = DMGT_COLD;
+		return grng->random(3) + 6;
+		break;
+	case ITEM_ENCHANTMENT_OF_ICE:
+		*damage_type = DMGT_COLD;
+		return grng->random(4) + 9;
+		break;
+	case ITEM_ENCHANTMENT_OF_SPARKS:
+		*damage_type = DMGT_ELECTR;
+		return grng->random(4) + 2;
+		break;
+	case ITEM_ENCHANTMENT_OF_LIGHTNING:
+		*damage_type = DMGT_ELECTR;
+		return grng->random(7) + 4;
+		break;
+	case ITEM_ENCHANTMENT_OF_THUNDERBOLTS:
+		*damage_type = DMGT_ELECTR;
+		return grng->random(10) + 6;
+		break;
+	case ITEM_ENCHANTMENT_OF_FIRE:
+		*damage_type = DMGT_FIRE;
+		return grng->randomDice(1, 6);
+		break;
+	case ITEM_ENCHANTMENT_OF_FLAME:
+		*damage_type = DMGT_FIRE;
+		return grng->randomDice(2, 6);
+		break;
+	case ITEM_ENCHANTMENT_OF_INFERNOS:
+		*damage_type = DMGT_FIRE;
+		return grng->randomDice(3, 6);
+		break;
+	case ITEM_ENCHANTMENT_OF_POISON:
+		*damage_type = DMGT_BODY;
+		return 5;
+		break;
+	case ITEM_ENCHANTMENT_OF_VENOM:
+		*damage_type = DMGT_BODY;
+		return 8;
+		break;
+	case ITEM_ENCHANTMENT_OF_ACID:
+		*damage_type = DMGT_BODY;
+		return 12;
+		break;
+	case ITEM_ENCHANTMENT_VAMPIRIC:
+	case ITEM_ENCHANTMENT_OF_DARKNESS:
+		*damage_type = DMGT_DARK;
+		*draintargetHP = true;
+		return 0;
+		break;
 
-        case ITEM_ENCHANTMENT_OF_DRAGON:
-            *damage_type = DMGT_FIRE;
-            return grng->random(11) + 10;
-            break;
-        default:
-            *damage_type = DMGT_FIRE;
-            return 0;
-    }
+	case ITEM_ENCHANTMENT_OF_DRAGON:
+		*damage_type = DMGT_FIRE;
+		return grng->random(11) + 10;
+		break;
+	default:
+		*damage_type = DMGT_FIRE;
+		return 0;
+	}
 }
 
 //----- (00402F07) --------------------------------------------------------
-void ItemGen::Reset() {
-    *this = ItemGen();
+void ItemGen::Reset()
+{
+	*this = ItemGen();
 }
 
 //----- (00458260) --------------------------------------------------------
-void ItemGen::UpdateTempBonus(GameTime time) {
-    if (this->uAttributes & ITEM_TEMP_BONUS) {
-        if (time > this->uExpireTime) {
-            this->uEnchantmentType = 0;
-            this->special_enchantment = ITEM_ENCHANTMENT_NULL;
-            this->uAttributes &= ~ITEM_TEMP_BONUS;
-        }
-    }
+void ItemGen::UpdateTempBonus(GameTime time)
+{
+	if (this->uAttributes & ITEM_TEMP_BONUS)
+	{
+		if (time > this->uExpireTime)
+		{
+			this->uEnchantmentType = 0;
+			this->special_enchantment = ITEM_ENCHANTMENT_NULL;
+			this->uAttributes &= ~ITEM_TEMP_BONUS;
+		}
+	}
 }
 
 //----- (00456442) --------------------------------------------------------
-unsigned int ItemGen::GetValue() {
-    unsigned int uBaseValue;  // edi@1
-    unsigned int mod, bonus;
+unsigned int ItemGen::GetValue()
+{
+	unsigned int uBaseValue;  // edi@1
+	unsigned int mod, bonus;
 
-    uBaseValue = pItemTable->pItems[this->uItemID].uValue;
-    if (this->uAttributes & ITEM_TEMP_BONUS ||
-        pItemTable->IsMaterialNonCommon(this))
-        return uBaseValue;
-    if (uEnchantmentType) return uBaseValue + 100 * m_enchantmentStrength;
+	uBaseValue = pItemTable->pItems[this->uItemID].uValue;
+	if (this->uAttributes & ITEM_TEMP_BONUS ||
+		pItemTable->IsMaterialNonCommon(this))
+		return uBaseValue;
+	if (uEnchantmentType) return uBaseValue + 100 * m_enchantmentStrength;
 
-    if (special_enchantment != ITEM_ENCHANTMENT_NULL) {
-        mod = (pItemTable->pSpecialEnchantments[special_enchantment].iTreasureLevel & 4);
-        bonus = pItemTable->pSpecialEnchantments[special_enchantment].iValue;
-        if (!mod)
-            return uBaseValue + bonus;
-        else
-            return uBaseValue * bonus;
-    }
-    return uBaseValue;
+	if (special_enchantment != ITEM_ENCHANTMENT_NULL)
+	{
+		mod = (pItemTable->pSpecialEnchantments[special_enchantment].iTreasureLevel & 4);
+		bonus = pItemTable->pSpecialEnchantments[special_enchantment].iValue;
+		if (!mod)
+			return uBaseValue + bonus;
+		else
+			return uBaseValue * bonus;
+	}
+	return uBaseValue;
 }
 
 //----- (00456499) --------------------------------------------------------
-std::string ItemGen::GetDisplayName() {
-    if (IsIdentified()) {
-        return GetIdentifiedName();
-    } else {
-        return pItemTable->pItems[uItemID].pUnidentifiedName;
-    }
+std::string ItemGen::GetDisplayName()
+{
+	if (IsIdentified())
+	{
+		return GetIdentifiedName();
+	}
+	else
+	{
+		return pItemTable->pItems[uItemID].pUnidentifiedName;
+	}
 }
 
 //----- (004564B3) --------------------------------------------------------
-std::string ItemGen::GetIdentifiedName() {
-    ITEM_EQUIP_TYPE equip_type = GetItemEquipType();
-    if ((equip_type == EQUIP_REAGENT) || (equip_type == EQUIP_POTION) ||
-        (equip_type == EQUIP_GOLD)) {
-        return pItemTable->pItems[uItemID].pName;
-    }
+std::string ItemGen::GetIdentifiedName()
+{
+	ITEM_EQUIP_TYPE equip_type = GetItemEquipType();
+	if ((equip_type == EQUIP_REAGENT) || (equip_type == EQUIP_POTION) ||
+		(equip_type == EQUIP_GOLD))
+	{
+		return pItemTable->pItems[uItemID].pName;
+	}
 
-    if (uItemID == ITEM_QUEST_LICH_JAR_FULL) {  // Lich Jar
-        if (uHolderPlayer >= 0 && uHolderPlayer < 4) {
-            const std::string &player_name = pPlayers[uHolderPlayer]->pName;
-            if (player_name.back() == 's')
-                return localization->FormatString(
-                    LSTR_FMT_JAR,
-                    player_name.c_str());
-            else
-                return localization->FormatString(
-                    LSTR_FMT_JAR_2,
-                    player_name.c_str());
-        }
-    }
+	if (uItemID == ITEM_QUEST_LICH_JAR_FULL)
+	{  // Lich Jar
+		if (uHolderPlayer >= 0 && uHolderPlayer < 4)
+		{
+			const std::string& player_name = pPlayers[uHolderPlayer]->pName;
+			if (player_name.back() == 's')
+				return localization->FormatString(
+					LSTR_FMT_JAR,
+					player_name.c_str());
+			else
+				return localization->FormatString(
+					LSTR_FMT_JAR_2,
+					player_name.c_str());
+		}
+	}
 
-    if (!pItemTable->IsMaterialNonCommon(this)) {
-        if (uEnchantmentType) {
-            return std::string(pItemTable->pItems[uItemID].pName) + " " +
-                   pItemTable->pEnchantments[uEnchantmentType - 1].pOfName;
-        } else if (special_enchantment == ITEM_ENCHANTMENT_NULL) {
-            return pItemTable->pItems[uItemID].pName;
-        } else {
-            if (special_enchantment == ITEM_ENCHANTMENT_VAMPIRIC
-                || special_enchantment == ITEM_ENCHANTMENT_DEMON_SLAYING
-                || special_enchantment == ITEM_ENCHANTMENT_DRAGON_SLAYING
-                || special_enchantment == ITEM_ENCHANTMENT_ROGUES
-                || special_enchantment == ITEM_ENCHANTMENT_WARRIORS
-                || special_enchantment == ITEM_ENCHANTMENT_WIZARDS
-                || special_enchantment == ITEM_ENCHANTMENT_ANTIQUE
-                || special_enchantment == ITEM_ENCHANTMENT_MONKS
-                || special_enchantment == ITEM_ENCHANTMENT_THIEVES
-                || special_enchantment == ITEM_ENCHANTMENT_SWIFT
-                || special_enchantment == ITEM_ENCHANTMENT_ELF_SLAYING
-                || special_enchantment == ITEM_ENCHANTMENT_UNDEAD_SLAYING
-                || special_enchantment == ITEM_ENCHANTMENT_ASSASINS
-                || special_enchantment == ITEM_ENCHANTMENT_BARBARIANS
-            ) {            // enchantment and name positions inverted!
-                return fmt::format(
-                    "{} {}",
-                    pItemTable->pSpecialEnchantments[special_enchantment].pNameAdd,
-                    pItemTable->pItems[uItemID].pName
-                );
-            } else {
-                return std::string(pItemTable->pItems[uItemID].pName) + " " +
-                       pItemTable->pSpecialEnchantments[special_enchantment].pNameAdd;
-            }
-        }
-    }
+	if (!pItemTable->IsMaterialNonCommon(this))
+	{
+		if (uEnchantmentType)
+		{
+			return std::string(pItemTable->pItems[uItemID].pName) + " " +
+				pItemTable->pEnchantments[uEnchantmentType - 1].pOfName;
+		}
+		else if (special_enchantment == ITEM_ENCHANTMENT_NULL)
+		{
+			return pItemTable->pItems[uItemID].pName;
+		}
+		else
+		{
+			if (special_enchantment == ITEM_ENCHANTMENT_VAMPIRIC
+				|| special_enchantment == ITEM_ENCHANTMENT_DEMON_SLAYING
+				|| special_enchantment == ITEM_ENCHANTMENT_DRAGON_SLAYING
+				|| special_enchantment == ITEM_ENCHANTMENT_ROGUES
+				|| special_enchantment == ITEM_ENCHANTMENT_WARRIORS
+				|| special_enchantment == ITEM_ENCHANTMENT_WIZARDS
+				|| special_enchantment == ITEM_ENCHANTMENT_ANTIQUE
+				|| special_enchantment == ITEM_ENCHANTMENT_MONKS
+				|| special_enchantment == ITEM_ENCHANTMENT_THIEVES
+				|| special_enchantment == ITEM_ENCHANTMENT_SWIFT
+				|| special_enchantment == ITEM_ENCHANTMENT_ELF_SLAYING
+				|| special_enchantment == ITEM_ENCHANTMENT_UNDEAD_SLAYING
+				|| special_enchantment == ITEM_ENCHANTMENT_ASSASINS
+				|| special_enchantment == ITEM_ENCHANTMENT_BARBARIANS
+				)
+			{            // enchantment and name positions inverted!
+				return fmt::format(
+					"{} {}",
+					pItemTable->pSpecialEnchantments[special_enchantment].pNameAdd,
+					pItemTable->pItems[uItemID].pName
+				);
+			}
+			else
+			{
+				return std::string(pItemTable->pItems[uItemID].pName) + " " +
+					pItemTable->pSpecialEnchantments[special_enchantment].pNameAdd;
+			}
+		}
+	}
 
-    return pItemTable->pItems[uItemID].pName;
+	return pItemTable->pItems[uItemID].pName;
 }
 
 //----- (004505CC) --------------------------------------------------------
-bool ItemGen::GenerateArtifact() {
-    signed int uNumArtifactsNotFound;  // esi@1
-    std::array<ITEM_TYPE, 32> artifacts_list;
+bool ItemGen::GenerateArtifact()
+{
+	signed int uNumArtifactsNotFound;  // esi@1
+	std::array<ITEM_TYPE, 32> artifacts_list;
 
-    artifacts_list.fill(ITEM_NULL);
-    uNumArtifactsNotFound = 0;
+	artifacts_list.fill(ITEM_NULL);
+	uNumArtifactsNotFound = 0;
 
-    for (ITEM_TYPE i : SpawnableArtifacts())
-        if (!pParty->pIsArtifactFound[i])
-            artifacts_list[uNumArtifactsNotFound++] = i;
+	for (ITEM_TYPE i : SpawnableArtifacts())
+		if (!pParty->pIsArtifactFound[i])
+			artifacts_list[uNumArtifactsNotFound++] = i;
 
-    Reset();
-    if (uNumArtifactsNotFound) {
-        uItemID = artifacts_list[grng->random(uNumArtifactsNotFound)];
-        pItemTable->SetSpecialBonus(this);
-        return true;
-    } else {
-        return false;
-    }
+	Reset();
+	if (uNumArtifactsNotFound)
+	{
+		uItemID = artifacts_list[grng->random(uNumArtifactsNotFound)];
+		pItemTable->SetSpecialBonus(this);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 template<class Key, class ActualKey>
-static void AddToMap(std::map<Key, std::map<CHARACTER_ATTRIBUTE_TYPE, CEnchantment>> &map,
-                     ActualKey key, CHARACTER_ATTRIBUTE_TYPE subkey, int bonusValue = 0, uint16_t Player::*skillPtr = NULL) {
-    auto &submap = map[key];
+static void AddToMap(std::map<Key, std::map<CHARACTER_ATTRIBUTE_TYPE, CEnchantment>>& map,
+	ActualKey key, CHARACTER_ATTRIBUTE_TYPE subkey, int bonusValue = 0, uint16_t Player::* skillPtr = NULL)
+{
+	auto& submap = map[key];
 
-    Assert(!submap.contains(subkey));
+	Assert(!submap.contains(subkey));
 
-    submap[subkey] = CEnchantment(bonusValue, skillPtr);
+	submap[subkey] = CEnchantment(bonusValue, skillPtr);
 }
 
-void ItemGen::PopulateSpecialBonusMap() {
-    // of Protection, +10 to all Resistances (description in txt says all 4, need to verify!)
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PROTECTION, CHARACTER_ATTRIBUTE_RESIST_AIR, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PROTECTION, CHARACTER_ATTRIBUTE_RESIST_BODY, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PROTECTION, CHARACTER_ATTRIBUTE_RESIST_EARTH, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PROTECTION, CHARACTER_ATTRIBUTE_RESIST_FIRE, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PROTECTION, CHARACTER_ATTRIBUTE_RESIST_MIND, 10);
-    //AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PROTECTION, CHARACTER_ATTRIBUTE_RESIST_SPIRIT, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PROTECTION, CHARACTER_ATTRIBUTE_RESIST_WATER, 10);
+void ItemGen::PopulateSpecialBonusMap()
+{
+	// of Protection, +10 to all Resistances (description in txt says all 4, need to verify!)
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PROTECTION, CHARACTER_ATTRIBUTE_RESIST_AIR, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PROTECTION, CHARACTER_ATTRIBUTE_RESIST_BODY, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PROTECTION, CHARACTER_ATTRIBUTE_RESIST_EARTH, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PROTECTION, CHARACTER_ATTRIBUTE_RESIST_FIRE, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PROTECTION, CHARACTER_ATTRIBUTE_RESIST_MIND, 10);
+	//AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PROTECTION, CHARACTER_ATTRIBUTE_RESIST_SPIRIT, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PROTECTION, CHARACTER_ATTRIBUTE_RESIST_WATER, 10);
 
-    // of The Gods, +10 to all Seven Statistics
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GODS, CHARACTER_ATTRIBUTE_ACCURACY, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GODS, CHARACTER_ATTRIBUTE_INTELLIGENCE, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GODS, CHARACTER_ATTRIBUTE_ENDURANCE, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GODS, CHARACTER_ATTRIBUTE_LUCK, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GODS, CHARACTER_ATTRIBUTE_SPEED, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GODS, CHARACTER_ATTRIBUTE_STRENGTH, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GODS, CHARACTER_ATTRIBUTE_WILLPOWER, 10);
+	// of The Gods, +10 to all Seven Statistics
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GODS, CHARACTER_ATTRIBUTE_ACCURACY, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GODS, CHARACTER_ATTRIBUTE_INTELLIGENCE, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GODS, CHARACTER_ATTRIBUTE_ENDURANCE, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GODS, CHARACTER_ATTRIBUTE_LUCK, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GODS, CHARACTER_ATTRIBUTE_SPEED, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GODS, CHARACTER_ATTRIBUTE_STRENGTH, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GODS, CHARACTER_ATTRIBUTE_WILLPOWER, 10);
 
-    // of Air Magic
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_AIR_MAGIC, CHARACTER_ATTRIBUTE_SKILL_AIR, 0, &Player::skillAir);
+	// of Air Magic
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_AIR_MAGIC, CHARACTER_ATTRIBUTE_SKILL_AIR, 0, &Player::skillAir);
 
-    // of Body Magic
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_BODY_MAGIC, CHARACTER_ATTRIBUTE_SKILL_BODY, 0, &Player::skillBody);
+	// of Body Magic
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_BODY_MAGIC, CHARACTER_ATTRIBUTE_SKILL_BODY, 0, &Player::skillBody);
 
-    // of Dark Magic
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DARK_MAGIC, CHARACTER_ATTRIBUTE_SKILL_DARK, 0, &Player::skillDark);
+	// of Dark Magic
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DARK_MAGIC, CHARACTER_ATTRIBUTE_SKILL_DARK, 0, &Player::skillDark);
 
-    // of Earth Magic
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_EARTH_MAGIC, CHARACTER_ATTRIBUTE_SKILL_EARTH, 0, &Player::skillEarth);
+	// of Earth Magic
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_EARTH_MAGIC, CHARACTER_ATTRIBUTE_SKILL_EARTH, 0, &Player::skillEarth);
 
-    // of Fire Magic
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_FIRE_MAGIC, CHARACTER_ATTRIBUTE_SKILL_FIRE, 0, &Player::skillFire);
+	// of Fire Magic
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_FIRE_MAGIC, CHARACTER_ATTRIBUTE_SKILL_FIRE, 0, &Player::skillFire);
 
-    // of Light Magic
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_LIGHT_MAGIC, CHARACTER_ATTRIBUTE_SKILL_LIGHT, 0, &Player::skillLight);
+	// of Light Magic
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_LIGHT_MAGIC, CHARACTER_ATTRIBUTE_SKILL_LIGHT, 0, &Player::skillLight);
 
-    // of Mind Magic
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_MIND_MAGIC, CHARACTER_ATTRIBUTE_SKILL_MIND, 0, &Player::skillMind);
+	// of Mind Magic
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_MIND_MAGIC, CHARACTER_ATTRIBUTE_SKILL_MIND, 0, &Player::skillMind);
 
-    // of Spirit Magic
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_SPIRIT_MAGIC, CHARACTER_ATTRIBUTE_SKILL_SPIRIT, 0, &Player::skillSpirit);
+	// of Spirit Magic
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_SPIRIT_MAGIC, CHARACTER_ATTRIBUTE_SKILL_SPIRIT, 0, &Player::skillSpirit);
 
-    // of Water Magic
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_WATER_MAGIC, CHARACTER_ATTRIBUTE_SKILL_WATER, 0, &Player::skillWater);
+	// of Water Magic
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_WATER_MAGIC, CHARACTER_ATTRIBUTE_SKILL_WATER, 0, &Player::skillWater);
 
-    // of Doom, +1 to Seven Stats, HP, SP, Armor, Resistances (in txt it says 4, need to check!)
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_ACCURACY, 1);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_INTELLIGENCE, 1);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_ENDURANCE, 1);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_LUCK, 1);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_SPEED, 1);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_STRENGTH, 1);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_WILLPOWER, 1);
+	// of Doom, +1 to Seven Stats, HP, SP, Armor, Resistances (in txt it says 4, need to check!)
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_ACCURACY, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_INTELLIGENCE, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_ENDURANCE, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_LUCK, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_SPEED, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_STRENGTH, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_WILLPOWER, 1);
 
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_RESIST_AIR, 1);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_RESIST_BODY, 1);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_RESIST_EARTH, 1);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_RESIST_FIRE, 1);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_RESIST_MIND, 1);
-    //AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_RESIST_SPIRIT, 1);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_RESIST_WATER, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_RESIST_AIR, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_RESIST_BODY, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_RESIST_EARTH, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_RESIST_FIRE, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_RESIST_MIND, 1);
+	//AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_RESIST_SPIRIT, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_RESIST_WATER, 1);
 
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_AC_BONUS, 1);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_HEALTH, 1);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_MANA, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_AC_BONUS, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_HEALTH, 1);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DOOM, CHARACTER_ATTRIBUTE_MANA, 1);
 
-    // of Earth
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_EARTH, CHARACTER_ATTRIBUTE_AC_BONUS, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_EARTH, CHARACTER_ATTRIBUTE_ENDURANCE, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_EARTH, CHARACTER_ATTRIBUTE_HEALTH, 10);
+	// of Earth
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_EARTH, CHARACTER_ATTRIBUTE_AC_BONUS, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_EARTH, CHARACTER_ATTRIBUTE_ENDURANCE, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_EARTH, CHARACTER_ATTRIBUTE_HEALTH, 10);
 
-    // of Life
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_LIFE, CHARACTER_ATTRIBUTE_HEALTH, 10);
+	// of Life
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_LIFE, CHARACTER_ATTRIBUTE_HEALTH, 10);
 
-    // Rogues
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_ROGUES, CHARACTER_ATTRIBUTE_ACCURACY, 5);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_ROGUES, CHARACTER_ATTRIBUTE_SPEED, 5);
+	// Rogues
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_ROGUES, CHARACTER_ATTRIBUTE_ACCURACY, 5);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_ROGUES, CHARACTER_ATTRIBUTE_SPEED, 5);
 
-    // of The Dragon
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DRAGON, CHARACTER_ATTRIBUTE_STRENGTH, 25);
+	// of The Dragon
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_DRAGON, CHARACTER_ATTRIBUTE_STRENGTH, 25);
 
-    // of The Eclipse
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_ECLIPSE, CHARACTER_ATTRIBUTE_MANA, 10);
+	// of The Eclipse
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_ECLIPSE, CHARACTER_ATTRIBUTE_MANA, 10);
 
-    // of The Golem
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GOLEM, CHARACTER_ATTRIBUTE_AC_BONUS, 5);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GOLEM, CHARACTER_ATTRIBUTE_ENDURANCE, 15);
+	// of The Golem
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GOLEM, CHARACTER_ATTRIBUTE_AC_BONUS, 5);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_GOLEM, CHARACTER_ATTRIBUTE_ENDURANCE, 15);
 
-    // of The Moon
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_MOON, CHARACTER_ATTRIBUTE_INTELLIGENCE, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_MOON, CHARACTER_ATTRIBUTE_LUCK, 10);
+	// of The Moon
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_MOON, CHARACTER_ATTRIBUTE_INTELLIGENCE, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_MOON, CHARACTER_ATTRIBUTE_LUCK, 10);
 
-    // of The Phoenix
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PHOENIX, CHARACTER_ATTRIBUTE_RESIST_FIRE, 30);
+	// of The Phoenix
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_PHOENIX, CHARACTER_ATTRIBUTE_RESIST_FIRE, 30);
 
-    // of The Sky
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_SKY, CHARACTER_ATTRIBUTE_INTELLIGENCE, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_SKY, CHARACTER_ATTRIBUTE_MANA, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_SKY, CHARACTER_ATTRIBUTE_SPEED, 10);
+	// of The Sky
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_SKY, CHARACTER_ATTRIBUTE_INTELLIGENCE, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_SKY, CHARACTER_ATTRIBUTE_MANA, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_SKY, CHARACTER_ATTRIBUTE_SPEED, 10);
 
-    // of The Stars
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_STARS, CHARACTER_ATTRIBUTE_ACCURACY, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_STARS, CHARACTER_ATTRIBUTE_ENDURANCE, 10);
+	// of The Stars
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_STARS, CHARACTER_ATTRIBUTE_ACCURACY, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_STARS, CHARACTER_ATTRIBUTE_ENDURANCE, 10);
 
-    // of The Sun
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_SUN, CHARACTER_ATTRIBUTE_STRENGTH, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_SUN, CHARACTER_ATTRIBUTE_WILLPOWER, 10);
+	// of The Sun
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_SUN, CHARACTER_ATTRIBUTE_STRENGTH, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_SUN, CHARACTER_ATTRIBUTE_WILLPOWER, 10);
 
-    // of The Troll
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_TROLL, CHARACTER_ATTRIBUTE_ENDURANCE, 15);
+	// of The Troll
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_TROLL, CHARACTER_ATTRIBUTE_ENDURANCE, 15);
 
-    // of The Unicorn
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_UNICORN, CHARACTER_ATTRIBUTE_LUCK, 15);
+	// of The Unicorn
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_UNICORN, CHARACTER_ATTRIBUTE_LUCK, 15);
 
-    // Warriors
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_WARRIORS, CHARACTER_ATTRIBUTE_ENDURANCE, 5);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_WARRIORS, CHARACTER_ATTRIBUTE_STRENGTH, 5);
+	// Warriors
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_WARRIORS, CHARACTER_ATTRIBUTE_ENDURANCE, 5);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_WARRIORS, CHARACTER_ATTRIBUTE_STRENGTH, 5);
 
-    // Wizards
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_WIZARDS, CHARACTER_ATTRIBUTE_INTELLIGENCE, 5);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_WIZARDS, CHARACTER_ATTRIBUTE_WILLPOWER, 5);
+	// Wizards
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_WIZARDS, CHARACTER_ATTRIBUTE_INTELLIGENCE, 5);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_WIZARDS, CHARACTER_ATTRIBUTE_WILLPOWER, 5);
 
-    // Monks
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_MONKS, CHARACTER_ATTRIBUTE_SKILL_DODGE, 3, &Player::skillDodge);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_MONKS, CHARACTER_ATTRIBUTE_SKILL_UNARMED, 3, &Player::skillUnarmed);
+	// Monks
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_MONKS, CHARACTER_ATTRIBUTE_SKILL_DODGE, 3, &Player::skillDodge);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_MONKS, CHARACTER_ATTRIBUTE_SKILL_UNARMED, 3, &Player::skillUnarmed);
 
-    // Thieves
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_THIEVES, CHARACTER_ATTRIBUTE_SKILL_STEALING, 3, &Player::skillStealing);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_THIEVES, CHARACTER_ATTRIBUTE_SKILL_TRAP_DISARM, 3, &Player::skillDisarmTrap);
+	// Thieves
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_THIEVES, CHARACTER_ATTRIBUTE_SKILL_STEALING, 3, &Player::skillStealing);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_THIEVES, CHARACTER_ATTRIBUTE_SKILL_TRAP_DISARM, 3, &Player::skillDisarmTrap);
 
-    // of Identifying
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_IDENTIFYING, CHARACTER_ATTRIBUTE_SKILL_ITEM_ID, 3, &Player::skillItemId);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_IDENTIFYING, CHARACTER_ATTRIBUTE_SKILL_MONSTER_ID, 3, &Player::skillMonsterId);
+	// of Identifying
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_IDENTIFYING, CHARACTER_ATTRIBUTE_SKILL_ITEM_ID, 3, &Player::skillItemId);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_IDENTIFYING, CHARACTER_ATTRIBUTE_SKILL_MONSTER_ID, 3, &Player::skillMonsterId);
 
-    // Assassins
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_ASSASINS, CHARACTER_ATTRIBUTE_SKILL_TRAP_DISARM, 2, &Player::skillDisarmTrap);
+	// Assassins
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_ASSASINS, CHARACTER_ATTRIBUTE_SKILL_TRAP_DISARM, 2, &Player::skillDisarmTrap);
 
-    // Barbarians
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_BARBARIANS, CHARACTER_ATTRIBUTE_AC_BONUS, 5);
+	// Barbarians
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_BARBARIANS, CHARACTER_ATTRIBUTE_AC_BONUS, 5);
 
-    // of the Storm
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_STORM, CHARACTER_ATTRIBUTE_RESIST_AIR, 20);
+	// of the Storm
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_STORM, CHARACTER_ATTRIBUTE_RESIST_AIR, 20);
 
-    // of the Ocean
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_OCEAN, CHARACTER_ATTRIBUTE_RESIST_WATER, 10);
-    AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_OCEAN, CHARACTER_ATTRIBUTE_SKILL_ALCHEMY, 2, &Player::skillAlchemy);
+	// of the Ocean
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_OCEAN, CHARACTER_ATTRIBUTE_RESIST_WATER, 10);
+	AddToMap(specialBonusMap, ITEM_ENCHANTMENT_OF_OCEAN, CHARACTER_ATTRIBUTE_SKILL_ALCHEMY, 2, &Player::skillAlchemy);
 }
 
 // TODO: where is it used?
-void ItemGen::PopulateRegularBonusMap() {
-    // of Might
-    AddToMap(regularBonusMap, 1, CHARACTER_ATTRIBUTE_STRENGTH);
+void ItemGen::PopulateRegularBonusMap()
+{
+	// of Might
+	AddToMap(regularBonusMap, 1, CHARACTER_ATTRIBUTE_STRENGTH);
 
-    // of Thought
-    AddToMap(regularBonusMap, 2, CHARACTER_ATTRIBUTE_INTELLIGENCE);
+	// of Thought
+	AddToMap(regularBonusMap, 2, CHARACTER_ATTRIBUTE_INTELLIGENCE);
 
-    // of Charm
-    AddToMap(regularBonusMap, 3, CHARACTER_ATTRIBUTE_WILLPOWER);
+	// of Charm
+	AddToMap(regularBonusMap, 3, CHARACTER_ATTRIBUTE_WILLPOWER);
 
-    // of Vigor
-    AddToMap(regularBonusMap, 4, CHARACTER_ATTRIBUTE_ENDURANCE);
+	// of Vigor
+	AddToMap(regularBonusMap, 4, CHARACTER_ATTRIBUTE_ENDURANCE);
 
-    // of Precision
-    AddToMap(regularBonusMap, 5, CHARACTER_ATTRIBUTE_ACCURACY);
+	// of Precision
+	AddToMap(regularBonusMap, 5, CHARACTER_ATTRIBUTE_ACCURACY);
 
-    // of Speed
-    AddToMap(regularBonusMap, 6, CHARACTER_ATTRIBUTE_SPEED);
+	// of Speed
+	AddToMap(regularBonusMap, 6, CHARACTER_ATTRIBUTE_SPEED);
 
-    // of Luck
-    AddToMap(regularBonusMap, 7, CHARACTER_ATTRIBUTE_LUCK);
+	// of Luck
+	AddToMap(regularBonusMap, 7, CHARACTER_ATTRIBUTE_LUCK);
 
-    // of Health
-    AddToMap(regularBonusMap, 8, CHARACTER_ATTRIBUTE_HEALTH);
+	// of Health
+	AddToMap(regularBonusMap, 8, CHARACTER_ATTRIBUTE_HEALTH);
 
-    // of Magic
-    AddToMap(regularBonusMap, 9, CHARACTER_ATTRIBUTE_MANA);
+	// of Magic
+	AddToMap(regularBonusMap, 9, CHARACTER_ATTRIBUTE_MANA);
 
-    // of Defense
-    AddToMap(regularBonusMap, 10, CHARACTER_ATTRIBUTE_AC_BONUS);
+	// of Defense
+	AddToMap(regularBonusMap, 10, CHARACTER_ATTRIBUTE_AC_BONUS);
 
-    // of Fire Resistance
-    AddToMap(regularBonusMap, 11, CHARACTER_ATTRIBUTE_RESIST_FIRE);
+	// of Fire Resistance
+	AddToMap(regularBonusMap, 11, CHARACTER_ATTRIBUTE_RESIST_FIRE);
 
-    // of Air Resistance
-    AddToMap(regularBonusMap, 12, CHARACTER_ATTRIBUTE_RESIST_AIR);
+	// of Air Resistance
+	AddToMap(regularBonusMap, 12, CHARACTER_ATTRIBUTE_RESIST_AIR);
 
-    // of Water Resistance
-    AddToMap(regularBonusMap, 13, CHARACTER_ATTRIBUTE_RESIST_WATER);
+	// of Water Resistance
+	AddToMap(regularBonusMap, 13, CHARACTER_ATTRIBUTE_RESIST_WATER);
 
-    // of Earth Resistance
-    AddToMap(regularBonusMap, 14, CHARACTER_ATTRIBUTE_RESIST_EARTH);
+	// of Earth Resistance
+	AddToMap(regularBonusMap, 14, CHARACTER_ATTRIBUTE_RESIST_EARTH);
 
-    // of Mind Resistance
-    AddToMap(regularBonusMap, 15, CHARACTER_ATTRIBUTE_RESIST_MIND);
+	// of Mind Resistance
+	AddToMap(regularBonusMap, 15, CHARACTER_ATTRIBUTE_RESIST_MIND);
 
-    // of Body Resistance
-    AddToMap(regularBonusMap, 16, CHARACTER_ATTRIBUTE_RESIST_BODY);
+	// of Body Resistance
+	AddToMap(regularBonusMap, 16, CHARACTER_ATTRIBUTE_RESIST_BODY);
 
-    // of Alchemy
-    AddToMap(regularBonusMap, 17, CHARACTER_ATTRIBUTE_SKILL_ALCHEMY);
+	// of Alchemy
+	AddToMap(regularBonusMap, 17, CHARACTER_ATTRIBUTE_SKILL_ALCHEMY);
 
-    // of Stealing
-    AddToMap(regularBonusMap, 18, CHARACTER_ATTRIBUTE_SKILL_STEALING);
+	// of Stealing
+	AddToMap(regularBonusMap, 18, CHARACTER_ATTRIBUTE_SKILL_STEALING);
 
-    // of Disarming
-    AddToMap(regularBonusMap, 19, CHARACTER_ATTRIBUTE_SKILL_TRAP_DISARM);
+	// of Disarming
+	AddToMap(regularBonusMap, 19, CHARACTER_ATTRIBUTE_SKILL_TRAP_DISARM);
 
-    // of Items
-    AddToMap(regularBonusMap, 20, CHARACTER_ATTRIBUTE_SKILL_ITEM_ID);
+	// of Items
+	AddToMap(regularBonusMap, 20, CHARACTER_ATTRIBUTE_SKILL_ITEM_ID);
 
-    // of Monsters
-    AddToMap(regularBonusMap, 21, CHARACTER_ATTRIBUTE_SKILL_MONSTER_ID);
+	// of Monsters
+	AddToMap(regularBonusMap, 21, CHARACTER_ATTRIBUTE_SKILL_MONSTER_ID);
 
-    // of Arms
-    AddToMap(regularBonusMap, 22, CHARACTER_ATTRIBUTE_SKILL_ARMSMASTER);
+	// of Arms
+	AddToMap(regularBonusMap, 22, CHARACTER_ATTRIBUTE_SKILL_ARMSMASTER);
 
-    // of Dodging
-    AddToMap(regularBonusMap, 23, CHARACTER_ATTRIBUTE_SKILL_DODGE);
+	// of Dodging
+	AddToMap(regularBonusMap, 23, CHARACTER_ATTRIBUTE_SKILL_DODGE);
 
-    // of the Fist
-    AddToMap(regularBonusMap, 24, CHARACTER_ATTRIBUTE_SKILL_UNARMED);
+	// of the Fist
+	AddToMap(regularBonusMap, 24, CHARACTER_ATTRIBUTE_SKILL_UNARMED);
 }
 
-void ItemGen::PopulateArtifactBonusMap() {
-    // Puck
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_PUCK, CHARACTER_ATTRIBUTE_SPEED, 40);
+void ItemGen::PopulateArtifactBonusMap()
+{
+	// Puck
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_PUCK, CHARACTER_ATTRIBUTE_SPEED, 40);
 
-    // Iron Feather
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_IRON_FEATHER, CHARACTER_ATTRIBUTE_STRENGTH, 40);
+	// Iron Feather
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_IRON_FEATHER, CHARACTER_ATTRIBUTE_STRENGTH, 40);
 
-    // Wallace
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_WALLACE, CHARACTER_ATTRIBUTE_SKILL_ARMSMASTER, 10);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_WALLACE, CHARACTER_ATTRIBUTE_WILLPOWER, 40);
+	// Wallace
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_WALLACE, CHARACTER_ATTRIBUTE_SKILL_ARMSMASTER, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_WALLACE, CHARACTER_ATTRIBUTE_WILLPOWER, 40);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_CORSAIR, CHARACTER_ATTRIBUTE_LUCK, 40);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_CORSAIR, CHARACTER_ATTRIBUTE_SKILL_TRAP_DISARM, 5);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_CORSAIR, CHARACTER_ATTRIBUTE_SKILL_STEALING, 5);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_CORSAIR, CHARACTER_ATTRIBUTE_LUCK, 40);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_CORSAIR, CHARACTER_ATTRIBUTE_SKILL_TRAP_DISARM, 5);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_CORSAIR, CHARACTER_ATTRIBUTE_SKILL_STEALING, 5);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_GOVERNORS_ARMOR, CHARACTER_ATTRIBUTE_STRENGTH, 10);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_GOVERNORS_ARMOR, CHARACTER_ATTRIBUTE_INTELLIGENCE, 10);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_GOVERNORS_ARMOR, CHARACTER_ATTRIBUTE_WILLPOWER, 10);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_GOVERNORS_ARMOR, CHARACTER_ATTRIBUTE_ENDURANCE, 10);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_GOVERNORS_ARMOR, CHARACTER_ATTRIBUTE_ACCURACY, 10);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_GOVERNORS_ARMOR, CHARACTER_ATTRIBUTE_SPEED, 10);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_GOVERNORS_ARMOR, CHARACTER_ATTRIBUTE_LUCK, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_GOVERNORS_ARMOR, CHARACTER_ATTRIBUTE_STRENGTH, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_GOVERNORS_ARMOR, CHARACTER_ATTRIBUTE_INTELLIGENCE, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_GOVERNORS_ARMOR, CHARACTER_ATTRIBUTE_WILLPOWER, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_GOVERNORS_ARMOR, CHARACTER_ATTRIBUTE_ENDURANCE, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_GOVERNORS_ARMOR, CHARACTER_ATTRIBUTE_ACCURACY, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_GOVERNORS_ARMOR, CHARACTER_ATTRIBUTE_SPEED, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_GOVERNORS_ARMOR, CHARACTER_ATTRIBUTE_LUCK, 10);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_YORUBA, CHARACTER_ATTRIBUTE_ENDURANCE, 25);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_YORUBA, CHARACTER_ATTRIBUTE_ENDURANCE, 25);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_SPLITTER, CHARACTER_ATTRIBUTE_RESIST_FIRE, 50);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_SPLITTER, CHARACTER_ATTRIBUTE_RESIST_FIRE, 50);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_ULLYSES, CHARACTER_ATTRIBUTE_ACCURACY, 50);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_ULLYSES, CHARACTER_ATTRIBUTE_ACCURACY, 50);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_HANDS_OF_THE_MASTER, CHARACTER_ATTRIBUTE_SKILL_DODGE, 10);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_HANDS_OF_THE_MASTER, CHARACTER_ATTRIBUTE_SKILL_UNARMED, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_HANDS_OF_THE_MASTER, CHARACTER_ATTRIBUTE_SKILL_DODGE, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_HANDS_OF_THE_MASTER, CHARACTER_ATTRIBUTE_SKILL_UNARMED, 10);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_SEVEN_LEAGUE_BOOTS, CHARACTER_ATTRIBUTE_SPEED, 40);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_SEVEN_LEAGUE_BOOTS, CHARACTER_ATTRIBUTE_SKILL_WATER, 0, &Player::skillWater);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_SEVEN_LEAGUE_BOOTS, CHARACTER_ATTRIBUTE_SPEED, 40);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_SEVEN_LEAGUE_BOOTS, CHARACTER_ATTRIBUTE_SKILL_WATER, 0, &Player::skillWater);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_RULERS_RING, CHARACTER_ATTRIBUTE_SKILL_MIND, 0, &Player::skillMind);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_RULERS_RING, CHARACTER_ATTRIBUTE_SKILL_DARK, 0, &Player::skillDark);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_RULERS_RING, CHARACTER_ATTRIBUTE_SKILL_MIND, 0, &Player::skillMind);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_RULERS_RING, CHARACTER_ATTRIBUTE_SKILL_DARK, 0, &Player::skillDark);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_MASH, CHARACTER_ATTRIBUTE_STRENGTH, 150);
-    AddToMap(artifactBonusMap, ITEM_RELIC_MASH, CHARACTER_ATTRIBUTE_INTELLIGENCE, -40);
-    AddToMap(artifactBonusMap, ITEM_RELIC_MASH, CHARACTER_ATTRIBUTE_WILLPOWER, -40);
-    AddToMap(artifactBonusMap, ITEM_RELIC_MASH, CHARACTER_ATTRIBUTE_SPEED, -40);
+	AddToMap(artifactBonusMap, ITEM_RELIC_MASH, CHARACTER_ATTRIBUTE_STRENGTH, 150);
+	AddToMap(artifactBonusMap, ITEM_RELIC_MASH, CHARACTER_ATTRIBUTE_INTELLIGENCE, -40);
+	AddToMap(artifactBonusMap, ITEM_RELIC_MASH, CHARACTER_ATTRIBUTE_WILLPOWER, -40);
+	AddToMap(artifactBonusMap, ITEM_RELIC_MASH, CHARACTER_ATTRIBUTE_SPEED, -40);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_ETHRICS_STAFF, CHARACTER_ATTRIBUTE_SKILL_DARK, 0, &Player::skillDark);
-    AddToMap(artifactBonusMap, ITEM_RELIC_ETHRICS_STAFF, CHARACTER_ATTRIBUTE_SKILL_MEDITATION, 15);
+	AddToMap(artifactBonusMap, ITEM_RELIC_ETHRICS_STAFF, CHARACTER_ATTRIBUTE_SKILL_DARK, 0, &Player::skillDark);
+	AddToMap(artifactBonusMap, ITEM_RELIC_ETHRICS_STAFF, CHARACTER_ATTRIBUTE_SKILL_MEDITATION, 15);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_SKILL_TRAP_DISARM, 5);
-    AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_SKILL_STEALING, 5);
-    AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_LUCK, 50);
-    AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_RESIST_FIRE, -10);
-    AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_RESIST_WATER, -10);
-    AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_RESIST_AIR, -10);
-    AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_RESIST_EARTH, -10);
-    AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_RESIST_MIND, -10);
-    AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_RESIST_BODY, -10);
+	AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_SKILL_TRAP_DISARM, 5);
+	AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_SKILL_STEALING, 5);
+	AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_LUCK, 50);
+	AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_RESIST_FIRE, -10);
+	AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_RESIST_WATER, -10);
+	AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_RESIST_AIR, -10);
+	AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_RESIST_EARTH, -10);
+	AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_RESIST_MIND, -10);
+	AddToMap(artifactBonusMap, ITEM_RELIC_HARECKS_LEATHER, CHARACTER_ATTRIBUTE_RESIST_BODY, -10);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_OLD_NICK, CHARACTER_ATTRIBUTE_SKILL_TRAP_DISARM, 5);
+	AddToMap(artifactBonusMap, ITEM_RELIC_OLD_NICK, CHARACTER_ATTRIBUTE_SKILL_TRAP_DISARM, 5);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_AMUCK, CHARACTER_ATTRIBUTE_STRENGTH, 100);
-    AddToMap(artifactBonusMap, ITEM_RELIC_AMUCK, CHARACTER_ATTRIBUTE_ENDURANCE, 100);
-    AddToMap(artifactBonusMap, ITEM_RELIC_AMUCK, CHARACTER_ATTRIBUTE_AC_BONUS, -15);
+	AddToMap(artifactBonusMap, ITEM_RELIC_AMUCK, CHARACTER_ATTRIBUTE_STRENGTH, 100);
+	AddToMap(artifactBonusMap, ITEM_RELIC_AMUCK, CHARACTER_ATTRIBUTE_ENDURANCE, 100);
+	AddToMap(artifactBonusMap, ITEM_RELIC_AMUCK, CHARACTER_ATTRIBUTE_AC_BONUS, -15);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_GLORY_SHIELD, CHARACTER_ATTRIBUTE_SKILL_SPIRIT, 0, &Player::skillSpirit);
-    AddToMap(artifactBonusMap, ITEM_RELIC_GLORY_SHIELD, CHARACTER_ATTRIBUTE_SKILL_SHIELD, 5);
-    AddToMap(artifactBonusMap, ITEM_RELIC_GLORY_SHIELD, CHARACTER_ATTRIBUTE_RESIST_MIND, -10);
-    AddToMap(artifactBonusMap, ITEM_RELIC_GLORY_SHIELD, CHARACTER_ATTRIBUTE_RESIST_BODY, -10);
+	AddToMap(artifactBonusMap, ITEM_RELIC_GLORY_SHIELD, CHARACTER_ATTRIBUTE_SKILL_SPIRIT, 0, &Player::skillSpirit);
+	AddToMap(artifactBonusMap, ITEM_RELIC_GLORY_SHIELD, CHARACTER_ATTRIBUTE_SKILL_SHIELD, 5);
+	AddToMap(artifactBonusMap, ITEM_RELIC_GLORY_SHIELD, CHARACTER_ATTRIBUTE_RESIST_MIND, -10);
+	AddToMap(artifactBonusMap, ITEM_RELIC_GLORY_SHIELD, CHARACTER_ATTRIBUTE_RESIST_BODY, -10);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_KELEBRIM, CHARACTER_ATTRIBUTE_ENDURANCE, 50);
-    AddToMap(artifactBonusMap, ITEM_RELIC_KELEBRIM, CHARACTER_ATTRIBUTE_RESIST_EARTH, -30);
+	AddToMap(artifactBonusMap, ITEM_RELIC_KELEBRIM, CHARACTER_ATTRIBUTE_ENDURANCE, 50);
+	AddToMap(artifactBonusMap, ITEM_RELIC_KELEBRIM, CHARACTER_ATTRIBUTE_RESIST_EARTH, -30);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_TALEDONS_HELM, CHARACTER_ATTRIBUTE_SKILL_LIGHT, 0, &Player::skillLight);
-    AddToMap(artifactBonusMap, ITEM_RELIC_TALEDONS_HELM, CHARACTER_ATTRIBUTE_WILLPOWER, 15);
-    AddToMap(artifactBonusMap, ITEM_RELIC_TALEDONS_HELM, CHARACTER_ATTRIBUTE_STRENGTH, 15);
-    AddToMap(artifactBonusMap, ITEM_RELIC_TALEDONS_HELM, CHARACTER_ATTRIBUTE_LUCK, -40);
+	AddToMap(artifactBonusMap, ITEM_RELIC_TALEDONS_HELM, CHARACTER_ATTRIBUTE_SKILL_LIGHT, 0, &Player::skillLight);
+	AddToMap(artifactBonusMap, ITEM_RELIC_TALEDONS_HELM, CHARACTER_ATTRIBUTE_WILLPOWER, 15);
+	AddToMap(artifactBonusMap, ITEM_RELIC_TALEDONS_HELM, CHARACTER_ATTRIBUTE_STRENGTH, 15);
+	AddToMap(artifactBonusMap, ITEM_RELIC_TALEDONS_HELM, CHARACTER_ATTRIBUTE_LUCK, -40);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_SCHOLARS_CAP, CHARACTER_ATTRIBUTE_SKILL_LEARNING, +15);
-    AddToMap(artifactBonusMap, ITEM_RELIC_SCHOLARS_CAP, CHARACTER_ATTRIBUTE_ENDURANCE, -50);
+	AddToMap(artifactBonusMap, ITEM_RELIC_SCHOLARS_CAP, CHARACTER_ATTRIBUTE_SKILL_LEARNING, +15);
+	AddToMap(artifactBonusMap, ITEM_RELIC_SCHOLARS_CAP, CHARACTER_ATTRIBUTE_ENDURANCE, -50);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_PHYNAXIAN_CROWN, CHARACTER_ATTRIBUTE_SKILL_FIRE, 0, &Player::skillFire);
-    AddToMap(artifactBonusMap, ITEM_RELIC_PHYNAXIAN_CROWN, CHARACTER_ATTRIBUTE_RESIST_WATER, +50);
-    AddToMap(artifactBonusMap, ITEM_RELIC_PHYNAXIAN_CROWN, CHARACTER_ATTRIBUTE_WILLPOWER, 30);
-    AddToMap(artifactBonusMap, ITEM_RELIC_PHYNAXIAN_CROWN, CHARACTER_ATTRIBUTE_AC_BONUS, -20);
+	AddToMap(artifactBonusMap, ITEM_RELIC_PHYNAXIAN_CROWN, CHARACTER_ATTRIBUTE_SKILL_FIRE, 0, &Player::skillFire);
+	AddToMap(artifactBonusMap, ITEM_RELIC_PHYNAXIAN_CROWN, CHARACTER_ATTRIBUTE_RESIST_WATER, +50);
+	AddToMap(artifactBonusMap, ITEM_RELIC_PHYNAXIAN_CROWN, CHARACTER_ATTRIBUTE_WILLPOWER, 30);
+	AddToMap(artifactBonusMap, ITEM_RELIC_PHYNAXIAN_CROWN, CHARACTER_ATTRIBUTE_AC_BONUS, -20);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_TITANS_BELT, CHARACTER_ATTRIBUTE_STRENGTH, 75);
-    AddToMap(artifactBonusMap, ITEM_RELIC_TITANS_BELT, CHARACTER_ATTRIBUTE_SPEED, -40);
+	AddToMap(artifactBonusMap, ITEM_RELIC_TITANS_BELT, CHARACTER_ATTRIBUTE_STRENGTH, 75);
+	AddToMap(artifactBonusMap, ITEM_RELIC_TITANS_BELT, CHARACTER_ATTRIBUTE_SPEED, -40);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_SPEED, 50);
-    AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_LUCK, 50);
-    AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_RESIST_FIRE, -15);
-    AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_RESIST_WATER, -15);
-    AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_RESIST_AIR, -15);
-    AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_RESIST_EARTH, -15);
-    AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_RESIST_MIND, -15);
-    AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_RESIST_BODY, -15);
+	AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_SPEED, 50);
+	AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_LUCK, 50);
+	AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_RESIST_FIRE, -15);
+	AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_RESIST_WATER, -15);
+	AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_RESIST_AIR, -15);
+	AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_RESIST_EARTH, -15);
+	AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_RESIST_MIND, -15);
+	AddToMap(artifactBonusMap, ITEM_RELIC_TWILIGHT, CHARACTER_ATTRIBUTE_RESIST_BODY, -15);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_ANIA_SELVING, CHARACTER_ATTRIBUTE_ACCURACY, 150);
-    AddToMap(artifactBonusMap, ITEM_RELIC_ANIA_SELVING, CHARACTER_ATTRIBUTE_SKILL_BOW, 5);
-    AddToMap(artifactBonusMap, ITEM_RELIC_ANIA_SELVING, CHARACTER_ATTRIBUTE_AC_BONUS, -25);
+	AddToMap(artifactBonusMap, ITEM_RELIC_ANIA_SELVING, CHARACTER_ATTRIBUTE_ACCURACY, 150);
+	AddToMap(artifactBonusMap, ITEM_RELIC_ANIA_SELVING, CHARACTER_ATTRIBUTE_SKILL_BOW, 5);
+	AddToMap(artifactBonusMap, ITEM_RELIC_ANIA_SELVING, CHARACTER_ATTRIBUTE_AC_BONUS, -25);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_JUSTICE, CHARACTER_ATTRIBUTE_SKILL_MIND, 0, &Player::skillMind);
-    AddToMap(artifactBonusMap, ITEM_RELIC_JUSTICE, CHARACTER_ATTRIBUTE_SKILL_BODY, 0, &Player::skillBody);
-    AddToMap(artifactBonusMap, ITEM_RELIC_JUSTICE, CHARACTER_ATTRIBUTE_SPEED, -40);
+	AddToMap(artifactBonusMap, ITEM_RELIC_JUSTICE, CHARACTER_ATTRIBUTE_SKILL_MIND, 0, &Player::skillMind);
+	AddToMap(artifactBonusMap, ITEM_RELIC_JUSTICE, CHARACTER_ATTRIBUTE_SKILL_BODY, 0, &Player::skillBody);
+	AddToMap(artifactBonusMap, ITEM_RELIC_JUSTICE, CHARACTER_ATTRIBUTE_SPEED, -40);
 
-    AddToMap(artifactBonusMap, ITEM_RELIC_MEKORIGS_HAMMER, CHARACTER_ATTRIBUTE_SKILL_SPIRIT, 0, &Player::skillSpirit);
-    AddToMap(artifactBonusMap, ITEM_RELIC_MEKORIGS_HAMMER, CHARACTER_ATTRIBUTE_STRENGTH, 75);
-    AddToMap(artifactBonusMap, ITEM_RELIC_MEKORIGS_HAMMER, CHARACTER_ATTRIBUTE_RESIST_AIR, -50);
+	AddToMap(artifactBonusMap, ITEM_RELIC_MEKORIGS_HAMMER, CHARACTER_ATTRIBUTE_SKILL_SPIRIT, 0, &Player::skillSpirit);
+	AddToMap(artifactBonusMap, ITEM_RELIC_MEKORIGS_HAMMER, CHARACTER_ATTRIBUTE_STRENGTH, 75);
+	AddToMap(artifactBonusMap, ITEM_RELIC_MEKORIGS_HAMMER, CHARACTER_ATTRIBUTE_RESIST_AIR, -50);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_HERMES_SANDALS, CHARACTER_ATTRIBUTE_SPEED, 100);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_HERMES_SANDALS, CHARACTER_ATTRIBUTE_ACCURACY, 50);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_HERMES_SANDALS, CHARACTER_ATTRIBUTE_RESIST_AIR, 50);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_HERMES_SANDALS, CHARACTER_ATTRIBUTE_SPEED, 100);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_HERMES_SANDALS, CHARACTER_ATTRIBUTE_ACCURACY, 50);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_HERMES_SANDALS, CHARACTER_ATTRIBUTE_RESIST_AIR, 50);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_CLOAK_OF_THE_SHEEP, CHARACTER_ATTRIBUTE_WILLPOWER, -20);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_CLOAK_OF_THE_SHEEP, CHARACTER_ATTRIBUTE_INTELLIGENCE, -20);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_CLOAK_OF_THE_SHEEP, CHARACTER_ATTRIBUTE_WILLPOWER, -20);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_CLOAK_OF_THE_SHEEP, CHARACTER_ATTRIBUTE_INTELLIGENCE, -20);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_MINDS_EYE, CHARACTER_ATTRIBUTE_WILLPOWER, 15);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_MINDS_EYE, CHARACTER_ATTRIBUTE_INTELLIGENCE, 15);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_MINDS_EYE, CHARACTER_ATTRIBUTE_WILLPOWER, 15);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_MINDS_EYE, CHARACTER_ATTRIBUTE_INTELLIGENCE, 15);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_ELVEN_CHAINMAIL, CHARACTER_ATTRIBUTE_SPEED, 15);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_ELVEN_CHAINMAIL, CHARACTER_ATTRIBUTE_ACCURACY, 15);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_ELVEN_CHAINMAIL, CHARACTER_ATTRIBUTE_SPEED, 15);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_ELVEN_CHAINMAIL, CHARACTER_ATTRIBUTE_ACCURACY, 15);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_FORGE_GAUNTLETS, CHARACTER_ATTRIBUTE_STRENGTH, 15);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_FORGE_GAUNTLETS, CHARACTER_ATTRIBUTE_ENDURANCE, 15);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_FORGE_GAUNTLETS, CHARACTER_ATTRIBUTE_RESIST_FIRE, 30);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_FORGE_GAUNTLETS, CHARACTER_ATTRIBUTE_STRENGTH, 15);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_FORGE_GAUNTLETS, CHARACTER_ATTRIBUTE_ENDURANCE, 15);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_FORGE_GAUNTLETS, CHARACTER_ATTRIBUTE_RESIST_FIRE, 30);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_HEROS_BELT, CHARACTER_ATTRIBUTE_STRENGTH, 15);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_HEROS_BELT, CHARACTER_ATTRIBUTE_SKILL_ARMSMASTER, 5);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_HEROS_BELT, CHARACTER_ATTRIBUTE_STRENGTH, 15);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_HEROS_BELT, CHARACTER_ATTRIBUTE_SKILL_ARMSMASTER, 5);
 
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_LADYS_ESCORT, CHARACTER_ATTRIBUTE_RESIST_FIRE, 10);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_LADYS_ESCORT, CHARACTER_ATTRIBUTE_RESIST_AIR, 10);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_LADYS_ESCORT, CHARACTER_ATTRIBUTE_RESIST_WATER, 10);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_LADYS_ESCORT, CHARACTER_ATTRIBUTE_RESIST_EARTH, 10);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_LADYS_ESCORT, CHARACTER_ATTRIBUTE_RESIST_MIND, 10);
-    AddToMap(artifactBonusMap, ITEM_ARTIFACT_LADYS_ESCORT, CHARACTER_ATTRIBUTE_RESIST_BODY, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_LADYS_ESCORT, CHARACTER_ATTRIBUTE_RESIST_FIRE, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_LADYS_ESCORT, CHARACTER_ATTRIBUTE_RESIST_AIR, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_LADYS_ESCORT, CHARACTER_ATTRIBUTE_RESIST_WATER, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_LADYS_ESCORT, CHARACTER_ATTRIBUTE_RESIST_EARTH, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_LADYS_ESCORT, CHARACTER_ATTRIBUTE_RESIST_MIND, 10);
+	AddToMap(artifactBonusMap, ITEM_ARTIFACT_LADYS_ESCORT, CHARACTER_ATTRIBUTE_RESIST_BODY, 10);
 }
 
-void ItemGen::GetItemBonusSpecialEnchantment(Player *owner,
-                                             CHARACTER_ATTRIBUTE_TYPE attrToGet,
-                                             int *additiveBonus,
-                                             int *halfSkillBonus) {
-    auto pos = specialBonusMap.find(this->special_enchantment);
-    if (pos == specialBonusMap.end())
-        return;
+void ItemGen::GetItemBonusSpecialEnchantment(Player* owner,
+	CHARACTER_ATTRIBUTE_TYPE attrToGet,
+	int* additiveBonus,
+	int* halfSkillBonus)
+{
+	auto pos = specialBonusMap.find(this->special_enchantment);
+	if (pos == specialBonusMap.end())
+		return;
 
-    auto subpos = pos->second.find(attrToGet);
-    if (subpos == pos->second.end())
-        return;
+	auto subpos = pos->second.find(attrToGet);
+	if (subpos == pos->second.end())
+		return;
 
-    const CEnchantment &currBonus = subpos->second;
-    if (currBonus.statPtr != NULL) {
-        if (currBonus.statBonus == 0) {
-            *halfSkillBonus = GetSkillLevel(owner->*currBonus.statPtr) / 2;
-        } else {
-            if (*additiveBonus < currBonus.statBonus) {
-                *additiveBonus = currBonus.statBonus;
-            }
-        }
-    } else {
-        *additiveBonus += currBonus.statBonus;
-    }
+	const CEnchantment& currBonus = subpos->second;
+	if (currBonus.statPtr != NULL)
+	{
+		if (currBonus.statBonus == 0)
+		{
+			*halfSkillBonus = GetSkillLevel(owner->*currBonus.statPtr) / 2;
+		}
+		else
+		{
+			if (*additiveBonus < currBonus.statBonus)
+			{
+				*additiveBonus = currBonus.statBonus;
+			}
+		}
+	}
+	else
+	{
+		*additiveBonus += currBonus.statBonus;
+	}
 }
 
-void ItemGen::GetItemBonusArtifact(Player *owner,
-                                   CHARACTER_ATTRIBUTE_TYPE attrToGet,
-                                   int *bonusSum) {
-    auto pos = artifactBonusMap.find(this->uItemID);
-    if (pos == artifactBonusMap.end())
-        return;
+void ItemGen::GetItemBonusArtifact(Player* owner,
+	CHARACTER_ATTRIBUTE_TYPE attrToGet,
+	int* bonusSum)
+{
+	auto pos = artifactBonusMap.find(this->uItemID);
+	if (pos == artifactBonusMap.end())
+		return;
 
-    auto subpos = pos->second.find(attrToGet);
-    if (subpos == pos->second.end())
-        return;
+	auto subpos = pos->second.find(attrToGet);
+	if (subpos == pos->second.end())
+		return;
 
-    const CEnchantment &currBonus = subpos->second;
-    if (currBonus.statPtr != NULL) {
-        *bonusSum = GetSkillLevel(owner->*currBonus.statPtr) / 2;
-    } else {
-        *bonusSum += currBonus.statBonus;
-    }
+	const CEnchantment& currBonus = subpos->second;
+	if (currBonus.statPtr != NULL)
+	{
+		*bonusSum = GetSkillLevel(owner->*currBonus.statPtr) / 2;
+	}
+	else
+	{
+		*bonusSum += currBonus.statBonus;
+	}
 }
 
-bool ItemGen::IsRegularEnchanmentForAttribute(CHARACTER_ATTRIBUTE_TYPE attrToGet) {
-    auto pos = specialBonusMap.find(this->uEnchantmentType);
-    if (pos == specialBonusMap.end())
-        return false;
+bool ItemGen::IsRegularEnchanmentForAttribute(CHARACTER_ATTRIBUTE_TYPE attrToGet)
+{
+	auto pos = specialBonusMap.find(this->uEnchantmentType);
+	if (pos == specialBonusMap.end())
+		return false;
 
-    return pos->second.find(attrToGet) != pos->second.end();
+	return pos->second.find(attrToGet) != pos->second.end();
 }
 
-ITEM_EQUIP_TYPE ItemGen::GetItemEquipType() {
-    // to avoid nzi - is this safe??
-    if (this->uItemID == ITEM_NULL)
-        return EQUIP_NONE;
-    else
-        return pItemTable->pItems[this->uItemID].uEquipType;
+ITEM_EQUIP_TYPE ItemGen::GetItemEquipType()
+{
+	// to avoid nzi - is this safe??
+	if (this->uItemID == ITEM_NULL)
+		return EQUIP_NONE;
+	else
+		return pItemTable->pItems[this->uItemID].uEquipType;
 }
 
-PLAYER_SKILL_TYPE ItemGen::GetPlayerSkillType() {
-    PLAYER_SKILL_TYPE skl = pItemTable->pItems[this->uItemID].uSkillType;
-    if (skl == PLAYER_SKILL_CLUB && engine->config->gameplay.TreatClubAsMace.value()) {
-        // club skill not used but some items load it
-        skl = PLAYER_SKILL_MACE;
-    }
-    return skl;
+PLAYER_SKILL_TYPE ItemGen::GetPlayerSkillType()
+{
+	PLAYER_SKILL_TYPE skl = pItemTable->pItems[this->uItemID].uSkillType;
+	if (skl == PLAYER_SKILL_CLUB && engine->config->gameplay.TreatClubAsMace.value())
+	{
+		// club skill not used but some items load it
+		skl = PLAYER_SKILL_MACE;
+	}
+	return skl;
 }
 
-char *ItemGen::GetIconName() {
-    return pItemTable->pItems[this->uItemID].pIconName;
+char* ItemGen::GetIconName()
+{
+	return pItemTable->pItems[this->uItemID].pIconName;
 }
 
-uint8_t ItemGen::GetDamageDice() {
-    return pItemTable->pItems[this->uItemID].uDamageDice;
+uint8_t ItemGen::GetDamageDice()
+{
+	return pItemTable->pItems[this->uItemID].uDamageDice;
 }
 
-uint8_t ItemGen::GetDamageRoll() {
-    return pItemTable->pItems[this->uItemID].uDamageRoll;
+uint8_t ItemGen::GetDamageRoll()
+{
+	return pItemTable->pItems[this->uItemID].uDamageRoll;
 }
 
-uint8_t ItemGen::GetDamageMod() {
-    return pItemTable->pItems[this->uItemID].uDamageMod;
+uint8_t ItemGen::GetDamageMod()
+{
+	return pItemTable->pItems[this->uItemID].uDamageMod;
 }
 
 //----- (0043C91D) --------------------------------------------------------
-std::string GetItemTextureFilename(ITEM_TYPE item_id, int index, int shoulder) {
-    // For some reason artifact textures are stored using different ids,
-    // and textures under original ids simply don't exist.
-    int texture_id = std::to_underlying(valueOr(itemTextureIdByItemId, item_id, item_id));
+std::string GetItemTextureFilename(ITEM_TYPE item_id, int index, int shoulder)
+{
+	// For some reason artifact textures are stored using different ids,
+	// and textures under original ids simply don't exist.
+	int texture_id = std::to_underlying(valueOr(itemTextureIdByItemId, item_id, item_id));
 
-    switch (pItemTable->pItems[item_id].uEquipType) {
-        case EQUIP_ARMOUR:
-            if (shoulder == 0)
-                return fmt::format("item{:03}v{}", texture_id, index);
-            else if (shoulder == 1)
-                return fmt::format("item{:03}v{}a1", texture_id, index);
-            else // shoulder == 2
-                return fmt::format("item{:03}v{}a2", texture_id, index);
-        case EQUIP_CLOAK:
-            if (shoulder == 0)
-                return fmt::format("item{:03}v{}", texture_id, index);
-            else // shoulder == 1
-                return fmt::format("item{:03}v{}a1", texture_id, index);
-        default:
-            return fmt::format("item{:03}v{}", texture_id, index);
-    }
+	switch (pItemTable->pItems[item_id].uEquipType)
+	{
+	case EQUIP_ARMOUR:
+		if (shoulder == 0)
+			return fmt::format("item{:03}v{}", texture_id, index);
+		else if (shoulder == 1)
+			return fmt::format("item{:03}v{}a1", texture_id, index);
+		else // shoulder == 2
+			return fmt::format("item{:03}v{}a2", texture_id, index);
+	case EQUIP_CLOAK:
+		if (shoulder == 0)
+			return fmt::format("item{:03}v{}", texture_id, index);
+		else // shoulder == 1
+			return fmt::format("item{:03}v{}a1", texture_id, index);
+	default:
+		return fmt::format("item{:03}v{}", texture_id, index);
+	}
 }
 
 //----- (004BDAAF) --------------------------------------------------------
-bool ItemGen::MerchandiseTest(int _2da_idx) {
-    bool test;
+bool ItemGen::MerchandiseTest(int _2da_idx)
+{
+	bool test;
 
-    // TODO(captainurist): move these checks into functions in ItemEnums.h?
-    if ((p2DEvents[_2da_idx - 1].uType != BuildingType_AlchemistShop || !IsRecipe(this->uItemID)) &&
-        (this->uItemID >= ITEM_QUEST_HEART_OF_THE_WOOD || this->uItemID >= ITEM_ARTIFACT_HERMES_SANDALS && this->uItemID <= ITEM_599) ||
-        this->IsStolen())
-        return false;
+	// TODO(captainurist): move these checks into functions in ItemEnums.h?
+	if ((p2DEvents[_2da_idx - 1].uType != BuildingType_AlchemistShop || !IsRecipe(this->uItemID)) &&
+		(this->uItemID >= ITEM_QUEST_HEART_OF_THE_WOOD || this->uItemID >= ITEM_ARTIFACT_HERMES_SANDALS && this->uItemID <= ITEM_599) ||
+		this->IsStolen())
+		return false;
 
-    switch (p2DEvents[_2da_idx - 1].uType) {
-        case BuildingType_WeaponShop: {
-            test = this->isWeapon();
-            break;
-        }
-        case BuildingType_ArmorShop: {
-            test = this->isArmor();
-            break;
-        }
-        case BuildingType_MagicShop: {
-            test = this->GetPlayerSkillType() == PLAYER_SKILL_MISC || this->isBook();
-            break;
-        }
-        case BuildingType_AlchemistShop: {
-            test = this->isReagent() ||
-                   this->isPotion() ||
-                   (this->isMessageScroll() && IsRecipe(this->uItemID));
-            break;
-        }
-        default: {
-            test = false;
-            break;
-        }
-    }
-    return test;
+	switch (p2DEvents[_2da_idx - 1].uType)
+	{
+	case BuildingType_WeaponShop:
+	{
+		test = this->isWeapon();
+		break;
+	}
+	case BuildingType_ArmorShop:
+	{
+		test = this->isArmor();
+		break;
+	}
+	case BuildingType_MagicShop:
+	{
+		test = this->GetPlayerSkillType() == PLAYER_SKILL_MISC || this->isBook();
+		break;
+	}
+	case BuildingType_AlchemistShop:
+	{
+		test = this->isReagent() ||
+			this->isPotion() ||
+			(this->isMessageScroll() && IsRecipe(this->uItemID));
+		break;
+	}
+	default:
+	{
+		test = false;
+		break;
+	}
+	}
+	return test;
 }
 
-Segment<ITEM_TREASURE_LEVEL> RemapTreasureLevel(ITEM_TREASURE_LEVEL itemTreasureLevel, MAP_TREASURE_LEVEL mapTreasureLevel) {
-    // mapping[item_level][map_level] -> [actual_level_min, actual_level_max];
-    // Original offset was 0x004E8168.
-    static constexpr std::array<std::array<Segment<int>, 7>, 7> mapping = {{
-        {{{1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}}},
-        {{{1, 1}, {1, 2}, {2, 2}, {2, 2}, {2, 2}, {2, 2}, {2, 2}}},
-        {{{1, 2}, {2, 2}, {2, 3}, {3, 3}, {3, 3}, {3, 3}, {3, 3}}},
-        {{{2, 2}, {2, 2}, {3, 3}, {3, 4}, {4, 4}, {4, 4}, {4, 4}}},
-        {{{2, 2}, {2, 2}, {3, 4}, {4, 4}, {4, 5}, {5, 5}, {5, 5}}},
-        {{{2, 2}, {2, 2}, {4, 4}, {4, 5}, {5, 5}, {5, 6}, {6, 6}}},
-        {{{2, 2}, {2, 2}, {7, 7}, {7, 7}, {7, 7}, {7, 7}, {7, 7}}}
-    }};
+Segment<ITEM_TREASURE_LEVEL> RemapTreasureLevel(ITEM_TREASURE_LEVEL itemTreasureLevel, MAP_TREASURE_LEVEL mapTreasureLevel)
+{
+	// mapping[item_level][map_level] -> [actual_level_min, actual_level_max];
+	// Original offset was 0x004E8168.
+	static constexpr std::array<std::array<Segment<int>, 7>, 7> mapping = { {
+		{{{1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}}},
+		{{{1, 1}, {1, 2}, {2, 2}, {2, 2}, {2, 2}, {2, 2}, {2, 2}}},
+		{{{1, 2}, {2, 2}, {2, 3}, {3, 3}, {3, 3}, {3, 3}, {3, 3}}},
+		{{{2, 2}, {2, 2}, {3, 3}, {3, 4}, {4, 4}, {4, 4}, {4, 4}}},
+		{{{2, 2}, {2, 2}, {3, 4}, {4, 4}, {4, 5}, {5, 5}, {5, 5}}},
+		{{{2, 2}, {2, 2}, {4, 4}, {4, 5}, {5, 5}, {5, 6}, {6, 6}}},
+		{{{2, 2}, {2, 2}, {7, 7}, {7, 7}, {7, 7}, {7, 7}, {7, 7}}}
+	} };
 
-    // TODO(captainurist) : type-safe enum diff!
-    int itemIdx = std::to_underlying(itemTreasureLevel) - std::to_underlying(ITEM_TREASURE_LEVEL_FIRST_VALID);
-    int mapIdx = std::to_underlying(mapTreasureLevel) - std::to_underlying(MAP_TREASURE_LEVEL_FIRST);
-    Segment<int> result = mapping[itemIdx][mapIdx];
-    return {ITEM_TREASURE_LEVEL(result.front()), ITEM_TREASURE_LEVEL(result.back())};
+	// TODO(captainurist) : type-safe enum diff!
+	int itemIdx = std::to_underlying(itemTreasureLevel) - std::to_underlying(ITEM_TREASURE_LEVEL_FIRST_VALID);
+	int mapIdx = std::to_underlying(mapTreasureLevel) - std::to_underlying(MAP_TREASURE_LEVEL_FIRST);
+	Segment<int> result = mapping[itemIdx][mapIdx];
+	return { ITEM_TREASURE_LEVEL(result.front()), ITEM_TREASURE_LEVEL(result.back()) };
 }

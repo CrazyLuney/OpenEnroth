@@ -1,7 +1,5 @@
 #pragma once
 
-#include <variant>
-
 #include "Utility/Flags.h"
 
 #include "Engine/Graphics/IRender.h"

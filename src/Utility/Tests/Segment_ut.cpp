@@ -1,6 +1,3 @@
-#include <numeric>
-#include <vector>
-
 #include "Testing/Unit/UnitTest.h"
 
 #include "Utility/Segment.h"

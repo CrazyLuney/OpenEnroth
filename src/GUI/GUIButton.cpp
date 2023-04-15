@@ -1,7 +1,5 @@
 #include "GUI/GUIButton.h"
 
-#include <vector>
-
 #include "Engine/Engine.h"
 #include "Engine/EngineGlobals.h"
 #include "Engine/LOD.h"

@@ -1,5 +1,4 @@
 #pragma once
-#include <cstdint>
 
 #define PID(type, id) (uint16_t)((((8 * (id))) | (std::to_underlying(type))) & 0xFFFF)  // packed id
 #define PID_TYPE(pid) static_cast<ObjectType>((pid)&7)          // extract type
@@ -82,8 +81,9 @@ typedef unsigned long ulong;
 
 
 /*  297 */
-enum SoundType {
-    SOUND_EndTurnBasedMode = 0xCE,
-    SOUND_StartTurnBasedMode = 0xCF,
-    SOUND_FlipOnExit = 0x4E21,
+enum SoundType
+{
+	SOUND_EndTurnBasedMode = 0xCE,
+	SOUND_StartTurnBasedMode = 0xCF,
+	SOUND_FlipOnExit = 0x4E21,
 };

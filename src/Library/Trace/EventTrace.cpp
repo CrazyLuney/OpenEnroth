@@ -1,9 +1,5 @@
 #include "EventTrace.h"
 
-#include <fstream>
-#include <memory>
-#include <string>
-
 #include "Library/Serialization/EnumSerialization.h"
 #include "Library/Json/Json.h"
 

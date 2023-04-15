@@ -1,7 +1,5 @@
 #pragma once
 
-#include <array>
-
 #include "Engine/EngineIocContainer.h"
 
 #include "Utility/Geometry/Vec.h"

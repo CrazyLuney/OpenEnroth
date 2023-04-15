@@ -1,10 +1,5 @@
 #pragma once
 
-#include <array>
-#include <vector>
-#include <string>
-#include <utility>
-
 #include "Engine/Time.h"
 #include "Engine/MM7.h"
 #include "Engine/Autonotes.h"
@@ -61,8 +56,8 @@ extern std::array<unsigned char, 14> byte_4E5DD8;
 extern std::array<uint8_t, 14> pPartySpellbuffsUI_smthns;
 extern std::array<std::array<int, 6>, 6> pNPCPortraits_x;  // 004E5E50
 extern std::array<std::array<int, 6>, 6> pNPCPortraits_y;  // 004E5EE0
-extern std::array<const char *, 11> pHouse_ExitPictures;
-extern std::array<const char *, 11> _4E6BDC_loc_names;
+extern std::array<const char*, 11> pHouse_ExitPictures;
+extern std::array<const char*, 11> _4E6BDC_loc_names;
 extern std::array<int16_t, 11> word_4E8152;
 extern char _4E94D0_light_type;
 extern char _4E94D2_light_type;
@@ -71,10 +66,10 @@ extern std::array<unsigned int, 2> saveload_dlg_xs;
 extern std::array<unsigned int, 2> saveload_dlg_ys;
 extern std::array<unsigned int, 2> saveload_dlg_zs;
 extern std::array<unsigned int, 2> saveload_dlg_ws;
-extern std::array<const char *, 465> pTransitionStrings;  // 4EB080
+extern std::array<const char*, 465> pTransitionStrings;  // 4EB080
 extern std::array<int, 9> dword_4EC268;
 extern std::array<int, 7> dword_4EC28C;
-extern std::array<const char *, 25> pPlayerPortraitsNames;
+extern std::array<const char*, 25> pPlayerPortraitsNames;
 
 extern std::array<std::array<unsigned char, 25>, 48> byte_4ECF08;
 extern IndexedArray<std::array<unsigned char, 3>, SPEECH_FIRST, SPEECH_LAST> speechVariants;
@@ -112,10 +107,10 @@ extern std::array<char, 777> books_num_items_per_page;
 extern int MapBookOpen;
 // extern Texture_MM7 *dword_50640C[];
 extern int
-    books_page_number;  // number for page in books(номер страницы в книгах)
+books_page_number;  // number for page in books(номер страницы в книгах)
 extern int
-    books_primary_item_per_page;  // number primary item in book page(номер
-                                  // начальной записи на странице)
+books_primary_item_per_page;  // number primary item in book page(номер
+// начальной записи на странице)
 extern int Autonotes_Instructors_page_flag;  // dword_50652C
 extern int Autonotes_Misc_page_flag;         // dword_506530
 extern int Book_PageBtn6_flag;               // dword_506534
@@ -138,8 +133,8 @@ extern int KeyboardPageNum;
 extern char bFlashHistoryBook;
 extern char bFlashAutonotesBook;
 extern char bFlashQuestBook;
-extern GUIButton *pBtn_ZoomOut;  // idb
-extern GUIButton *pBtn_ZoomIn;  // idb
+extern GUIButton* pBtn_ZoomOut;  // idb
+extern GUIButton* pBtn_ZoomIn;  // idb
 extern unsigned int uGameUIFontShadow;
 extern unsigned int uGameUIFontMain;
 extern int dword_507B00_spell_info_to_draw_in_popup;
@@ -176,15 +171,15 @@ extern std::array<char, 54> party_has_equipment;
 extern unsigned int uNumBlueFacesInBLVMinimap;
 extern std::array<uint16_t, 50> pBlueFacesInBLVMinimapIDs;
 
-extern std::array<class Image *, 14> party_buff_icons;
+extern std::array<class Image*, 14> party_buff_icons;
 extern unsigned int uIconIdx_FlySpell;
 extern unsigned int uIconIdx_WaterWalk;
 extern GameTime _5773B8_event_timer;  // 5773B8
 
-extern Actor *pDialogue_SpeakingActor;
+extern Actor* pDialogue_SpeakingActor;
 extern DIALOGUE_TYPE uDialogueType;
 extern signed int sDialogue_SpeakingActorNPC_ID;
-extern struct LevelDecoration *_591094_decoration;
+extern struct LevelDecoration* _591094_decoration;
 extern int uCurrentHouse_Animation;
 
 
@@ -196,15 +191,15 @@ extern int uCurrentHouse_Animation;
 // extern int Party_Teleport_X_Pos;  // transition entry point
 
 extern std::array<std::array<char, 100>, 6> byte_591180;  // idb
-extern std::array<struct NPCData *, 7>
-    HouseNPCData;  // 0this array size temporarily increased to 60 from 6 to
-                   // work aroud house overflow
-extern GUIButton *HouseNPCPortraitsButtonsList[6];
+extern std::array<struct NPCData*, 7>
+HouseNPCData;  // 0this array size temporarily increased to 60 from 6 to
+// work aroud house overflow
+extern GUIButton* HouseNPCPortraitsButtonsList[6];
 extern std::string branchless_dialogue_str;
 extern int EvtTargetObj;
 extern int _unused_5B5924_is_travel_ui_drawn;  // 005B5924
 
-extern char *Party_Teleport_Map_Name;
+extern char* Party_Teleport_Map_Name;
 extern int Party_Teleport_X_Pos;
 extern int Party_Teleport_Y_Pos;
 extern int Party_Teleport_Z_Pos;
@@ -234,34 +229,34 @@ extern std::array<char, 10000> pTmpBuf3;
 extern std::array<char, 100> Journal_limitation_factor;
 extern int ui_current_text_color;
 extern int64_t qword_5C6DF0;
-extern char *pHealthPointsAttributeDescription;
-extern char *pSpellPointsAttributeDescription;
-extern char *pArmourClassAttributeDescription;
-extern char *pPlayerConditionAttributeDescription;  // idb
-extern char *pFastSpellAttributeDescription;
-extern char *pPlayerAgeAttributeDescription;
-extern char *pPlayerLevelAttributeDescription;
-extern char *pPlayerExperienceAttributeDescription;
-extern char *pAttackBonusAttributeDescription;
-extern char *pAttackDamageAttributeDescription;
-extern char *pMissleBonusAttributeDescription;
-extern char *pMissleDamageAttributeDescription;
-extern char *pFireResistanceAttributeDescription;
-extern char *pAirResistanceAttributeDescription;
-extern char *pWaterResistanceAttributeDescription;
-extern char *pEarthResistanceAttributeDescription;
-extern char *pMindResistanceAttributeDescription;
-extern char *pBodyResistanceAttributeDescription;
-extern char *pSkillPointsAttributeDescription;
-extern struct FactionTable *pFactionTable;
+extern char* pHealthPointsAttributeDescription;
+extern char* pSpellPointsAttributeDescription;
+extern char* pArmourClassAttributeDescription;
+extern char* pPlayerConditionAttributeDescription;  // idb
+extern char* pFastSpellAttributeDescription;
+extern char* pPlayerAgeAttributeDescription;
+extern char* pPlayerLevelAttributeDescription;
+extern char* pPlayerExperienceAttributeDescription;
+extern char* pAttackBonusAttributeDescription;
+extern char* pAttackDamageAttributeDescription;
+extern char* pMissleBonusAttributeDescription;
+extern char* pMissleDamageAttributeDescription;
+extern char* pFireResistanceAttributeDescription;
+extern char* pAirResistanceAttributeDescription;
+extern char* pWaterResistanceAttributeDescription;
+extern char* pEarthResistanceAttributeDescription;
+extern char* pMindResistanceAttributeDescription;
+extern char* pBodyResistanceAttributeDescription;
+extern char* pSkillPointsAttributeDescription;
+extern struct FactionTable* pFactionTable;
 
 extern std::string pMonstersTXT_Raw;
 extern std::string pMonsterPlacementTXT_Raw;
 extern std::string pSpellsTXT_Raw;
-extern char *pMapStatsTXT_Raw;
+extern char* pMapStatsTXT_Raw;
 extern std::string pHostileTXT_Raw;
-extern char *pPotionsTXT_Raw;
-extern char *pPotionNotesTXT_Raw;
+extern char* pPotionsTXT_Raw;
+extern char* pPotionNotesTXT_Raw;
 
 extern std::array<int, 777> _6807B8_level_decorations_ids;  // idb
 extern int _6807E0_num_decorations_with_sounds_6807B8;
@@ -277,10 +272,10 @@ extern int uDefaultTravelTime_ByFoot;
 extern int day_attrib;
 extern int day_fogrange_1;
 extern int day_fogrange_2;
-extern struct TileTable *pTileTable;              // idb
+extern struct TileTable* pTileTable;              // idb
 extern std::array<char, 777> pDefaultSkyTexture;  // idb
 extern std::array<char, 16>
-    byte_6BE124_cfg_textures_DefaultGroundTexture;  // idb
+byte_6BE124_cfg_textures_DefaultGroundTexture;  // idb
 extern int _6BE134_odm_main_tile_group;
 extern int dword_6BE138;
 extern int dword_6BE13C_uCurrentlyLoadedLocationID;
@@ -332,19 +327,19 @@ extern std::array<int, 299> dword_7201B0_zvalues;
 extern std::array<int16_t, 104> odm_floor_face_vert_coord_Y;  // word_720F70
 extern std::array<int16_t, 104> odm_floor_face_vert_coord_X;  // word_721040
 extern Vec3i blv_prev_party_pos;
-extern char *dword_722F10;  // idb
-extern std::array<const char *, 513> pQuestTable;
-extern char *dword_723718_autonote_related;  // idb
-extern IndexedArray<const char *, ITEM_FIRST_MESSAGE_SCROLL, ITEM_LAST_MESSAGE_SCROLL> pScrolls;
+extern char* dword_722F10;  // idb
+extern std::array<const char*, 513> pQuestTable;
+extern char* dword_723718_autonote_related;  // idb
+extern IndexedArray<const char*, ITEM_FIRST_MESSAGE_SCROLL, ITEM_LAST_MESSAGE_SCROLL> pScrolls;
 extern int dword_7241C8;
 
 extern std::string pAwardsTXT_Raw;
 extern std::string pScrollsTXT_Raw;
 extern std::string pMerchantsTXT_Raw;
-extern IndexedArray<const char *, MERCHANT_PHRASE_COUNT> pMerchantsBuyPhrases;
-extern IndexedArray<const char *, MERCHANT_PHRASE_COUNT> pMerchantsSellPhrases;
-extern IndexedArray<const char *, MERCHANT_PHRASE_COUNT> pMerchantsRepairPhrases;
-extern IndexedArray<const char *, MERCHANT_PHRASE_COUNT> pMerchantsIdentifyPhrases;
+extern IndexedArray<const char*, MERCHANT_PHRASE_COUNT> pMerchantsBuyPhrases;
+extern IndexedArray<const char*, MERCHANT_PHRASE_COUNT> pMerchantsSellPhrases;
+extern IndexedArray<const char*, MERCHANT_PHRASE_COUNT> pMerchantsRepairPhrases;
+extern IndexedArray<const char*, MERCHANT_PHRASE_COUNT> pMerchantsIdentifyPhrases;
 extern std::string pTransitionsTXT_Raw;
 extern std::string pAutonoteTXT_Raw;
 extern std::string pQuestsTXT_Raw;
@@ -364,7 +359,7 @@ extern std::array<int16_t, 6> weapons_Ypos;  // word_F8B158
 extern int guild_membership_approved;
 extern PLAYER_SKILL_MASTERY dword_F8B1B0_MasteryBeingTaught;
 extern int gold_transaction_amount;  // F8B1B4
-extern std::array<const char *, 4> pShopOptions;
+extern std::array<const char*, 4> pShopOptions;
 extern int dword_F8B1E0;
 extern int dword_F8B1E4;
 extern std::string current_npc_text;  // F8B1E8

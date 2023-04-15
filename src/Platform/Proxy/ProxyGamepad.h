@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 #include "Platform/PlatformGamepad.h"
 
 #include "ProxyBase.h"

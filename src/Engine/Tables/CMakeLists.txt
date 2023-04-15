@@ -18,4 +18,5 @@ set(ENGINE_TABLES_HEADERS
 
 add_library(engine_tables STATIC ${ENGINE_TABLES_SOURCES} ${ENGINE_TABLES_HEADERS})
 target_link_libraries(engine_tables engine)
-target_check_style(engine_tables)
+
+target_precompile_headers_reuse(engine_tables utility)

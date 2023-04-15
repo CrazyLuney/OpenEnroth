@@ -1,9 +1,5 @@
 #include "Engine/Graphics/Vis.h"
 
-#include <cstdlib>
-#include <algorithm>
-#include <vector>
-
 #include "Engine/Engine.h"
 #include "Engine/EngineIocContainer.h"
 #include "Engine/LOD.h"

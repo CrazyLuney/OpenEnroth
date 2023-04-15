@@ -1,8 +1,5 @@
 #pragma once
 
-#include <filesystem>
-#include <string>
-
 /**
  * This function handles home-relative paths, so this is the preferred method of constructing
  * absolute paths instead of calling `std::filesystem::path` constructor.

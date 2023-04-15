@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <memory>
-
 #include "Library/Application/PlatformApplicationAware.h"
 
 class EventTrace;

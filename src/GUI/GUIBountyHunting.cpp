@@ -1,7 +1,5 @@
 #include "GUIBountyHunting.h"
 
-#include <cassert>
-
 #include "Engine/Graphics/IRender.h"
 #include "Engine/Localization.h"
 #include "Engine/Awards.h"

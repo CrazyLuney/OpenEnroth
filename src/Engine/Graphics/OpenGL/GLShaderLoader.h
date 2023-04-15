@@ -4,14 +4,8 @@
 
 #pragma once
 
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <filesystem>
-
 #include "glad/gl.h"
-#include <glm.hpp>
+#include "glm.hpp"
 
 #include "Engine/EngineIocContainer.h"
 

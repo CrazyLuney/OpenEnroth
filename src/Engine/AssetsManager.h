@@ -1,46 +1,44 @@
 #pragma once
 
-#include <map>
-#include <string>
-
 #include "Utility/Color.h"
 
 class Image;
 class Texture;
 
-class AssetsManager {
- public:
-    AssetsManager() {}
+class AssetsManager
+{
+public:
+	AssetsManager() {}
 
-    void ReleaseAllTextures();
+	void ReleaseAllTextures();
 
-    bool ReleaseAllImages();
-    bool ReleaseAllSprites();
+	bool ReleaseAllImages();
+	bool ReleaseAllSprites();
 
-    bool ReleaseImage(const std::string &name);
-    bool ReleaseSprite(const std::string &name);
+	bool ReleaseImage(const std::string& name);
+	bool ReleaseSprite(const std::string& name);
 
-    Texture *GetImage_ColorKey(const std::string &name, uint16_t colorkey = colorTable.TealMask.c16());
-    Texture *GetImage_Paletted(const std::string &name);
-    Texture *GetImage_Solid(const std::string &name);
-    Texture *GetImage_Alpha(const std::string &name);
+	Texture* GetImage_ColorKey(const std::string& name, uint16_t colorkey = colorTable.TealMask.c16());
+	Texture* GetImage_Paletted(const std::string& name);
+	Texture* GetImage_Solid(const std::string& name);
+	Texture* GetImage_Alpha(const std::string& name);
 
-    Texture *GetImage_PCXFromFile(const std::string &name);
-    Texture *GetImage_PCXFromIconsLOD(const std::string &name);
-    Texture *GetImage_PCXFromNewLOD(const std::string &name);
+	Texture* GetImage_PCXFromFile(const std::string& name);
+	Texture* GetImage_PCXFromIconsLOD(const std::string& name);
+	Texture* GetImage_PCXFromNewLOD(const std::string& name);
 
-    Texture *GetBitmap(const std::string &name);
-    Texture *GetSprite(const std::string &name, unsigned int palette_id,
-                       unsigned int lod_sprite_id);
+	Texture* GetBitmap(const std::string& name);
+	Texture* GetSprite(const std::string& name, unsigned int palette_id,
+		unsigned int lod_sprite_id);
 
-    // TODO(pskelton): Contain better
-    // TODO(pskelton): Manager should have a ref to all loose textures created throuh CreateTexture_Blank also
-    Texture *WinnerCert{ nullptr };
+	// TODO(pskelton): Contain better
+	// TODO(pskelton): Manager should have a ref to all loose textures created throuh CreateTexture_Blank also
+	Texture* WinnerCert{ nullptr };
 
- protected:
-    std::map<std::string, Texture *> bitmaps;
-    std::map<std::string, Texture *> sprites;
-    std::map<std::string, Texture *> images;
+protected:
+	std::map<std::string, Texture*> bitmaps;
+	std::map<std::string, Texture*> sprites;
+	std::map<std::string, Texture*> images;
 };
 
-extern AssetsManager *assets;
+extern AssetsManager* assets;

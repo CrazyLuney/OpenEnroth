@@ -1,10 +1,5 @@
 #include "EngineController.h"
 
-#include <cassert>
-#include <filesystem>
-#include <utility>
-#include <thread>
-
 #include "Arcomage/Arcomage.h"
 
 #include "GUI/GUIProgressBar.h"

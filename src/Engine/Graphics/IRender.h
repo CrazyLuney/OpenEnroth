@@ -1,7 +1,4 @@
 #pragma once
-#include <memory>
-#include <string>
-#include <vector>
 
 #include "Engine/Graphics/Image.h"
 #include "Engine/Graphics/Nuklear.h"

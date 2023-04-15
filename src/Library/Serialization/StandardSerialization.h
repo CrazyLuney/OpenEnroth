@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 #include "SerializationFwd.h"
 
 MM_DECLARE_SERIALIZATION_FUNCTIONS(bool)

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "RandomEngine.h"
 
 // TODO(captaiurist): actually these static vars belong to Engine/

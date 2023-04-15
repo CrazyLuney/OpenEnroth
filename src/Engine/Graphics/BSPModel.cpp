@@ -1,9 +1,4 @@
 #include "Engine/Graphics/BSPModel.h"
-
-#include <cstring>
-#include <cstdlib>
-#include <algorithm>
-
 #include "Engine/AssetsManager.h"
 #include "Engine/Events.h"
 #include "Engine/Graphics/Image.h"

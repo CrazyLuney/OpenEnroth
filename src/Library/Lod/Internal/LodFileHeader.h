@@ -1,10 +1,5 @@
 #pragma once
 
-#include <array>
-#include <cstring> // memset
-#include <cstdint>
-
-
 #pragma pack(push, 1)
 struct LodFileHeader_Mm6 {
     inline LodFileHeader_Mm6() {

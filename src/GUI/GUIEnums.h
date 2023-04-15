@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 #include "Library/Serialization/SerializationFwd.h"
 
 enum GUILD_ID : int32_t {

@@ -1,7 +1,3 @@
-#include <map>
-#include <algorithm>
-#include <string>
-
 #include "GUI/UI/UIGame.h"
 
 #include "Application/Game.h"

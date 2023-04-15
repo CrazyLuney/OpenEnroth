@@ -1,7 +1,5 @@
 #include "Engine/Tables/FrameTableInc.h"
 
-#include <memory.h>
-
 // identical function to work in differnt threads
 
 //----- (004BE3BF) --------------------------------------------------------

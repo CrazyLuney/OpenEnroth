@@ -1,9 +1,5 @@
 #pragma once
 
-#include <cassert>
-#include <string>
-#include <vector>
-
 #include "Utility/Embedded.h"
 #include "Utility/Streams/FileOutputStream.h"
 #include "Utility/Streams/OutputStream.h"

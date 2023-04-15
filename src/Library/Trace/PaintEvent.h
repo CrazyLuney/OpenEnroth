@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 #include "Platform/PlatformEvents.h"
 
 #include "Utility/Workaround/ToUnderlying.h"

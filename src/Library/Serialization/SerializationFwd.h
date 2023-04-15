@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <string_view>
-
 /**
  * Forward-declares lexical serialization functions for the given type.
  *

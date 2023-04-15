@@ -41,3 +41,11 @@ dist
 *.rej
 *.diff
 *.patch
+*.vcxproj
+*.filters
+CMakeFiles/
+*.sln
+*.cmake
+CMakeCache.txt
+cpplint.tar.gz
+cpplint-1.6.1/

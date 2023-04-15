@@ -1,14 +1,8 @@
 #include "RenderOpenGL.h"
 
-#include <algorithm>
-#include <memory>
-#include <utility>
-#include <map>
-#include <chrono>
-
 #include "glad/gl.h"
-#include <glm.hpp>
-#include <glm/glm/gtc/matrix_transform.hpp>
+#include "glm.hpp"
+#include "glm/glm/gtc/matrix_transform.hpp"
 
 #include "Engine/Engine.h"
 #include "Engine/EngineGlobals.h"
@@ -1755,7 +1749,7 @@ void RenderOpenGL::DrawOutdoorTerrain() {
             char container_name[64];
             sprintf(container_name, "HDWTR%03u", buff);
 
-            terraintexmap.insert(std::make_pair(container_name, terraintexmap.size()));
+            terraintexmap.insert(std::make_pair(container_name, static_cast<decltype(terraintexmap)::mapped_type>(terraintexmap.size())));
             numterraintexloaded[0]++;
         }
 
@@ -3668,7 +3662,7 @@ void RenderOpenGL::DrawOutdoorBuildings() {
             char container_name[64];
             sprintf(container_name, "HDWTR%03u", buff);
 
-            outbuildtexmap.insert(std::make_pair(container_name, outbuildtexmap.size()));
+            outbuildtexmap.insert(std::make_pair(container_name, static_cast<decltype(outbuildtexmap)::mapped_type>(outbuildtexmap.size())));
             numoutbuildtexloaded[0]++;
         }
 
@@ -4279,7 +4273,7 @@ void RenderOpenGL::DrawIndoorFaces() {
                 char container_name[64];
                 sprintf(container_name, "HDWTR%03u", buff);
 
-                bsptexmap.insert(std::make_pair(container_name, bsptexmap.size()));
+                bsptexmap.insert(std::make_pair(container_name, static_cast<decltype(bsptexmap)::mapped_type>(bsptexmap.size())));
                 bsptexloaded[0]++;
             }
 

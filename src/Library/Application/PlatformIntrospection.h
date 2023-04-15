@@ -1,9 +1,5 @@
 #pragma once
 
-#include <cassert>
-#include <utility>
-#include <type_traits>
-
 #include "Platform/Proxy/ProxyWindow.h"
 #include "Platform/Proxy/ProxyPlatform.h"
 #include "Platform/Proxy/ProxyEventLoop.h"

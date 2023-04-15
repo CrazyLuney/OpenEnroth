@@ -1,11 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <functional>
-#include <typeindex>
-#include <vector>
-#include <unordered_map>
-
 #include "Platform/PlatformOpenGLOptions.h"
 
 #include "PlatformIntrospection.h"

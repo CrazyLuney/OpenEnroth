@@ -1,7 +1,5 @@
 #include "ConfigSection.h"
 
-#include <cassert>
-
 #include "Utility/MapAccess.h"
 
 #include "Config.h"

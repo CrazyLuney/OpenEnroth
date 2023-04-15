@@ -1,10 +1,5 @@
 #pragma once
 
-#include <string>
-#include <functional>
-#include <any>
-#include <vector>
-
 #include "ConfigFwd.h"
 
 class AnyConfigEntry {

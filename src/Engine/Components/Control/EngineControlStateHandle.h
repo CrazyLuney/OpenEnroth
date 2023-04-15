@@ -1,8 +1,5 @@
 #pragma once
 
-#include <cassert>
-#include <memory>
-
 #include "EngineControlState.h"
 
 class EngineControlStateHandle {

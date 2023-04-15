@@ -1,7 +1,5 @@
 #include "GUI/UI/UIArena.h"
 
-#include <string>
-
 #include "Engine/Engine.h"
 #include "Engine/Events.h"
 #include "Engine/Graphics/Sprites.h"

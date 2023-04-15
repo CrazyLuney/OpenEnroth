@@ -28,6 +28,7 @@ set(ENGINE_OBJECTS_HEADERS
         SpriteObject.h)
 
 add_library(engine_objects STATIC ${ENGINE_OBJECTS_SOURCES} ${ENGINE_OBJECTS_HEADERS})
-target_check_style(engine_objects)
 
 target_link_libraries(engine_objects engine gui library_random utility)
+
+target_precompile_headers_reuse(engine_objects utility)

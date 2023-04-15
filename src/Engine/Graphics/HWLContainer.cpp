@@ -1,9 +1,4 @@
 #include "Engine/Graphics/HWLContainer.h"
-
-#include <cassert>
-#include <cstring>
-#include <vector>
-
 #include "Engine/EngineIocContainer.h"
 #include "Library/Compression/Compression.h"
 #include "Library/Logger/Logger.h"

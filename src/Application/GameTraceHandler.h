@@ -11,20 +11,21 @@
  * keystrokes don't end up being recorded. Technically there's nothing wrong with recording them, but there's little
  * point in doing so.
  */
-class GameTraceHandler : private PlatformEventFilter, private PlatformApplicationAware {
- public:
-    GameTraceHandler();
-    virtual ~GameTraceHandler() = default;
+class GameTraceHandler : private PlatformEventFilter, private PlatformApplicationAware
+{
+public:
+	GameTraceHandler();
+	virtual ~GameTraceHandler() = default;
 
-    virtual bool keyPressEvent(const PlatformKeyEvent *event) override;
-    virtual bool keyReleaseEvent(const PlatformKeyEvent *event) override;
+	virtual bool keyPressEvent(const PlatformKeyEvent* event) override;
+	virtual bool keyReleaseEvent(const PlatformKeyEvent* event) override;
 
- private:
-    friend class PlatformIntrospection;
+private:
+	friend class PlatformIntrospection;
 
-    bool isTriggerKey(const PlatformKeyEvent *event) const;
-    bool isTriggerKeySequence(const PlatformKeyEvent *event) const;
+	bool isTriggerKey(const PlatformKeyEvent* event) const;
+	bool isTriggerKeySequence(const PlatformKeyEvent* event) const;
 
- private:
-    bool _waitingForKeyRelease = false;
+private:
+	bool _waitingForKeyRelease = false;
 };

@@ -1,10 +1,5 @@
 #pragma once
 
-#include <thread>
-#include <queue>
-#include <functional>
-#include <memory>
-
 #include "Platform/Proxy/ProxyOpenGLContext.h"
 #include "Platform/Proxy/ProxyEventLoop.h"
 

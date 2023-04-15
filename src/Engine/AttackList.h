@@ -1,17 +1,15 @@
 #pragma once
 
-#include <cstdint>
-#include <vector>
-
 #include "Engine/Objects/Actor.h"
 
-struct AttackDescription {
-    int16_t pid;
-    Vec3i pos;
-    int attackRange;
-    bool isMelee; // Melee attack or magic AOE
-    ABILITY_INDEX attackSpecial; // special ability
-    //Vec3i attackVector; // no point to have it inside struct
+struct AttackDescription
+{
+	int16_t pid;
+	Vec3i pos;
+	int attackRange;
+	bool isMelee; // Melee attack or magic AOE
+	ABILITY_INDEX attackSpecial; // special ability
+	//Vec3i attackVector; // no point to have it inside struct
 };
 
 extern std::vector<AttackDescription> attackList;  // for area of effect damage

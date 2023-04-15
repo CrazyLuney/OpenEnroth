@@ -1,26 +1,16 @@
 #include "Media/MediaPlayer.h"
 
-extern "C" {
-    #include <libavcodec/avcodec.h>
-    #include <libavformat/avformat.h>
-    #include <libavutil/avutil.h>
-    #include <libavutil/imgutils.h>
-    #include <libavutil/mem.h>
-    #include <libavutil/opt.h>
-    #include <libswresample/swresample.h>
-    #include <libswscale/swscale.h>
+extern "C"
+{
+    #include "libavcodec/avcodec.h"
+    #include "libavformat/avformat.h"
+    #include "libavutil/avutil.h"
+    #include "libavutil/imgutils.h"
+    #include "libavutil/mem.h"
+    #include "libavutil/opt.h"
+    #include "libswresample/swresample.h"
+    #include "libswscale/swscale.h"
 }
-
-#include <algorithm>
-#include <cassert>
-#include <chrono>
-#include <deque>
-#include <map>
-#include <memory>
-#include <queue>
-#include <vector>
-#include <thread>
-#include <utility>
 
 #include "Engine/Engine.h"
 #include "Engine/EngineGlobals.h"

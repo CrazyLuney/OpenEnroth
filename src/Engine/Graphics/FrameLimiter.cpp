@@ -1,7 +1,5 @@
 #include "FrameLimiter.h"
 
-#include <chrono>
-
 static int64_t nowNs() {
     // We're going through std::chrono here and not through Platform because we need actual clock time, not
     // "simulation time".

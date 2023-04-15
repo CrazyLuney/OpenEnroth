@@ -1,8 +1,5 @@
 #include "Engine/Graphics/RenderBase.h"
 
-#include <cassert>
-#include <algorithm>
-
 #include "Engine/Engine.h"
 #include "Engine/MM7.h"
 #include "Engine/SpellFxRenderer.h"

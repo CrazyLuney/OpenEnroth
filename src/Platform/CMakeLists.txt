@@ -57,8 +57,9 @@ endif()
 include_directories(${INCLUDE_DIRECTORIES} ${SDL2_INCLUDE_DIRS})
 
 add_library(platform STATIC ${PLATFORM_SOURCES} ${PLATFORM_HEADERS})
-target_check_style(platform)
 
-target_link_libraries(platform ${SDL2_LIBRARIES})
+target_link_libraries(platform utility ${SDL2_LIBRARIES})
+
+target_precompile_headers_reuse(platform utility)
 
 message(VERBOSE "SDL2_LIBRARIES: ${SDL2_LIBRARIES}")

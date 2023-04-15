@@ -2,8 +2,6 @@
 
 // TODO(pskelton): rename - lighting functions
 
-#include <string>
-
 #include "Engine/Engine.h"
 #include "Engine/Graphics/Camera.h"
 #include "Engine/stru314.h"

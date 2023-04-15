@@ -1,9 +1,5 @@
 #include "EngineTraceComponent.h"
 
-#include <cassert>
-#include <utility>
-#include <memory>
-
 #include "Library/Application/PlatformApplication.h"
 #include "Library/Random/Random.h"
 #include "Library/Trace/PaintEvent.h"

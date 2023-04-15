@@ -1,5 +1,3 @@
-#include <algorithm>
-
 #include "PaletteManager.h"
 #include "Engine/Graphics/PaletteManager.h"
 

@@ -28,7 +28,6 @@ set(APPLICATION_HEADERS
         GameIocContainer.h)
 
 add_library(application STATIC ${APPLICATION_SOURCES} ${APPLICATION_HEADERS})
-target_check_style(application)
 
 target_link_libraries(application
         CLI11::CLI11
@@ -44,3 +43,5 @@ target_link_libraries(application
         media
         platform
         utility)
+
+target_precompile_headers_reuse(application utility)

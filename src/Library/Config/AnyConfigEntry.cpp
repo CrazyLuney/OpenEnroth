@@ -1,8 +1,5 @@
 #include "AnyConfigEntry.h"
 
-#include <cassert>
-#include <utility>
-
 #include "ConfigSection.h"
 #include "AnyHandler.h"
 

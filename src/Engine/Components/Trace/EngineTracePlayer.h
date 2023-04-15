@@ -1,9 +1,5 @@
 #pragma once
 
-#include <string>
-#include <functional>
-#include <memory>
-
 #include "Library/Application/PlatformApplicationAware.h"
 
 #include "Utility/Flags.h"

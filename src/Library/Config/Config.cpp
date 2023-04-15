@@ -1,11 +1,7 @@
 #include "Config.h"
 
 #define MINI_CASE_SENSITIVE
-#include <mini/ini.h>
-
-#include <cassert>
-#include <filesystem>
-#include <string>
+#include "mini/ini.h"
 
 #include "Utility/MapAccess.h"
 #include "Utility/Exception.h"

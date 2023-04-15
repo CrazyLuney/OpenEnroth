@@ -1,9 +1,5 @@
 #pragma once
 
-#include <array>
-#include <vector>
-#include <string>
-
 #include "GUI/GUIWindow.h"
 
 class Image;

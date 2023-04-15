@@ -1,8 +1,4 @@
 #include "EnumSerializer.h"
-
-#include <cassert>
-#include <algorithm>
-
 #include "Utility/String.h"
 
 bool detail::EnumSerializationTable::trySerialize(uint64_t src, std::string *dst) const {

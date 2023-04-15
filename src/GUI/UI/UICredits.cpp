@@ -1,7 +1,5 @@
 #include "GUI/UI/UICredits.h"
 
-#include <string>
-
 #include "Engine/EngineGlobals.h"
 #include "Engine/Graphics/IRender.h"
 #include "Engine/LOD.h"

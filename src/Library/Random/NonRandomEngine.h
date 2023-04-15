@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cassert>
-
 #include "RandomEngine.h"
 
 class NonRandomEngine : public RandomEngine {

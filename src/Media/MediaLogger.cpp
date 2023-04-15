@@ -1,11 +1,9 @@
 #include "MediaLogger.h"
 
-extern "C" {
-#include <libavutil/log.h>
+extern "C"
+{
+#include "libavutil/log.h"
 }
-
-#include <cassert>
-#include <mutex>
 
 static std::mutex GlobalMediaLoggerMutex;
 static MediaLogger *GlobalMediaLoggerInstance = nullptr;
