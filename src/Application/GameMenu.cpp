@@ -324,11 +324,19 @@ void Menu::EventLoop()
 				new_level = (pt.x - 263) / 17;  // for mouse
 			}
 
+<<<<<<< HEAD
 			engine->config->settings.MusicLevel.setValue(new_level);
 			pAudioPlayer->SetMusicVolume(engine->config->settings.MusicLevel.value());
 			pAudioPlayer->playMusicSound(SOUND_hurp);
 			continue;
 		}
+=======
+                engine->config->settings.MusicLevel.setValue(new_level);
+                pAudioPlayer->SetMusicVolume(engine->config->settings.MusicLevel.value());
+                pAudioPlayer->playSound(SOUND_hurp, AudioPlayer::SOUND_PID_MUSIC_VOLUME);
+                continue;
+            }
+>>>>>>> 1cc477586fe4093279a9e4bed96b6b4ebb07204e
 
 		case UIMSG_ChangeSoundVolume:
 		{
@@ -386,6 +394,7 @@ void Menu::EventLoop()
 				new_level = (pt.x - 263) / 17;
 			}
 
+<<<<<<< HEAD
 			engine->config->settings.VoiceLevel.setValue(new_level);
 			pAudioPlayer->SetVoiceVolume(engine->config->settings.VoiceLevel.value());
 			if (engine->config->settings.VoiceLevel.value() > 0)
@@ -399,6 +408,20 @@ void Menu::EventLoop()
 				pParty->_viewYaw = param * pParty->_viewYaw / param;
 			engine->config->settings.TurnSpeed.setValue(param);
 			continue;
+=======
+                engine->config->settings.VoiceLevel.setValue(new_level);
+                pAudioPlayer->SetVoiceVolume(engine->config->settings.VoiceLevel.value());
+                if (engine->config->settings.VoiceLevel.value() > 0) {
+                    pAudioPlayer->playSound(SOUND_hf445a, AudioPlayer::SOUND_PID_VOICE_VOLUME);
+                }
+                continue;
+            }
+            case UIMSG_SetTurnSpeed:
+                if (param)
+                    pParty->_viewYaw = param * pParty->_viewYaw / param;
+                engine->config->settings.TurnSpeed.setValue(param);
+                continue;
+>>>>>>> 1cc477586fe4093279a9e4bed96b6b4ebb07204e
 
 		case UIMSG_SetGraphicsMode:
 			__debugbreak();  // Nomad: graphicsmode as it was now removed
