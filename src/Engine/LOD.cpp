@@ -827,8 +827,7 @@ bool LOD::WriteableFile::LoadFile(const std::string& filePath, bool bWriting)
 	return true;
 }
 
-void LOD::WriteableFile::AllocSubIndicesAndIO(unsigned int uNumSubIndices,
-	unsigned int uBufferSize)
+void LOD::WriteableFile::AllocSubIndicesAndIO(unsigned int uNumSubIndices, unsigned int uBufferSize)
 {
 	if (pSubIndices)
 	{

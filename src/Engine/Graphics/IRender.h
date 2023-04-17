@@ -75,7 +75,7 @@ struct ODMRenderParams {
     int field_60;
     int outdoor_no_wavy_water;
     int outdoor_no_mist;
-    int building_gamme = 0;
+    int building_gamma = 0;
     int terrain_gamma = 0;
 
     unsigned int uMapGridCellX = 0;  // moved from 157 struct IndoorCamera::0C

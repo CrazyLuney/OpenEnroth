@@ -1193,7 +1193,7 @@ void MM6_Initialize()
 	// L"gridband2", 15, pIniFilename); outdoor_grid_band_3 =
 	// GetPrivateProfileIntW(L"outdoor", L"gridband3", 25, pIniFilename);
 	pODMRenderParams->terrain_gamma = 0;
-	pODMRenderParams->building_gamme = 0;
+	pODMRenderParams->building_gamma = 0;
 	pODMRenderParams->shading_dist_shade = 2048;
 	pODMRenderParams->shading_dist_shademist = 4096;
 
@@ -1239,7 +1239,7 @@ void MM7Initialization()
 	{
 		pODMRenderParams->shading_dist_shade = 2048;
 		pODMRenderParams->terrain_gamma = 0;
-		pODMRenderParams->building_gamme = 0;
+		pODMRenderParams->building_gamma = 0;
 		pODMRenderParams->shading_dist_shademist = 4096;
 		pODMRenderParams->outdoor_no_wavy_water = 0;
 		// _47F4D3_initialize_terrain_bezier_stuff(outdoor_grid_band_1,
