@@ -1,18 +1,21 @@
 #pragma once
 
+#include "Geometry/Vec.h"
+
 /**
  * Lookup table for trigonometric functions.
  */
 class TrigTableLookup
 {
 public:
-	static const int uIntegerPi = 1024;
-	static const int uIntegerHalfPi = 512;
-	static const int uIntegerQuarterPi = 256;
-	static const int uIntegerDoublePi = 2048;
-	static const int uDoublePiMask = 2047;
-	static const int uPiMask = 1023;
-	static const int uHalfPiMask = 511;
+	static constexpr int Pi = 1024;
+	static constexpr int HalfPi = 512;
+	static constexpr int QuarterPi = 256;
+	static constexpr int TwoPi = 2048;
+	
+	static constexpr int PiMask = 1023;
+	static constexpr int HalfPiMask = 511;
+	static constexpr int TwoPiMask = 2047;
 
 	/**
 	 * @offset 0x00452969
@@ -42,8 +45,34 @@ public:
 	 */
 	int atan2(int x, int y) const;
 
+	static void rotate(int depth, int yaw, int pitch, const Vec3i& v, Vec3i::value_type& outx, Vec3i::value_type& outy, Vec3i::value_type& outz)
+	{
+		const auto cosf_x = std::cos(M_PI * pitch / Pi);
+		const auto sinf_x = std::sin(M_PI * pitch / Pi);
+		const auto cosf_y = std::cos(M_PI * yaw / Pi);
+		const auto sinf_y = std::sin(M_PI * yaw / Pi);
+
+		outx = v.x + static_cast<Vec3i::value_type>(sinf_y * cosf_x * depth);
+		outy = v.y + static_cast<Vec3i::value_type>(cosf_y * cosf_x * depth);
+		outz = v.z + static_cast<Vec3i::value_type>(sinf_x * depth);
+	}
+
+	static void rotate(int depth, int yaw, int pitch, const Vec3i& v, Vec3i::value_type* outx, Vec3i::value_type* outy, Vec3i::value_type* outz)
+	{
+		assert(!!outx);
+		assert(!!outy);
+		assert(!!outz);
+
+		rotate(depth, yaw, pitch, v, *outx, *outy, *outz);
+	}
+
+	static void rotate(int depth, int yaw, int pitch, const Vec3i& v, Vec3i& out)
+	{
+		rotate(depth, yaw, pitch, v, out.x, out.y, out.z);
+	}
+
 private:
-	std::array<float, uIntegerHalfPi + 1> _cosTable;
+	std::array<float, HalfPi + 1> _cosTable;
 };
 
 extern TrigTableLookup TrigLUT;

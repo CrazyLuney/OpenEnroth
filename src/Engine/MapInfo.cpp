@@ -369,7 +369,7 @@ MM_DEFINE_ENUM_SERIALIZATION_FUNCTIONS(MapStartPoint, CASE_SENSITIVE, {
 					pParty->vPosition.y = pLevelDecorations[i].vPosition.y;
 					pParty->vPosition.z = pLevelDecorations[i].vPosition.z;
 					pParty->uFallStartZ = pParty->vPosition.z;
-					pParty->_viewYaw = (int)(TrigLUT.uIntegerHalfPi *
+					pParty->_viewYaw = (int)(TrigLUT.HalfPi *
 						pLevelDecorations[i].field_1A) /
 						90;
 					if (pLevelDecorations[i]._yawAngle)

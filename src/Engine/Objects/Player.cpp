@@ -8128,7 +8128,7 @@ void Player::_42ECB5_PlayerAttacksActor()
 	{
 		melee_attack = true;
 
-		Vec3i a3 = actor->vPosition - pParty->vPosition;
+		Vec3i a3 = Vec3i(actor->vPosition) - Vec3i(pParty->vPosition);
 		normalize_to_fixpoint(&a3.x, &a3.y, &a3.z);
 
 		Actor::DamageMonsterFromParty(PID(OBJECT_Player, pParty->getActiveCharacter() - 1),

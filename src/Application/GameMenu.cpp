@@ -386,12 +386,11 @@ void Menu::EventLoop()
 				new_level = (pt.x - 263) / 17;
 			}
 
-			<<<<<< < HEAD
-				engine->config->settings.VoiceLevel.setValue(new_level);
+			engine->config->settings.VoiceLevel.setValue(new_level);
 			pAudioPlayer->SetVoiceVolume(engine->config->settings.VoiceLevel.value());
 			if (engine->config->settings.VoiceLevel.value() > 0)
 			{
-				pAudioPlayer->playSound(SOUND_hf445a, AudioPlayer::SOUND_PID_PLAYER_RESETABLE);
+				pAudioPlayer->playSound(SOUND_hf445a, AudioPlayer::SOUND_PID_VOICE_VOLUME);
 			}
 			continue;
 		}
@@ -400,115 +399,100 @@ void Menu::EventLoop()
 				pParty->_viewYaw = param * pParty->_viewYaw / param;
 			engine->config->settings.TurnSpeed.setValue(param);
 			continue;
-			====== =
-				engine->config->settings.VoiceLevel.setValue(new_level);
-			pAudioPlayer->SetVoiceVolume(engine->config->settings.VoiceLevel.value());
-			if (engine->config->settings.VoiceLevel.value() > 0)
-			{
-				pAudioPlayer->playSound(SOUND_hf445a, AudioPlayer::SOUND_PID_VOICE_VOLUME);
-			}
+
+		case UIMSG_SetGraphicsMode:
+			__debugbreak();  // Nomad: graphicsmode as it was now removed
 			continue;
-		}
-            case UIMSG_SetTurnSpeed:
-				if (param)
-					pParty->_viewYaw = param * pParty->_viewYaw / param;
-				engine->config->settings.TurnSpeed.setValue(param);
-				continue;
-				>>>>>> > 1cc477586fe4093279a9e4bed96b6b4ebb07204e
 
-			case UIMSG_SetGraphicsMode:
-				__debugbreak();  // Nomad: graphicsmode as it was now removed
-				continue;
+		case UIMSG_GameMenu_ReturnToGame:
+			// pGUIWindow_CurrentMenu->Release();
+			pEventTimer->Resume();
+			current_screen_type = CURRENT_SCREEN::SCREEN_GAME;
+			continue;
 
-			case UIMSG_GameMenu_ReturnToGame:
-				// pGUIWindow_CurrentMenu->Release();
+		case UIMSG_Escape:
+			if (pGameOverWindow)
+			{
+				pGameOverWindow->Release();
+				pGameOverWindow = nullptr;
+				continue;
+			}
+			render->ClearZBuffer();
+
+			if (current_screen_type == CURRENT_SCREEN::SCREEN_MENU)
+			{
 				pEventTimer->Resume();
 				current_screen_type = CURRENT_SCREEN::SCREEN_GAME;
-				continue;
+			}
+			else if (current_screen_type == CURRENT_SCREEN::SCREEN_SAVEGAME ||
+				current_screen_type == CURRENT_SCREEN::SCREEN_LOADGAME)
+			{
+				// crt_deconstruct_ptr_6A0118();
 
-			case UIMSG_Escape:
-				if (pGameOverWindow)
-				{
-					pGameOverWindow->Release();
-					pGameOverWindow = nullptr;
-					continue;
-				}
-				render->ClearZBuffer();
+				pGUIWindow_CurrentMenu->Release();
+				current_screen_type = CURRENT_SCREEN::SCREEN_MENU;
+				pGUIWindow_CurrentMenu = new GUIWindow_GameMenu();
+			}
+			else if (current_screen_type == CURRENT_SCREEN::SCREEN_OPTIONS)
+			{
+				options_menu_skin.Release();
+				pGUIWindow_CurrentMenu->Release();
+				current_screen_type = CURRENT_SCREEN::SCREEN_MENU;
+				pGUIWindow_CurrentMenu = new GUIWindow_GameMenu();
+			}
+			else if (current_screen_type == CURRENT_SCREEN::SCREEN_VIDEO_OPTIONS)
+			{
+				pGUIWindow_CurrentMenu->Release();
+				current_screen_type = CURRENT_SCREEN::SCREEN_MENU;
+				pGUIWindow_CurrentMenu = new GUIWindow_GameMenu();
+			}
+			else if (current_screen_type == CURRENT_SCREEN::SCREEN_KEYBOARD_OPTIONS)
+			{
+				// KeyToggleType pKeyToggleType;  // [sp+0h] [bp-5FCh]@287
+				int v197 = 1;
+				bool anyBindingErrors = false;
 
-				if (current_screen_type == CURRENT_SCREEN::SCREEN_MENU)
+				for (auto action : VanillaInputActions())
 				{
-					pEventTimer->Resume();
-					current_screen_type = CURRENT_SCREEN::SCREEN_GAME;
+					if (key_map_conflicted[action])
+					{
+						anyBindingErrors = true;
+						continue;
+					}
 				}
-				else if (current_screen_type == CURRENT_SCREEN::SCREEN_SAVEGAME ||
-					current_screen_type == CURRENT_SCREEN::SCREEN_LOADGAME)
+				if (anyBindingErrors)
 				{
-					// crt_deconstruct_ptr_6A0118();
-
-					pGUIWindow_CurrentMenu->Release();
-					current_screen_type = CURRENT_SCREEN::SCREEN_MENU;
-					pGUIWindow_CurrentMenu = new GUIWindow_GameMenu();
+					pAudioPlayer->playUISound(SOUND_error);
+					break; // deny to exit options until all key conflicts are solved
 				}
-				else if (current_screen_type == CURRENT_SCREEN::SCREEN_OPTIONS)
+				else
 				{
-					options_menu_skin.Release();
-					pGUIWindow_CurrentMenu->Release();
-					current_screen_type = CURRENT_SCREEN::SCREEN_MENU;
-					pGUIWindow_CurrentMenu = new GUIWindow_GameMenu();
-				}
-				else if (current_screen_type == CURRENT_SCREEN::SCREEN_VIDEO_OPTIONS)
-				{
-					pGUIWindow_CurrentMenu->Release();
-					current_screen_type = CURRENT_SCREEN::SCREEN_MENU;
-					pGUIWindow_CurrentMenu = new GUIWindow_GameMenu();
-				}
-				else if (current_screen_type == CURRENT_SCREEN::SCREEN_KEYBOARD_OPTIONS)
-				{
-					// KeyToggleType pKeyToggleType;  // [sp+0h] [bp-5FCh]@287
-					int v197 = 1;
-					bool anyBindingErrors = false;
+					for (uint i = 0; i < 5; i++)
+					{
+						if (game_ui_options_controls[i])
+						{
+							game_ui_options_controls[i]->Release();
+							game_ui_options_controls[i] = nullptr;
+						}
+					}
 
 					for (auto action : VanillaInputActions())
 					{
-						if (key_map_conflicted[action])
-						{
-							anyBindingErrors = true;
-							continue;
-						}
+						keyboardActionMapping->MapKey(action, curr_key_map[action], GetToggleType(action));
 					}
-					if (anyBindingErrors)
-					{
-						pAudioPlayer->playUISound(SOUND_error);
-						break; // deny to exit options until all key conflicts are solved
-					}
-					else
-					{
-						for (uint i = 0; i < 5; i++)
-						{
-							if (game_ui_options_controls[i])
-							{
-								game_ui_options_controls[i]->Release();
-								game_ui_options_controls[i] = nullptr;
-							}
-						}
-
-						for (auto action : VanillaInputActions())
-						{
-							keyboardActionMapping->MapKey(action, curr_key_map[action], GetToggleType(action));
-						}
-						keyboardActionMapping->StoreMappings();
-					}
-
-					pGUIWindow_CurrentMenu->Release();
-					current_screen_type = CURRENT_SCREEN::SCREEN_MENU;
-					pGUIWindow_CurrentMenu = new GUIWindow_GameMenu();
+					keyboardActionMapping->StoreMappings();
 				}
-				continue;
 
-			default:
-				break;
+				pGUIWindow_CurrentMenu->Release();
+				current_screen_type = CURRENT_SCREEN::SCREEN_MENU;
+				pGUIWindow_CurrentMenu = new GUIWindow_GameMenu();
+			}
+			continue;
+
+		default:
+			break;
+		}
 	}
-}
 }
 
 void Menu::MenuLoop()

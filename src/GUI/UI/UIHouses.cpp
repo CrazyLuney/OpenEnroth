@@ -42,7 +42,7 @@
 #include "Media/Audio/AudioPlayer.h"
 #include "Media/MediaPlayer.h"
 
-#include "Utility/String.h"
+#include "Utility/Strings.h"
 #include "Library/Random/Random.h"
 #include "Utility/Math/TrigLut.h"
 
@@ -3395,7 +3395,7 @@ void GUIWindow_House::Release() {
 
     dword_5C35D4 = 0;
     if (engine->config->settings.FlipOnExit.value()) {
-        pParty->_viewYaw = (TrigLUT.uIntegerDoublePi - 1) & (TrigLUT.uIntegerPi + pParty->_viewYaw);
+        pParty->_viewYaw = (TrigLUT.TwoPi - 1) & (TrigLUT.Pi + pParty->_viewYaw);
         pCamera3D->_viewYaw = pParty->_viewYaw;
     }
     pParty->uFlags |= PARTY_FLAGS_1_ForceRedraw;

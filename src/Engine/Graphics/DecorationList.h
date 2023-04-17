@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/String.h"
+#include "Utility/Strings.h"
 #include "Utility/Flags.h"
 #include "Utility/Memory/Blob.h"
 

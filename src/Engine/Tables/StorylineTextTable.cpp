@@ -1,6 +1,6 @@
 #include "Engine/Tables/StorylineTextTable.h"
 
-#include "Utility/String.h"
+#include "Utility/Strings.h"
 #include "../LOD.h"
 
 std::string pHistoryTXT_Raw;

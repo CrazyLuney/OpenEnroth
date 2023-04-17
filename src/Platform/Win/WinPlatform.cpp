@@ -4,7 +4,7 @@
 
 #include "Platform/Sdl/SdlLogger.h"
 
-#include "Utility/String.h"
+#include "Utility/Strings.h"
 
 static bool OS_GetAppStringRecursive(HKEY parent_key, const wchar_t* path, char* out_string, int out_string_size, int flags)
 {

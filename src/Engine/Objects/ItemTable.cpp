@@ -10,7 +10,7 @@
 
 #include "GUI/UI/UIHouses.h"
 
-#include "Utility/String.h"
+#include "Utility/Strings.h"
 #include "Utility/MapAccess.h"
 #include "Library/Random/Random.h"
 

@@ -29,7 +29,8 @@
         if (!jsonString)                                                                                                \
             throwJsonDeserializationError(json, #TYPE);                                                                 \
         value = fromString<TYPE>(*jsonString);                                                                          \
-    }
+    }                                                                                                                   \
+    /**/
 
 
 /**
@@ -48,7 +49,8 @@
         if (!json.is_object())                                                                                          \
             throwJsonDeserializationError(json, #TYPE);                                                                 \
         NLOHMANN_JSON_PASTE(MM_DEFINE_JSON_STRUCT_MEMBER_DESERIALIZATION_I, MM_PP_REMOVE_PARENS(MEMBER_NAMES))          \
-    }
+    }                                                                                                                   \
+    /**/
 
 
 #define MM_DEFINE_JSON_STRUCT_MEMBER_SERIALIZATION_I(ARG) MM_DEFINE_JSON_STRUCT_MEMBER_SERIALIZATION_II ARG

@@ -69,16 +69,16 @@ int SpriteObject::Create(int yaw, int pitch, int speed, int which_char)
 	case 0:
 		break;  // do nothing
 	case 1:
-		Vec3i::rotate((24/*<<16*/), 2048 - uFacing, 0, vPosition, &vPosition.x, &vPosition.y, &vPosition.z);
+		TrigTableLookup::rotate(24, TrigLUT.TwoPi - uFacing, 0, vPosition, vPosition);
 		break;
 	case 2:
-		Vec3i::rotate((8/*<<16*/), 2048 - uFacing, 0, vPosition, &vPosition.x, &vPosition.y, &vPosition.z);
+		TrigTableLookup::rotate(8, TrigLUT.TwoPi - uFacing, 0, vPosition, vPosition);
 		break;
 	case 3:
-		Vec3i::rotate((8/*<<16*/), 1024 - uFacing, 0, vPosition, &vPosition.x, &vPosition.y, &vPosition.z);
+		TrigTableLookup::rotate(8, TrigLUT.Pi - uFacing, 0, vPosition, vPosition);
 		break;
 	case 4:
-		Vec3i::rotate((24/*<<16*/), 1024 - uFacing, 0, vPosition, &vPosition.x, &vPosition.y, &vPosition.z);
+		TrigTableLookup::rotate(24, TrigLUT.Pi - uFacing, 0, vPosition, vPosition);
 		break;
 	default:
 		assert(false);
@@ -174,7 +174,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 			pSpriteObjects[uLayingItemID].vPosition.z = level + 1;
 			pSpriteObjects[uLayingItemID].vVelocity.z -= (pEventTimer->uTimeElapsed * GetGravityStrength());
 
-			int dotFix = abs(dot(norm, pSpriteObjects[uLayingItemID].vVelocity)) >> 16;
+			int dotFix = static_cast<int>(glm::abs(glm::dot(Vec3f(norm), Vec3f(pSpriteObjects[uLayingItemID].vVelocity)))) >> 16;
 			// v60 = ((uint64_t)(v56 * (int64_t)v51.x) >> 16);
 			// v60 = ((uint64_t)(v56 * (int64_t)v51.y) >> 16);
 			// v60 = ((uint64_t)(v56 * (int64_t)v51.z) >> 16);
@@ -213,7 +213,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 			pSpriteObjects[uLayingItemID].vVelocity.x = fixpoint_mul(58500, pSpriteObjects[uLayingItemID].vVelocity.x);
 			pSpriteObjects[uLayingItemID].vVelocity.y = fixpoint_mul(58500, pSpriteObjects[uLayingItemID].vVelocity.y);
 			pSpriteObjects[uLayingItemID].vVelocity.z = fixpoint_mul(58500, pSpriteObjects[uLayingItemID].vVelocity.z);
-			if (pSpriteObjects[uLayingItemID].vVelocity.getXY().lengthSqr() < 400)
+			if (Vec::length2_xy(pSpriteObjects[uLayingItemID].vVelocity) < 400)
 			{
 				pSpriteObjects[uLayingItemID].vVelocity.x = 0;
 				pSpriteObjects[uLayingItemID].vVelocity.y = 0;
@@ -247,9 +247,9 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 	for (int i = 0; i < 100; i++)
 	{
 		collision_state.uSectorID = 0;
-		collision_state.position_lo = pSpriteObjects[uLayingItemID].vPosition.toFloat() + Vec3f(0, 0, collision_state.radius_lo + 1);
+		collision_state.position_lo = Vec3f(pSpriteObjects[uLayingItemID].vPosition) + Vec3f(0, 0, collision_state.radius_lo + 1);
 		collision_state.position_hi = collision_state.position_lo;
-		collision_state.velocity = pSpriteObjects[uLayingItemID].vVelocity.toFloat();
+		collision_state.velocity = pSpriteObjects[uLayingItemID].vVelocity;
 		if (collision_state.PrepareAndCheckIfStationary(0))
 		{
 			return;
@@ -289,7 +289,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 		int collisionZ = collision_state.new_position_lo.z - collision_state.radius_lo - 1;
 		bool collisionOnWater = false;
 		int collisionBmodelPid = 0;
-		Vec3i collisionPos = collision_state.new_position_lo.toInt() - Vec3i(0, 0, collision_state.radius_lo + 1);
+		Vec3i collisionPos = Vec3i(collision_state.new_position_lo) - Vec3i(0, 0, collision_state.radius_lo + 1);
 		int collisionLevel = ODM_GetFloorLevel(collisionPos, object->uHeight, &collisionOnWater, &collisionBmodelPid, 0);
 		// TOOD(Nik-RE-dev): why initail "onWater" is used?
 		if (onWater && collisionZ < (collisionLevel + 60))
@@ -305,7 +305,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 		}
 		if (collision_state.adjusted_move_distance >= collision_state.move_distance)
 		{
-			pSpriteObjects[uLayingItemID].vPosition = (collision_state.new_position_lo - Vec3f(0, 0, collision_state.radius_lo + 1)).toIntTrunc();
+			pSpriteObjects[uLayingItemID].vPosition = collision_state.new_position_lo - Vec3f(0, 0, collision_state.radius_lo + 1);
 			//pSpriteObjects[uLayingItemID].vPosition.x = collision_state.new_position_lo.x;
 			//pSpriteObjects[uLayingItemID].vPosition.y = collision_state.new_position_lo.y;
 			//pSpriteObjects[uLayingItemID].vPosition.z = collision_state.new_position_lo.z - collision_state.radius_lo - 1;
@@ -317,7 +317,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 		// v60 = ((uint64_t)(collision_state.adjusted_move_distance * (signed int64_t)collision_state.direction.y) >> 16);
 		// v60 = ((uint64_t)(collision_state.adjusted_move_distance * (signed int64_t)collision_state.direction.z) >> 16);
 		Vec3f delta = collision_state.direction * collision_state.adjusted_move_distance;
-		pSpriteObjects[uLayingItemID].vPosition += delta.toInt();
+		pSpriteObjects[uLayingItemID].vPosition += delta;
 		pSpriteObjects[uLayingItemID].uSectorID = collision_state.uSectorID;
 		collision_state.total_move_distance += collision_state.adjusted_move_distance;
 		if (object->uFlags & OBJECT_DESC_INTERACTABLE)
@@ -342,7 +342,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 			if (face->uPolygonType == POLYGON_Floor)
 			{
 				pSpriteObjects[uLayingItemID].vPosition.z = bmodel->pVertices[face->pVertexIDs[0]].z + 1;
-				if (pSpriteObjects[uLayingItemID].vVelocity.getXY().lengthSqr() >= 400)
+				if (Vec::length2_xy(pSpriteObjects[uLayingItemID].vVelocity) >= 400)
 				{
 					if (face->uAttributes & FACE_TriggerByObject)
 					{
@@ -356,7 +356,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 			}
 			else
 			{
-				int dotFix = abs(dot(face->pFacePlaneOLD.vNormal, pSpriteObjects[uLayingItemID].vVelocity)) >> 16;
+				int dotFix = static_cast<int>(glm::abs(glm::dot(Vec3f(face->pFacePlaneOLD.vNormal), Vec3f(pSpriteObjects[uLayingItemID].vVelocity)))) >> 16;
 				if ((collision_state.speed / 8) > dotFix)
 				{
 					dotFix = collision_state.speed / 8;
@@ -387,12 +387,12 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 		pSpriteObjects[uLayingItemID].vVelocity.y = fixpoint_mul(58500, pSpriteObjects[uLayingItemID].vVelocity.y);
 		pSpriteObjects[uLayingItemID].vVelocity.z = fixpoint_mul(58500, pSpriteObjects[uLayingItemID].vVelocity.z);
 	}
-	Vec2i deltaXY = pSpriteObjects[uLayingItemID].vPosition.getXY() - pLevelDecorations[PID_ID(collision_state.pid)].vPosition.getXY();
-	int velLenXY = integer_sqrt(pSpriteObjects[uLayingItemID].vVelocity.getXY().lengthSqr());
+	const auto deltaXY { (pSpriteObjects[uLayingItemID].vPosition - pLevelDecorations[PID_ID(collision_state.pid)].vPosition).xy() };
+	int velLenXY = integer_sqrt(Vec::length2_xy(pSpriteObjects[uLayingItemID].vVelocity));
 	int velRotXY = TrigLUT.atan2(deltaXY.x, deltaXY.y);
 
 	pSpriteObjects[uLayingItemID].vVelocity.x = TrigLUT.cos(velRotXY) * velLenXY;
-	pSpriteObjects[uLayingItemID].vVelocity.y = TrigLUT.sin(velRotXY - TrigLUT.uIntegerHalfPi) * velLenXY;
+	pSpriteObjects[uLayingItemID].vVelocity.y = TrigLUT.sin(velRotXY - TrigLUT.HalfPi) * velLenXY;
 	//goto LABEL_74; // This goto results in an infinite loop, commented out.
 }
 
@@ -440,9 +440,9 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 		collision_state.total_move_distance = 0;
 		for (int loop = 0; loop < 100; loop++)
 		{
-			collision_state.position_hi = pSpriteObject->vPosition.toFloat() + Vec3f(0, 0, collision_state.radius_lo + 1);
+			collision_state.position_hi = Vec3f(pSpriteObject->vPosition) + Vec3f(0, 0, collision_state.radius_lo + 1);
 			collision_state.position_lo = collision_state.position_hi;
-			collision_state.velocity = pSpriteObject->vVelocity.toFloat();
+			collision_state.velocity = pSpriteObject->vVelocity;
 			collision_state.uSectorID = pSpriteObject->uSectorID;
 			if (collision_state.PrepareAndCheckIfStationary(0))
 			{
@@ -490,7 +490,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 
 			if (collision_state.adjusted_move_distance >= collision_state.move_distance)
 			{
-				pSpriteObject->vPosition = (collision_state.new_position_lo - Vec3f(0, 0, collision_state.radius_lo - 1)).toIntTrunc();
+				pSpriteObject->vPosition = Vec3f(collision_state.new_position_lo) - Vec3f(0, 0, collision_state.radius_lo - 1);
 				pSpriteObject->uSectorID = collision_state.uSectorID;
 				if (!(pObject->uFlags & OBJECT_DESC_TRIAL_PARTICLE))
 				{
@@ -504,7 +504,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 			// v40 = (uint64_t)(collision_state.adjusted_move_distance * (signed int64_t)collision_state.direction.z) >> 16;
 
 			Vec3f delta = collision_state.direction * collision_state.adjusted_move_distance;
-			pSpriteObject->vPosition += delta.toInt();
+			pSpriteObject->vPosition += delta;
 			pSpriteObject->uSectorID = collision_state.uSectorID;
 			collision_state.total_move_distance += collision_state.adjusted_move_distance;
 
@@ -518,11 +518,11 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 			int pidId = PID_ID(collision_state.pid);
 			if (PID_TYPE(collision_state.pid) == OBJECT_Decoration)
 			{
-				Vec2i deltaXY = pSpriteObject->vPosition.getXY() - pLevelDecorations[pidId].vPosition.getXY();
-				int velXYLen = integer_sqrt(pSpriteObject->vVelocity.getXY().lengthSqr());
-				int velXYRot = TrigLUT.atan2(deltaXY.x, deltaXY.y);
-				pSpriteObject->vVelocity.x = TrigLUT.cos(velXYRot) * velXYLen;
-				pSpriteObject->vVelocity.y = TrigLUT.sin(velXYRot) * velXYLen;
+				const auto deltaXY { (pSpriteObject->vPosition - pLevelDecorations[pidId].vPosition).xy() };
+				int velLenXY = integer_sqrt(Vec::length2_xy(pSpriteObject->vVelocity));
+				int velRotXY = TrigLUT.atan2(deltaXY.x, deltaXY.y);
+				pSpriteObject->vVelocity.x = TrigLUT.cos(velRotXY) * velLenXY;
+				pSpriteObject->vVelocity.y = TrigLUT.sin(velRotXY) * velLenXY;
 			}
 			if (PID_TYPE(collision_state.pid) == OBJECT_Face)
 			{
@@ -530,7 +530,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 				if (pIndoor->pFaces[pidId].uPolygonType != POLYGON_Floor)
 				{
 					// Before this variable changed floor_lvl variable which is obviously invalid.
-					int dotFix = abs(dot(pIndoor->pFaces[pidId].pFacePlane_old.vNormal, pSpriteObject->vVelocity)) >> 16;
+					int dotFix = static_cast<int>(glm::abs(glm::dot(Vec3f(pIndoor->pFaces[pidId].pFacePlane_old.vNormal), Vec3f(pSpriteObject->vVelocity)))) >> 16;
 					if ((collision_state.speed / 8) > dotFix)
 					{
 						dotFix = collision_state.speed / 8;
@@ -574,7 +574,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 					continue;
 				}
 				pSpriteObject->vVelocity.z = 0;
-				if (pSpriteObject->vVelocity.getXY().lengthSqr() >= 400)
+				if (Vec::length2_xy(pSpriteObject->vVelocity) >= 400)
 				{
 					if (pIndoor->pFaces[pidId].uAttributes & FACE_TriggerByObject)
 					{
@@ -612,7 +612,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 		pSpriteObject->vVelocity.x = fixpoint_mul(58500, pSpriteObject->vVelocity.x);
 		pSpriteObject->vVelocity.y = fixpoint_mul(58500, pSpriteObject->vVelocity.y);
 		pSpriteObject->vVelocity.z = fixpoint_mul(58500, pSpriteObject->vVelocity.z);
-		if (pSpriteObject->vVelocity.getXY().lengthSqr() < 400)
+		if (glm::length2(Vec2f(pSpriteObject->vVelocity.xy())) < 400)
 		{
 			pSpriteObject->vVelocity = Vec3s(0, 0, 0);
 			if (!(pObject->uFlags & OBJECT_DESC_NO_SPRITE))
@@ -787,7 +787,7 @@ bool SpriteObject::applyShrinkRayAoe()
 		// TODO(Nik-RE-dev): paralyzed actor will not be affected?
 		if (actor.CanAct())
 		{
-			int distanceSq = (actor.vPosition - this->vPosition + Vec3i(0, 0, actor.uActorHeight / 2)).lengthSqr();
+			int distanceSq = glm::length2(Vec3f(actor.vPosition) - Vec3f(vPosition) + Vec3f(0, 0, actor.uActorHeight / 2));
 			int checkDistanceSq = (effectDistance + actor.uActorRadius) * (effectDistance + actor.uActorRadius);
 
 			if (distanceSq <= checkDistanceSq)
@@ -836,8 +836,8 @@ bool SpriteObject::dropItemAt(SPRITE_OBJECT_TYPE sprite, Vec3i pos, int speed, i
 		for (int i = 0; i < count; i++)
 		{
 			// Not sure if using grng is right here, but would rather err on the side of safety.
-			pSpellObject.uFacing = grng->random(TrigLUT.uIntegerDoublePi);
-			int pitch = TrigLUT.uIntegerQuarterPi + grng->random(TrigLUT.uIntegerQuarterPi);
+			pSpellObject.uFacing = grng->random(TrigLUT.TwoPi);
+			int pitch = TrigLUT.QuarterPi + grng->random(TrigLUT.QuarterPi);
 			pSpellObject.Create(pSpellObject.uFacing, pitch, speed, 0);
 		}
 	}
@@ -846,7 +846,7 @@ bool SpriteObject::dropItemAt(SPRITE_OBJECT_TYPE sprite, Vec3i pos, int speed, i
 		pSpellObject.uFacing = 0;
 		for (int i = 0; i < count; i++)
 		{
-			pSpellObject.Create(pSpellObject.uFacing, TrigLUT.uIntegerHalfPi, speed, 0);
+			pSpellObject.Create(pSpellObject.uFacing, TrigLUT.HalfPi, speed, 0);
 		}
 	}
 	return true;
@@ -1103,10 +1103,10 @@ bool processSpellImpact(unsigned int uLayingItemID, int pid)
 		}
 		object->vVelocity = Vec3s(0.0, 0.0, 0.0);
 		int iceParticles = (object->spell_skill == PLAYER_SKILL_MASTERY_GRANDMASTER) ? 9 : 7;
-		int yaw = object->uFacing - TrigLUT.uIntegerDoublePi;
+		int yaw = object->uFacing - TrigLUT.TwoPi;
 		for (int i = 0; i < iceParticles; i++)
 		{
-			yaw += TrigLUT.uIntegerQuarterPi;
+			yaw += TrigLUT.QuarterPi;
 			object->Create(yaw, 0, 1000, 0);
 		}
 		SpriteObject::OnInteraction(uLayingItemID);
@@ -1184,12 +1184,12 @@ bool processSpellImpact(unsigned int uLayingItemID, int pid)
 			SpriteObject::OnInteraction(uLayingItemID);
 		}
 		object->vVelocity = Vec3s(0.0, 0.0, 0.0);
-		int yaw = object->uFacing - TrigLUT.uIntegerDoublePi;
+		int yaw = object->uFacing - TrigLUT.TwoPi;
 		for (int i = 0; i < 8; i++)
 		{
 			int yawRandomDelta = grng->randomInSegment(-128, 128);
 			int randomSpeed = grng->randomInSegment(5, 500);
-			yaw += TrigLUT.uIntegerQuarterPi;
+			yaw += TrigLUT.QuarterPi;
 			object->Create(yaw + yawRandomDelta, 0, randomSpeed, 0);
 		}
 		SpriteObject::OnInteraction(uLayingItemID);
@@ -1533,7 +1533,7 @@ void UpdateObjects()
 				{
 					continue;
 				}
-				pSpriteObjects[i].vPosition = pActors[actorId].vPosition + Vec3i(0, 0, pActors[actorId].uActorHeight);
+				pSpriteObjects[i].vPosition = Vec3i(pActors[actorId].vPosition) + Vec3i(0, 0, pActors[actorId].uActorHeight);
 				if (!pSpriteObjects[i].uObjectDescID)
 				{
 					continue;
@@ -1590,7 +1590,7 @@ void UpdateObjects()
 					{
 						continue;
 					}
-					if ((pParty->vPosition - pSpriteObjects[i].vPosition).length() <= 5120)
+					if (glm::length(Vec3f(pParty->vPosition - pSpriteObjects[i].vPosition)) <= 5120)
 					{
 						continue;
 					}

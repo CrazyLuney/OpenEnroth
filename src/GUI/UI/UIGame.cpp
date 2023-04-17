@@ -2105,7 +2105,7 @@ void GameUI_DrawMinimap(unsigned int uX, unsigned int uY, unsigned int uZ,
 
 	// draw arrow on the minimap(include. Ritor1)
 	uint arrow_idx;
-	unsigned int rotate = pParty->_viewYaw & TrigLUT.uDoublePiMask;
+	unsigned int rotate = pParty->_viewYaw & TrigLUT.TwoPiMask;
 	if ((signed int)rotate <= 1920) arrow_idx = 6;
 	if ((signed int)rotate < 1664) arrow_idx = 5;
 	if ((signed int)rotate <= 1408) arrow_idx = 4;

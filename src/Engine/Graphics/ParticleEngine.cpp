@@ -93,7 +93,7 @@ void ParticleEngine::AddParticle(Particle_sw *particle) {
             freeParticle->particle_size = particle->particle_size;
             if (freeParticle->type & ParticleType_Rotating) {
                 freeParticle->rotation_speed = vrng->random(256) - 128;
-                freeParticle->angle = vrng->random(TrigLUT.uIntegerDoublePi);
+                freeParticle->angle = vrng->random(TrigLUT.TwoPi);
             } else {
                 freeParticle->rotation_speed = 0;
                 freeParticle->angle = 0;

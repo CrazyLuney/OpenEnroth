@@ -17,7 +17,7 @@
 
 #include "Application/GameConfig.h"
 #include "Utility/DataPath.h"
-#include "Utility/String.h"
+#include "Utility/Strings.h"
 
 class Nuklear;
 using Io::KeyboardActionMapping;

@@ -2,7 +2,7 @@
 
 #include "Utility/Workaround/ToUnderlying.h"
 
-#include "Utility/String.h"
+#include "Utility/Strings.h"
 #include "Utility/Memory/Blob.h"
 #include "Utility/Streams/FileInputStream.h"
 #include "Media/Media.h"

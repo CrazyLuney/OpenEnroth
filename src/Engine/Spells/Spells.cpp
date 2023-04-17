@@ -791,7 +791,7 @@ void EventCastSpell(SPELL_TYPE uSpellID, PLAYER_SKILL_MASTERY skillMastery, PLAY
 
     int yaw = 0;
     int pitch = 0;
-    float distance_to_target = coord_delta.toFloat().length();
+    float distance_to_target = glm::length(Vec3f(coord_delta));
     if (distance_to_target <= 1.0) {
         distance_to_target = 1;
     } else {
@@ -869,7 +869,7 @@ void EventCastSpell(SPELL_TYPE uSpellID, PLAYER_SKILL_MASTERY skillMastery, PLAY
                 launch_speed = pObjectList->pObjects[(int16_t)spell_sprites.uObjectDescID].uSpeed;
                 spriteid = spell_sprites.Create(yaw, pitch, launch_speed, 0);
             } else {
-                spell_spray_arc = (signed int)(60 * TrigLUT.uIntegerDoublePi) / 360;
+                spell_spray_arc = (signed int)(60 * TrigLUT.TwoPi) / 360;
                 spell_spray_angles = spell_spray_arc / (spell_num_objects - 1);
                 for (int i = spell_spray_arc / -2; i <= spell_spray_arc / 2; i += spell_spray_angles) {
                     spell_sprites.uFacing = i + yaw;
@@ -882,7 +882,7 @@ void EventCastSpell(SPELL_TYPE uSpellID, PLAYER_SKILL_MASTERY skillMastery, PLAY
             break;
         case SPELL_AIR_SPARKS:
             spell_num_objects = (std::to_underlying(skillMastery) * 2) + 1;
-            spell_spray_arc = (signed int)(60 * TrigLUT.uIntegerDoublePi) / 360;
+            spell_spray_arc = (signed int)(60 * TrigLUT.TwoPi) / 360;
             spell_spray_angles = spell_spray_arc / (spell_num_objects - 1);
             spell_sprites.spell_target_pid = 4;
             for (int i = spell_spray_arc / -2; i <= spell_spray_arc / 2; i += spell_spray_angles) {
@@ -899,7 +899,7 @@ void EventCastSpell(SPELL_TYPE uSpellID, PLAYER_SKILL_MASTERY skillMastery, PLAY
             }
             spell_sprites.spell_target_pid = 4;
             launch_speed = pObjectList->pObjects[spell_sprites.uObjectDescID].uSpeed;
-            launch_angle = TrigLUT.uIntegerHalfPi / 2;
+            launch_angle = TrigLUT.HalfPi / 2;
             spriteid = spell_sprites.Create(yaw, launch_angle, launch_speed, 0);
             //    pAudioPlayer->PlaySound((SoundID)word_4EE088_sound_ids[uSpellID],
             //    0, 0, fromx, fromy, 0, 0, 0);
@@ -1092,7 +1092,7 @@ void armageddonProgress() {
         --pTurnEngine->pending_actions;
     }
 
-    pParty->_viewYaw = TrigLUT.uDoublePiMask & (pParty->_viewYaw + grng->randomInSegment(-8, 8)); // Was RandomInSegment(-8, 7)
+    pParty->_viewYaw = TrigLUT.TwoPiMask & (pParty->_viewYaw + grng->randomInSegment(-8, 8)); // Was RandomInSegment(-8, 7)
     pParty->_viewPitch = std::clamp(pParty->_viewPitch + grng->randomInSegment(-8, 8), -128, 128); // Was RandomInSegment(-8, 7)
     pParty->uFlags |= PARTY_FLAGS_1_ForceRedraw;
     pParty->armageddon_timer -= pEventTimer->uTimeElapsed; // Was pMiscTimer

@@ -25,6 +25,8 @@
 #include "GUI/UI/UIShops.h"
 #include "GUI/UI/UIStatusBar.h"
 
+#include "Math/TrigLut.h"
+
 #include "Media/Audio/AudioPlayer.h"
 
 #include "Library/Random/Random.h"
@@ -2035,7 +2037,7 @@ void Inventory_ItemPopupAndAlchemy() {  // needs cleaning
             pCurrentFrameMessageQueue->AddGUIMessage(UIMSG_Escape, 0, 0);
 
             int _viewPitch, _viewYaw, rot_z;
-            Vec3i::rotate(64, pParty->_viewYaw, pParty->_viewPitch, pParty->vPosition + Vec3i(0, 0, pParty->sEyelevel), &_viewPitch, &_viewYaw, &rot_z);
+            TrigTableLookup::rotate(64, pParty->_viewYaw, pParty->_viewPitch, pParty->vPosition + Vec3i(0, 0, pParty->sEyelevel), _viewPitch, _viewYaw, rot_z);
             SpriteObject::dropItemAt(SPRITE_SPELL_FIRE_FIREBALL_IMPACT, {_viewPitch, _viewYaw, rot_z}, 0);
             if (dword_4E455C) {
                 if (pPlayers[pParty->getActiveCharacter()]->CanAct()) {

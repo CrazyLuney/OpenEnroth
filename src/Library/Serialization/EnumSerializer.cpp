@@ -1,5 +1,5 @@
 #include "EnumSerializer.h"
-#include "Utility/String.h"
+#include "Utility/Strings.h"
 
 bool detail::EnumSerializationTable::trySerialize(uint64_t src, std::string *dst) const {
     auto pos = _stringByEnum.find(src);

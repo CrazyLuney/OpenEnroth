@@ -1098,8 +1098,8 @@ bool OutdoorLocation::Load(const std::string& filename, int days_played,
 		// calculate bounding sphere for model
 		Vec3f topLeft = Vec3f(model.pBoundingBox.x1, model.pBoundingBox.y1, model.pBoundingBox.z1);
 		Vec3f bottomRight = Vec3f(model.pBoundingBox.x2, model.pBoundingBox.y2, model.pBoundingBox.z2);
-		model.vBoundingCenter = ((topLeft + bottomRight) / 2.0f).toInt();
-		model.sBoundingRadius = (topLeft - model.vBoundingCenter.toFloat()).length();
+		model.vBoundingCenter = ((topLeft + bottomRight) / 2.0f);
+		model.sBoundingRadius = glm::length(topLeft - Vec3f(model.vBoundingCenter));
 	}
 
 	pGameLoadingUI_ProgressBar->Progress();  // прогресс загрузки
@@ -1613,7 +1613,7 @@ void OutdoorLocation::PrepareActorsDrawList()
 		}
 		else
 		{
-			if (!IsCylinderInFrustum(pActors[i].vPosition.toFloat(), pActors[i].uActorRadius)) continue;
+			if (!IsCylinderInFrustum(pActors[i].vPosition, pActors[i].uActorRadius)) continue;
 		}
 
 		int z = pActors[i].vPosition.z;
@@ -1622,8 +1622,8 @@ void OutdoorLocation::PrepareActorsDrawList()
 
 		Angle_To_Cam = TrigLUT.atan2(pActors[i].vPosition.x - pCamera3D->vCameraPos.x, pActors[i].vPosition.y - pCamera3D->vCameraPos.y);
 
-		Sprite_Octant = ((signed int)(TrigLUT.uIntegerPi +
-			((signed int)TrigLUT.uIntegerPi >> 3) + pActors[i].uYawAngle -
+		Sprite_Octant = ((signed int)(TrigLUT.Pi +
+			((signed int)TrigLUT.Pi >> 3) + pActors[i].uYawAngle -
 			Angle_To_Cam) >> 8) & 7;
 
 		Cur_Action_Time = pActors[i].uCurrentActionTime;
@@ -1904,15 +1904,15 @@ void ODM_GetTerrainNormalAt(int pos_x, int pos_y, Vec3i* out)
 				 \|       */
 	}
 
-	Vec3f n = cross(side2, side1);
-	float mag = n.length();
+	Vec3f n = glm::cross(side2, side1);
+	float mag = glm::length(n);
 	if (fabsf(mag) < 1e-6f)
 	{
 		*out = Vec3i(0, 0, 65536);
 	}
 	else
 	{
-		*out = (n / mag).toFixpoint();
+		*out = Vec::toFixpoint(n / mag);
 	}
 }
 //----- (0046BE0A) --------------------------------------------------------
@@ -2083,7 +2083,7 @@ void ODM_ProcessPartyActions()
 	int partyViewNewYaw = pParty->_viewYaw;
 	int partyViewNewPitch = pParty->_viewPitch;
 
-	int64_t dturn = ((int64_t)pEventTimer->dt_fixpoint * pParty->_yawRotationSpeed * TrigLUT.uIntegerPi / 180) >> 16;
+	int64_t dturn = ((int64_t)pEventTimer->dt_fixpoint * pParty->_yawRotationSpeed * TrigLUT.Pi / 180) >> 16;
 	while (pPartyActionQueue->uNumActions)
 	{
 		switch (pPartyActionQueue->Next())
@@ -2136,7 +2136,7 @@ void ODM_ProcessPartyActions()
 			else
 				partyViewNewYaw += dturn * fTurnSpeedMultiplier;  // time-based smooth turn
 
-			partyViewNewYaw &= TrigLUT.uDoublePiMask;
+			partyViewNewYaw &= TrigLUT.TwoPiMask;
 			break;
 
 		case PARTY_TurnRight:
@@ -2145,7 +2145,7 @@ void ODM_ProcessPartyActions()
 			else
 				partyViewNewYaw -= dturn * fTurnSpeedMultiplier;
 
-			partyViewNewYaw &= TrigLUT.uDoublePiMask;
+			partyViewNewYaw &= TrigLUT.TwoPiMask;
 			break;
 
 		case PARTY_FastTurnLeft:
@@ -2154,7 +2154,7 @@ void ODM_ProcessPartyActions()
 			else
 				partyViewNewYaw += 2.0f * fTurnSpeedMultiplier * dturn;
 
-			partyViewNewYaw &= TrigLUT.uDoublePiMask;
+			partyViewNewYaw &= TrigLUT.TwoPiMask;
 			break;
 
 		case PARTY_FastTurnRight:
@@ -2163,7 +2163,7 @@ void ODM_ProcessPartyActions()
 			else
 				partyViewNewYaw -= 2.0f * fTurnSpeedMultiplier * dturn;
 
-			partyViewNewYaw &= TrigLUT.uDoublePiMask;
+			partyViewNewYaw &= TrigLUT.TwoPiMask;
 			break;
 
 		case PARTY_StrafeLeft:
@@ -2674,7 +2674,7 @@ void ODM_ProcessPartyActions()
 		if (pEventTimer->uTimeElapsed)
 		{
 			// TODO(Nik-RE-dev): use calculated velocity of party and walk/run flags instead of delta
-			int walkDelta = integer_sqrt((pParty->vPosition - Vec3i(partyNewX, partyNewY, partyNewZ)).lengthSqr());
+			int walkDelta = integer_sqrt(glm::length2(Vec3f(pParty->vPosition) - Vec3f(partyNewX, partyNewY, partyNewZ)));
 
 			// Delta limits for running/walking has been changed. Previously:
 			// - for run limit was >= 16
@@ -3123,7 +3123,7 @@ void UpdateActors_ODM()
 		}
 
 		// MOVING TOO SLOW
-		if (pActors[Actor_ITR].vVelocity.getXY().lengthSqr() < 400 && Slope_High == 0)
+		if (Vec::length2_xy(pActors[Actor_ITR].vVelocity) < 400 && Slope_High == 0)
 		{
 			pActors[Actor_ITR].vVelocity.y = 0;
 			pActors[Actor_ITR].vVelocity.x = 0;

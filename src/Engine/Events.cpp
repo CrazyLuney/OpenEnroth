@@ -991,9 +991,9 @@ void EventProcessor(int uEventID, int targetObj, int canShowMessages,
 				}
 				else
 				{
-					v98 = trans_directionyaw & TrigLUT.uDoublePiMask;
+					v98 = trans_directionyaw & TrigLUT.TwoPiMask;
 					Party_Teleport_Cam_Yaw =
-						trans_directionyaw & TrigLUT.uDoublePiMask;
+						trans_directionyaw & TrigLUT.TwoPiMask;
 				}
 				v99 = (char*)&_evt->v31;
 				Party_Teleport_Cam_Pitch = trans_directionpitch;
@@ -1238,14 +1238,14 @@ void check_event_triggers()
 		const LevelDecoration& decoration = pLevelDecorations[event_triggers[i]];
 
 		if (decoration.uFlags & LEVEL_DECORATION_TRIGGERED_BY_TOUCH)
-			if ((decoration.vPosition - pParty->vPosition).length() < decoration.uTriggerRange)
+			if (glm::length(Vec3f(decoration.vPosition) - Vec3f(pParty->vPosition)) < decoration.uTriggerRange)
 				EventProcessor(decoration.uEventID, PID(OBJECT_Decoration, i), 1);
 
 		if (decoration.uFlags & LEVEL_DECORATION_TRIGGERED_BY_MONSTER)
 		{
 			for (size_t j = 0; j < pActors.size(); j++)
 			{
-				if ((decoration.vPosition - pActors[j].vPosition).length() < decoration.uTriggerRange)
+				if (glm::length(Vec3f(decoration.vPosition) - Vec3f(pActors[j].vPosition)) < decoration.uTriggerRange)
 					EventProcessor(decoration.uEventID, 0, 1);
 			}
 		}
@@ -1254,7 +1254,7 @@ void check_event_triggers()
 		{
 			for (size_t j = 0; j < pSpriteObjects.size(); j++)
 			{
-				if ((decoration.vPosition - pSpriteObjects[j].vPosition).length() < decoration.uTriggerRange)
+				if (glm::length(Vec3f(decoration.vPosition) - Vec3f(pSpriteObjects[j].vPosition)) < decoration.uTriggerRange)
 					EventProcessor(decoration.uEventID, 0, 1);
 			}
 		}

@@ -73,7 +73,7 @@ Vis_ObjectInfo* Vis::DetermineFacetIntersection(BLVFace* face, unsigned int pid,
 		uint bmodel_id = pid >> 9;
 		const std::vector<Vec3i>& v = pOutdoor->pBModels[bmodel_id].pVertices;
 		for (uint i = 0; i < face->uNumVertices; ++i)
-			static_DetermineFacetIntersection_array_F8F200[i].vWorldPosition = v[face->pVertexIDs[i]].toFloat();
+			static_DetermineFacetIntersection_array_F8F200[i].vWorldPosition = v[face->pVertexIDs[i]];
 	}
 	else
 	{
@@ -376,7 +376,7 @@ bool IsBModelVisible(BSPModel* model, int reachable_depth, bool* reachable)
 	float radius{ static_cast<float>(model->sBoundingRadius) };
 	if (radius < 512.0f) radius = 512.0f;
 
-	return IsSphereInFrustum(model->vBoundingCenter.toFloat(), radius);
+	return IsSphereInFrustum(model->vBoundingCenter, radius);
 }
 
 // TODO(pskelton): consider use of vec4f or glm::vec4 instead of IndoorCameraD3D_Vec4s
@@ -744,7 +744,7 @@ int UnprojectX(int x)
 	int v3 = pCamera3D->ViewPlaneDist_X;
 
 	return TrigLUT.atan2(x - pViewport->uScreenCenterX, v3) -
-		TrigLUT.uIntegerHalfPi;
+		TrigLUT.HalfPi;
 }
 
 //----- (0046A0F6) --------------------------------------------------------
@@ -753,7 +753,7 @@ int UnprojectY(int y)
 	int v3 = pCamera3D->ViewPlaneDist_X;
 
 	return TrigLUT.atan2(y - pViewport->uScreenCenterY, v3) -
-		TrigLUT.uIntegerHalfPi;
+		TrigLUT.HalfPi;
 }
 
 //----- (004C248E) --------------------------------------------------------
@@ -777,7 +777,8 @@ void Vis::CastPickRay(RenderVertexSoft* pRay, float fMouseX, float fMouseY, floa
 	v11[1].vWorldPosition.z = (double)pCamera3D->vCameraPos.z;
 
 	int depth = /*fixpoint_from_float*/(fPickDepth);
-	Vec3i::rotate(depth, yawAngle, pitchAngle, pStartR, &outx, &outy, &outz);
+
+	TrigTableLookup::rotate(depth, yawAngle, pitchAngle, pStartR, outx, outy, outz);
 
 	v11[0].vWorldPosition.x = (double)outx;
 	v11[0].vWorldPosition.y = (double)outy;

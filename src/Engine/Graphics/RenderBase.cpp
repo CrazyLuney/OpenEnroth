@@ -135,7 +135,7 @@ void RenderBase::DrawSpriteObjects() {
             }
             if (!onlist) continue;
         } else {
-            if (!IsCylinderInFrustum(object->vPosition.toFloat(), 512.0f)) continue;
+            if (!IsCylinderInFrustum(object->vPosition, 512.0f)) continue;
         }
 
         // render as sprte 500 - 9081
@@ -151,7 +151,7 @@ void RenderBase::DrawSpriteObjects() {
 
             // sprite angle to camera
             unsigned int angle = TrigLUT.atan2(x - pCamera3D->vCameraPos.x, y - pCamera3D->vCameraPos.y);
-            int octant = ((TrigLUT.uIntegerPi + (TrigLUT.uIntegerPi >> 3) + object->uFacing - angle) >> 8) & 7;
+            int octant = ((TrigLUT.Pi + (TrigLUT.Pi >> 3) + object->uFacing - angle) >> 8) & 7;
 
             pBillboardRenderList[::uNumBillboardsToDraw].hwsprite = frame->hw_sprites[octant];
             // error catching
@@ -180,8 +180,7 @@ void RenderBase::DrawSpriteObjects() {
             int blue = pSpriteObjects[i].GetParticleTrailColorB();
             if (blue == 0) blue = 0xFF;
             if (lightradius) {
-                pMobileLightsStack->AddLight(object->vPosition.toFloat(),
-                                             object->uSectorID, lightradius, red, green, blue, _4E94D3_light_type);
+                pMobileLightsStack->AddLight(object->vPosition, object->uSectorID, lightradius, red, green, blue, _4E94D3_light_type);
             }
 
             int view_x = 0;
@@ -254,7 +253,7 @@ void RenderBase::PrepareDecorationsRenderList_ODM() {
         }
 
         // view cull
-        if (!IsCylinderInFrustum(pLevelDecorations[i].vPosition.toFloat(), 512.0f)) continue;
+        if (!IsCylinderInFrustum(pLevelDecorations[i].vPosition, 512.0f)) continue;
 
         // LevelDecoration *decor = &pLevelDecorations[i];
         if ((!(pLevelDecorations[i].uFlags & LEVEL_DECORATION_OBELISK_CHEST) ||
@@ -284,8 +283,8 @@ void RenderBase::PrepareDecorationsRenderList_ODM() {
                     int v10 = TrigLUT.atan2(pLevelDecorations[i].vPosition.x - pCamera3D->vCameraPos.x,
                                             pLevelDecorations[i].vPosition.y - pCamera3D->vCameraPos.y);
                     v38 = 0;
-                    v13 = ((signed int)(TrigLUT.uIntegerPi +
-                        ((signed int)TrigLUT.uIntegerPi >>
+                    v13 = ((signed int)(TrigLUT.Pi +
+                        ((signed int)TrigLUT.Pi >>
                             3) +
                         pLevelDecorations[i]._yawAngle -
                         (int64_t)v10) >>
@@ -311,9 +310,7 @@ void RenderBase::PrepareDecorationsRenderList_ODM() {
                                 r = g = b_ = 255;
                             }
                         }
-                        pStationaryLightsStack->AddLight(pLevelDecorations[i].vPosition.toFloat() +
-                            Vec3f(0, 0, decor_desc->uDecorationHeight / 2),
-                            frame->uGlowRadius, r, g, b_, _4E94D0_light_type);
+                        pStationaryLightsStack->AddLight(Vec3f(pLevelDecorations[i].vPosition) + Vec3f(0, 0, decor_desc->uDecorationHeight / 2), frame->uGlowRadius, r, g, b_, _4E94D0_light_type);
                     }  // for light
 
                        // v17 = (pLevelDecorations[i].vPosition.x -

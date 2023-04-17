@@ -5,12 +5,12 @@
 #pragma once
 
 #include "glad/gl.h"
-#include "glm.hpp"
 
 #include "Engine/EngineIocContainer.h"
 
 #include "Library/Logger/Logger.h"
 
+#include "Math/glm.hpp"
 #include "Utility/DataPath.h"
 
 class GLShader {

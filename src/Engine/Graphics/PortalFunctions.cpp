@@ -168,7 +168,7 @@ bool stru10::CalcFaceBounding(BLVFace *pFace, RenderVertexSoft *pFaceLimits,
             a1.x = -pFace->pFacePlane.vNormal.y;  // направление полигона
             a1.y = pFace->pFacePlane.vNormal.x;
             a1.z = 0.0f;
-            a1.normalize();
+            a1 = glm::normalize(a1);
 
             var_28 = 0;
             var_24 = 1;
@@ -413,7 +413,7 @@ bool stru10::CalcPortalFrustumPlane(RenderVertexSoft *pFaceBounding1,
         pRay2.x *= inv_mag;
         pRay2.y *= inv_mag;
         pRay2.z *= inv_mag;
-        pRay2.normalize();
+        pRay2 = glm::normalize(pRay2);
 
         pPortalDataFrustum->x = pRay2.x;
         pPortalDataFrustum->y = pRay2.y;

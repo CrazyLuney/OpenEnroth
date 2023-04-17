@@ -241,7 +241,7 @@ MM_DECLARE_OPERATORS_FOR_FLAGS(PlatformMouseButtons)
  * - `WINDOW_MODE_FULLSCREEN_BORDERLESS` is a modern fake fullscreen AKA frameless window resized to desktop resolution
  *   and moved to cover the whole desktop.
  */
-	enum class PlatformWindowMode
+enum class PlatformWindowMode
 {
 	WINDOW_MODE_WINDOWED = 0,
 	WINDOW_MODE_BORDERLESS = 1,

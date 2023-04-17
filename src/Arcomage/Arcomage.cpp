@@ -17,7 +17,7 @@
 #include "Media/Audio/AudioPlayer.h"
 #include "Media/MediaPlayer.h"
 
-#include "Utility/String.h"
+#include "Utility/Strings.h"
 #include "Library/Random/Random.h"
 
 

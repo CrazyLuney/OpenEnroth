@@ -3,25 +3,29 @@
 #include "SerializationFwd.h"
 #include "StandardSerialization.h"
 
-namespace detail {
+namespace detail
+{
+	struct StringSerializer
+	{
+		template<class T>
+		std::string operator()(const T& value) const
+		{
+			std::string result;
+			serialize(value, &result);
+			return result;
+		}
+	};
 
-struct StringSerializer {
-    template<class T>
-    std::string operator()(const T &value) const {
-        std::string result;
-        serialize(value, &result);
-        return result;
-    }
-};
-
-template<class T>
-struct StringDeserializer {
-    T operator()(std::string_view string) const {
-        T result;
-        deserialize(string, &result);
-        return result;
-    }
-};
+	template<class T>
+	struct StringDeserializer
+	{
+		T operator()(std::string_view string) const
+		{
+			T result;
+			deserialize(string, &result);
+			return result;
+		}
+	};
 
 } // namespace detail
 

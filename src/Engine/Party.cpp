@@ -792,7 +792,7 @@ void Party::yell()
 				actor.pMonsterInfo.uHostilityType != MonsterInfo::Hostility_Long &&
 				actor.pMonsterInfo.uMovementType != MONSTER_MOVEMENT_TYPE_STATIONARY)
 			{
-				if ((actor.vPosition - pParty->vPosition).length() < 512)
+				if (glm::length(Vec3f(actor.vPosition) - Vec3f(pParty->vPosition)) < 512)
 				{
 					Actor::AI_Flee(i, 4, 0, 0);
 				}

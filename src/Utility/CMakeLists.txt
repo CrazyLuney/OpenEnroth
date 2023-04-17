@@ -12,7 +12,7 @@ set(UTILITY_SOURCES
         Streams/InputStream.cpp
         Streams/MemoryInputStream.cpp
         Streams/StringOutputStream.cpp
-        String.cpp)
+        Strings.cpp)
 
 set(UTILITY_HEADERS
         Color.h
@@ -43,10 +43,11 @@ set(UTILITY_HEADERS
         Streams/MemoryInputStream.h
         Streams/OutputStream.h
         Streams/StringOutputStream.h
-        String.h)
+        Strings.h)
 
 add_library(utility STATIC ${UTILITY_SOURCES} ${UTILITY_HEADERS})
-target_link_libraries(utility fmt::fmt mio::mio)
+target_link_libraries(utility fmt::fmt mio::mio glm)
+target_include_directories(utility PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 target_precompile_headers_stl(utility)
 

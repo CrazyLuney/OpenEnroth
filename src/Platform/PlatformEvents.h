@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Utility/Geometry/Point.h"
-#include "Utility/Geometry/Size.h"
+#include "Geometry/Point.h"
+#include "Geometry/Size.h"
 
 #include "PlatformEnums.h"
 

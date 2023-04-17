@@ -1,6 +1,8 @@
+#pragma once
+
 #include "Vec.h"
 
-template<class T>
-using Point = Vec2<T>;
+template<typename T, glm::qualifier Q = glm::defaultp>
+using Point = glm::vec<2, T, Q>;
 
-using Pointi = Point<int>;
+using Pointi = glm::ivec2;

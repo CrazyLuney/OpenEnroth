@@ -1,4 +1,4 @@
-#include "String.h"
+#include "Strings.h"
 #include "Format.h"
 
 static inline unsigned char asciiToLower(unsigned char c)

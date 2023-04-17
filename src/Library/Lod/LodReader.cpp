@@ -8,7 +8,7 @@
 #include "Library/Lod/Internal/LodFile.h"
 #include "Library/Lod/Internal/LodFileHeader.h"
 #include "Library/Lod/Internal/LodHeader.h"
-#include "Utility/String.h"
+#include "Utility/Strings.h"
 
 
 static inline size_t _getDirectoryHeaderImgSize(LodVersion lod_version) {

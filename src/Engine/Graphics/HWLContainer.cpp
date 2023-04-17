@@ -2,7 +2,7 @@
 #include "Engine/EngineIocContainer.h"
 #include "Library/Compression/Compression.h"
 #include "Library/Logger/Logger.h"
-#include "Utility/String.h"
+#include "Utility/Strings.h"
 
 #pragma pack(push, 1)
 struct HWLHeader {

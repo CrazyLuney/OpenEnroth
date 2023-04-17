@@ -1,6 +1,6 @@
 #include "FileSystem.h"
 
-#include "String.h"
+#include "Strings.h"
 
 static std::string homePath()
 {
