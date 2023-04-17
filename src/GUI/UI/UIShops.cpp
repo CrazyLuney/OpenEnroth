@@ -1621,7 +1621,7 @@ void sub_4B1447_party_fine(int shopId, int stealingResult,
 
     pParty->InTheShopFlags[shopId] = 1;
     v7 = &pOutdoor->ddm;
-    if (uCurrentlyLoadedLevelType != LEVEL_Outdoor) v7 = &pIndoor->dlv;
+    if (uCurrentlyLoadedLevelType != WorldType::Outdoor) v7 = &pIndoor->dlv;
     v7->uReputation += v3;
     if (v7->uReputation > 10000) v7->uReputation = 10000;
 }

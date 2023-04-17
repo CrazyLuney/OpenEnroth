@@ -466,19 +466,19 @@ void MonsterList::FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blo
 	if (data_mm7)
 	{
 		BlobDeserializer stream(data_mm7);
-		stream.ReadLegacyVector<MonsterDesc_MM7>(&pMonsters);
+		stream.ReadLegacyVector<data::mm7::MonsterDesc>(&pMonsters);
 	}
 
 	if (data_mm6)
 	{
 		BlobDeserializer stream(data_mm6);
-		stream.ReadLegacyVector<MonsterDesc_MM6>(&pMonsters, Deserializer::Append);
+		stream.ReadLegacyVector<data::mm6::MonsterDesc>(&pMonsters, Deserializer::Append);
 	}
 
 	if (data_mm8)
 	{
 		BlobDeserializer stream(data_mm8);
-		stream.ReadLegacyVector<MonsterDesc_MM7>(&pMonsters, Deserializer::Append);
+		stream.ReadLegacyVector<data::mm8::MonsterDesc>(&pMonsters, Deserializer::Append);
 	}
 
 	Assert(!pMonsters.empty());
@@ -488,13 +488,12 @@ void MonsterList::FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blo
 void MonsterList::ToFile()
 {
 	FileSerializer stream(MakeDataPath("data", "dmonlist.bin"));
-	stream.WriteLegacyVector<MonsterDesc_MM7>(this->pMonsters);
+	stream.WriteLegacyVector<data::mm7::MonsterDesc>(this->pMonsters);
 	stream.Close();
 }
 
 //----- (004563FF) --------------------------------------------------------
-signed int MonsterStats::FindMonsterByTextureName(
-	const char* monster_textr_name)
+signed int MonsterStats::FindMonsterByTextureName(const char* monster_textr_name)
 {
 	for (int i = 1; i < uNumMonsters; ++i)
 	{

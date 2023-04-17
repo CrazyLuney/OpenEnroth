@@ -51,7 +51,7 @@ static DecalBuilder* decal_builder = EngineIocContainer::ResolveDecalBuilder();
 IndoorLocation* pIndoor = new IndoorLocation;
 BLVRenderParams* pBLVRenderParams = new BLVRenderParams;
 
-LEVEL_TYPE uCurrentlyLoadedLevelType = LEVEL_null;
+WorldType uCurrentlyLoadedLevelType = WorldType::None;
 
 LightsData Lights;
 stru337_unused _DLV_header_unused;
@@ -272,7 +272,7 @@ unsigned int IndoorLocation::GetLocationIndex(const char* Str1)
 //----- (004488F7) --------------------------------------------------------
 void IndoorLocation::ToggleLight(signed int sLightID, unsigned int bToggle)
 {
-	if (uCurrentlyLoadedLevelType == LEVEL_Indoor &&
+	if (uCurrentlyLoadedLevelType == WorldType::Indoor &&
 		(sLightID <= pIndoor->pLights.size() - 1) && (sLightID >= 0))
 	{
 		if (bToggle)
@@ -320,7 +320,7 @@ bool IndoorLocation::Load(const std::string& filename, int num_days_played,
 	pGameLoadingUI_ProgressBar->Progress();
 	pGameLoadingUI_ProgressBar->Progress();
 
-	stream.ReadLegacyVector<BLVFace_MM7>(&pFaces);
+	stream.ReadLegacyVector<data::mm7::BLVFace>(&pFaces);
 	stream.ReadSizedVector(&pLFaces, blv.uFaces_fdata_Size / sizeof(uint16_t));
 
 	for (uint i = 0, j = 0; i < pFaces.size(); ++i)
@@ -394,7 +394,7 @@ bool IndoorLocation::Load(const std::string& filename, int num_days_played,
 
 	pGameLoadingUI_ProgressBar->Progress();
 
-	stream.ReadLegacyVector<BLVSector_MM7>(&pSectors);
+	stream.ReadLegacyVector<data::mm7::BLVSector>(&pSectors);
 
 	pGameLoadingUI_ProgressBar->Progress();
 
@@ -474,7 +474,7 @@ bool IndoorLocation::Load(const std::string& filename, int num_days_played,
 	pGameLoadingUI_ProgressBar->Progress();
 	pGameLoadingUI_ProgressBar->Progress();
 
-	stream.ReadLegacyVector<SpawnPoint_MM7>(&pSpawnPoints);
+	stream.ReadLegacyVector<data::mm7::SpawnPoint>(&pSpawnPoints);
 
 	pGameLoadingUI_ProgressBar->Progress();
 	pGameLoadingUI_ProgressBar->Progress();
@@ -512,25 +512,25 @@ bool IndoorLocation::Load(const std::string& filename, int num_days_played,
 	}
 
 	bool bRespawnLocation = false;
-	if (num_days_played - dlv.uLastRepawnDay >= respawn_interval_days &&
+	if (num_days_played - dlv.uLastRespawnDay >= respawn_interval_days &&
 		(pCurrentMapName != "d29.dlv"))
 	{
 		bRespawnLocation = true;
 	}
 
 	std::array<char, 875> SavedOutlines = { {} };
-	if (bResetSpawn || (bRespawnLocation || !dlv.uLastRepawnDay))
+	if (bResetSpawn || (bRespawnLocation || !dlv.uLastRespawnDay))
 	{
 		if (bResetSpawn)
 		{
 			// do nothing, SavedOutlines are already filled with zeros.
 		}
-		else if (bRespawnLocation || !dlv.uLastRepawnDay)
+		else if (bRespawnLocation || !dlv.uLastRespawnDay)
 		{
 			stream.ReadRaw(&SavedOutlines);
 		}
 
-		dlv.uLastRepawnDay = num_days_played;
+		dlv.uLastRespawnDay = num_days_played;
 		if (!bResetSpawn) ++dlv.uNumRespawns;
 		*(int*)pDest = 1;
 
@@ -577,14 +577,14 @@ bool IndoorLocation::Load(const std::string& filename, int num_days_played,
 
 	pGameLoadingUI_ProgressBar->Progress();
 
-	stream.ReadLegacyVector<Actor_MM7>(&pActors);
+	stream.ReadLegacyVector<data::mm7::Actor>(&pActors);
 	for (size_t i = 0; i < pActors.size(); i++)
 		pActors[i].id = i;
 
 	pGameLoadingUI_ProgressBar->Progress();
 	pGameLoadingUI_ProgressBar->Progress();
 
-	stream.ReadLegacyVector<SpriteObject_MM7>(&pSpriteObjects);
+	stream.ReadLegacyVector<data::mm7::SpriteObject>(&pSpriteObjects);
 
 	pGameLoadingUI_ProgressBar->Progress();
 
@@ -604,7 +604,7 @@ bool IndoorLocation::Load(const std::string& filename, int num_days_played,
 	pGameLoadingUI_ProgressBar->Progress();
 	pGameLoadingUI_ProgressBar->Progress();
 
-	stream.ReadSizedLegacyVector<BLVDoor_MM7>(&pDoors, uNumDoors);
+	stream.ReadSizedLegacyVector<data::mm7::BLVDoor>(&pDoors, uNumDoors);
 
 	// v201 = (const char *)blv.uDoors_ddata_Size;
 	// v200 = (size_t)ptr_0002B4_doors_ddata;
@@ -675,7 +675,10 @@ bool IndoorLocation::Load(const std::string& filename, int num_days_played,
 //----- (0049AC17) --------------------------------------------------------
 int IndoorLocation::GetSector(int sX, int sY, int sZ)
 {
-	if (uCurrentlyLoadedLevelType != LEVEL_Indoor) return 0;
+	if (uCurrentlyLoadedLevelType != WorldType::Indoor)
+	{
+		return 0;
+	}
 	if (pSectors.size() < 2)
 	{
 		// __debugbreak();
@@ -717,7 +720,7 @@ int IndoorLocation::GetSector(int sX, int sY, int sZ)
 				uFaceID = pSector->pPortals[z - pSector->uNumFloors];
 
 			BLVFace* pFace = &pFaces[uFaceID];
-			if (pFace->uPolygonType != POLYGON_Floor && pFace->uPolygonType != POLYGON_InBetweenFloorAndWall)
+			if (pFace->uPolygonType != PolygonType::Floor && pFace->uPolygonType != PolygonType::InBetweenFloorAndWall)
 				continue;
 
 			// add found faces into store
@@ -756,9 +759,11 @@ int IndoorLocation::GetSector(int sX, int sY, int sZ)
 		for (int s = 0; s < NumFoundFaceStore; ++s)
 		{
 			// calc distance between this face and party
-			if (this->pFaces[FoundFaceStore[s]].uPolygonType == POLYGON_Floor)
+			if (this->pFaces[FoundFaceStore[s]].uPolygonType == PolygonType::Floor)
+			{
 				CalcZDist = abs(sZ - this->pVertices[*this->pFaces[FoundFaceStore[s]].pVertexIDs].z);
-			if (this->pFaces[FoundFaceStore[s]].uPolygonType == POLYGON_InBetweenFloorAndWall)
+			}
+			if (this->pFaces[FoundFaceStore[s]].uPolygonType == PolygonType::InBetweenFloorAndWall)
 			{
 				CalcZDist = abs(sZ - this->pFaces[FoundFaceStore[s]].zCalc.calculate(sX, sY));
 			}
@@ -787,7 +792,7 @@ int IndoorLocation::GetSector(int sX, int sY, int sZ)
 //----- (00498A41) --------------------------------------------------------
 void BLVFace::_get_normals(Vec3i* a2, Vec3i* a3)
 {
-	if (this->uPolygonType == POLYGON_VerticalWall)
+	if (this->uPolygonType == PolygonType::VerticalWall)
 	{
 		a2->x = -this->pFacePlane_old.vNormal.y;
 		a2->y = this->pFacePlane_old.vNormal.x;
@@ -798,8 +803,7 @@ void BLVFace::_get_normals(Vec3i* a2, Vec3i* a3)
 		a3->z = 0xFFFF0000u;
 
 	}
-	else if (this->uPolygonType == POLYGON_Floor ||
-		this->uPolygonType == POLYGON_Ceiling)
+	else if (this->uPolygonType == PolygonType::Floor || this->uPolygonType == PolygonType::Ceiling)
 	{
 		a2->x = 0x10000u;
 		a2->y = 0;
@@ -810,8 +814,7 @@ void BLVFace::_get_normals(Vec3i* a2, Vec3i* a3)
 		a3->z = 0;
 
 	}
-	else if (this->uPolygonType == POLYGON_InBetweenFloorAndWall ||
-		this->uPolygonType == POLYGON_InBetweenCeilingAndWall)
+	else if (this->uPolygonType == PolygonType::InBetweenFloorAndWall || this->uPolygonType == PolygonType::InBetweenCeilingAndWall)
 	{
 		if (abs(this->pFacePlane_old.vNormal.z) < 46441)
 		{
@@ -1330,7 +1333,7 @@ void UpdateActors_BLV()
 		if (actor.vPosition.z <= floorZ)
 		{
 			actor.vPosition.z = floorZ + 1;
-			if (pIndoor->pFaces[uFaceID].uPolygonType == POLYGON_Floor)
+			if (pIndoor->pFaces[uFaceID].uPolygonType == PolygonType::Floor)
 			{
 				if (actor.vVelocity.z < 0)
 					actor.vVelocity.z = 0;
@@ -1380,7 +1383,7 @@ void PrepareToLoadBLV(bool bLoading)
 	pGameLoadingUI_ProgressBar->Reset(0x20u);
 	bNoNPCHiring = false;
 	pDest = 1;
-	uCurrentlyLoadedLevelType = LEVEL_Indoor;
+	uCurrentlyLoadedLevelType = WorldType::Indoor;
 	pBLVRenderParams->uPartySectorID = 0;
 	pBLVRenderParams->uPartyEyeSectorID = 0;
 
@@ -1641,7 +1644,7 @@ int BLV_GetFloorLevel(const Vec3i& pos, unsigned int uSectorID, unsigned int* pF
 		//
 		// And if this z is ceiling z, then this will place the actor above the ceiling.
 		int z_calc;
-		if (pFloor->uPolygonType == POLYGON_Floor || pFloor->uPolygonType == POLYGON_Ceiling)
+		if (pFloor->uPolygonType == PolygonType::Floor || pFloor->uPolygonType == PolygonType::Ceiling)
 		{
 			z_calc = pIndoor->pVertices[pFloor->pVertexIDs[0]].z;
 		}
@@ -1663,7 +1666,7 @@ int BLV_GetFloorLevel(const Vec3i& pos, unsigned int uSectorID, unsigned int* pF
 			if (FacesFound >= 5) break;
 
 			BLVFace* portal = &pIndoor->pFaces[pSector->pPortals[i]];
-			if (portal->uPolygonType != POLYGON_Floor)
+			if (portal->uPolygonType != PolygonType::Floor)
 				continue;
 
 			if (!portal->Contains(pos, MODEL_INDOOR, engine->config->gameplay.FloorChecksEps.value(), FACE_XY_PLANE))
@@ -1848,7 +1851,7 @@ bool Check_LineOfSight(const Vec3i& target, const Vec3i& from)
 	bool LOS_Occluded1 = false;
 	bool LOS_Occluded2 = false;
 
-	if (uCurrentlyLoadedLevelType == LEVEL_Indoor)
+	if (uCurrentlyLoadedLevelType == WorldType::Indoor)
 	{
 		Vec3i targetmod;
 		Vec3i frommod;
@@ -1863,7 +1866,7 @@ bool Check_LineOfSight(const Vec3i& target, const Vec3i& from)
 		TrigTableLookup::rotate(32, AngleToTarget - TrigLUT.HalfPi, 0, from, frommod);
 		LOS_Occluded1 = Check_LOS_Obscurred_Indoors(targetmod, frommod);
 	}
-	else if (uCurrentlyLoadedLevelType == LEVEL_Outdoor)
+	else if (uCurrentlyLoadedLevelType == WorldType::Outdoor)
 	{
 		// TODO(pskelton): Need to add check against terrain
 		Vec3i targetmod;
@@ -2104,7 +2107,7 @@ char DoInteractionWithTopmostZObject(int pid)
 		return 1;
 
 	case OBJECT_Face:
-		if (uCurrentlyLoadedLevelType == LEVEL_Outdoor)
+		if (uCurrentlyLoadedLevelType == WorldType::Outdoor)
 		{
 			int bmodel_id = pid >> 9;
 			int face_id = id & 0x3F;
@@ -2491,7 +2494,7 @@ void BLV_ProcessPartyActions()
 		else if (PID_TYPE(collision_state.pid) == OBJECT_Face)
 		{
 			BLVFace* pFace = &pIndoor->pFaces[PID_ID(collision_state.pid)];
-			if (pFace->uPolygonType == POLYGON_Floor)
+			if (pFace->uPolygonType == PolygonType::Floor)
 			{
 				if (pParty->uFallSpeed < 0)
 					pParty->uFallSpeed = 0;
@@ -2520,7 +2523,7 @@ void BLV_ProcessPartyActions()
 				party_dy += fixpoint_mul(speed_dot_normal, pFace->pFacePlane_old.vNormal.y);
 				pParty->uFallSpeed += fixpoint_mul(speed_dot_normal, pFace->pFacePlane_old.vNormal.z);
 
-				if (pFace->uPolygonType != POLYGON_InBetweenFloorAndWall)
+				if (pFace->uPolygonType != PolygonType::InBetweenFloorAndWall)
 				{ // wall / ceiling
 					int distance_to_face = pFace->pFacePlane_old.signedDistanceTo(new_party_x, new_party_y, new_party_z_tmp) -
 						collision_state.radius_lo;
@@ -2785,14 +2788,15 @@ int CalcDistPointToLine(int x1, int y1, int x2, int y2, int x3, int y3)
 //----- (00450DA3) --------------------------------------------------------
 bool GetAlertStatus()
 {
-	int result;
+	switch (uCurrentlyLoadedLevelType)
+	{
+		case WorldType::Indoor:
+			return pIndoor->dlv.field_C_alert;
+		case WorldType::Outdoor:
+			return pOutdoor->ddm.field_C_alert;
+	}
 
-	if (uCurrentlyLoadedLevelType == LEVEL_Indoor)
-		result = pOutdoor->ddm.field_C_alert;
-	else
-		result = uCurrentlyLoadedLevelType == LEVEL_Outdoor ? pIndoor->dlv.field_C_alert : 0;
-
-	return result;
+	return 0;
 }
 
 //----- (0045063B) --------------------------------------------------------
@@ -2808,7 +2812,7 @@ int SpawnEncounterMonsters(MapInfo* map_info, int enc_index)
 	//// why check this ??
 	// if (!uNumActors) return 0;
 
-	if (uCurrentlyLoadedLevelType == LEVEL_Outdoor)
+	if (uCurrentlyLoadedLevelType == WorldType::Outdoor)
 	{
 		int dist_y;
 		int dist_x;
@@ -2852,7 +2856,7 @@ int SpawnEncounterMonsters(MapInfo* map_info, int enc_index)
 		}
 		failed_point = loop_cnt == 100;
 	}
-	else if (uCurrentlyLoadedLevelType == LEVEL_Indoor)
+	else if (uCurrentlyLoadedLevelType == WorldType::Indoor)
 	{
 		int party_sectorID = pBLVRenderParams->uPartySectorID;
 		int mon_sectorID;
@@ -2929,12 +2933,12 @@ void stru154::GetFacePlaneAndClassify(ODMFace* a2, const std::vector<Vec3i>& a3)
 	GetFacePlane(a2, a3, &OutPlaneNorm, &OutPlaneDist);
 
 	if (fabsf(a2->pFacePlane.vNormal.z) < 1e-6f)
-		polygonType = POLYGON_VerticalWall;
+		polygonType = PolygonType::VerticalWall;
 	else if (fabsf(a2->pFacePlane.vNormal.x) < 1e-6f &&
 		fabsf(a2->pFacePlane.vNormal.y) < 1e-6f)
-		polygonType = POLYGON_Floor;
+		polygonType = PolygonType::Floor;
 	else
-		polygonType = POLYGON_InBetweenFloorAndWall;
+		polygonType = PolygonType::InBetweenFloorAndWall;
 
 	face_plane.vNormal.x = OutPlaneNorm.x;
 	face_plane.vNormal.y = OutPlaneNorm.y;
@@ -2946,11 +2950,11 @@ void stru154::GetFacePlaneAndClassify(ODMFace* a2, const std::vector<Vec3i>& a3)
 void stru154::ClassifyPolygon(Vec3f* pNormal, float dist)
 {
 	if (fabsf(pNormal->z) < 1e-6f)
-		polygonType = POLYGON_VerticalWall;
+		polygonType = PolygonType::VerticalWall;
 	else if (fabsf(pNormal->x) < 1e-6f && fabsf(pNormal->y) < 1e-6f)
-		polygonType = POLYGON_Floor;
+		polygonType = PolygonType::Floor;
 	else
-		polygonType = POLYGON_InBetweenFloorAndWall;
+		polygonType = PolygonType::InBetweenFloorAndWall;
 
 	face_plane.vNormal.x = pNormal->x;
 	face_plane.vNormal.y = pNormal->y;
@@ -2999,7 +3003,7 @@ void FindBillboardsLightLevels_BLV()
 	for (uint i = 0; i < uNumBillboardsToDraw; ++i)
 	{
 		if (pBillboardRenderList[i].field_1E & 2 ||
-			uCurrentlyLoadedLevelType == LEVEL_Indoor &&
+			uCurrentlyLoadedLevelType == WorldType::Indoor &&
 			!pBillboardRenderList[i].uIndoorSectorID)
 			pBillboardRenderList[i].dimming_level = 0;
 		else

@@ -111,9 +111,9 @@ void ArenaFight() {
         window.uFrameWidth, 13) + 7;
     render->BeginScene3D();
 
-    if (uCurrentlyLoadedLevelType == LEVEL_Indoor)
+    if (uCurrentlyLoadedLevelType == WorldType::Indoor)
         pIndoor->Draw();
-    else if (uCurrentlyLoadedLevelType == LEVEL_Outdoor)
+    else if (uCurrentlyLoadedLevelType == WorldType::Outdoor)
         pOutdoor->Draw();
 
     render->DrawBillboards_And_MaybeRenderSpecialEffects_And_EndScene();

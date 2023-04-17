@@ -367,7 +367,7 @@ void CollideOutdoorWithModels(bool ignore_ethereal)
 			face.uAttributes = mface.uAttributes;
 			face.pBounding = mface.pBoundingBox;
 			face.zCalc = mface.zCalc;
-			face.uPolygonType = (PolygonType)mface.uPolygonType;
+			face.uPolygonType = mface.uPolygonType;
 			face.uNumVertices = mface.uNumVertices;
 			face.resource = mface.resource;
 			face.pVertexIDs = mface.pVertexIDs.data();
@@ -695,7 +695,7 @@ void ProcessActorCollisionsBLV(Actor& actor, bool isAboveGround, bool isFlying)
 			BLVFace* face = &pIndoor->pFaces[id];
 
 			collision_state.ignored_face_id = PID_ID(collision_state.pid);
-			if (pIndoor->pFaces[id].uPolygonType == POLYGON_Floor)
+			if (pIndoor->pFaces[id].uPolygonType == PolygonType::Floor)
 			{
 				actor.vVelocity.z = 0;
 				actor.vPosition.z = pIndoor->pVertices[face->pVertexIDs[0]].z + 1;
@@ -711,7 +711,7 @@ void ProcessActorCollisionsBLV(Actor& actor, bool isAboveGround, bool isFlying)
 				float velocityDotNormal = glm::dot(face->pFacePlane.vNormal, Vec3f(actor.vVelocity));
 				velocityDotNormal = std::max(std::abs(velocityDotNormal), collision_state.speed / 8);
 				actor.vVelocity += velocityDotNormal * face->pFacePlane.vNormal;
-				if (face->uPolygonType != POLYGON_InBetweenFloorAndWall && face->uPolygonType != POLYGON_Floor)
+				if (face->uPolygonType != PolygonType::InBetweenFloorAndWall && face->uPolygonType != PolygonType::Floor)
 				{
 					float overshoot =
 						collision_state.radius_lo - face->pFacePlane.signedDistanceTo(actor.vPosition);
@@ -851,7 +851,7 @@ void ProcessActorCollisionsODM(Actor& actor, bool isFlying)
 			ODMFace* face = &pOutdoor->pBModels[collision_state.pid >> 9].pFaces[v39 & 0x3F];
 			if (!face->Ethereal())
 			{
-				if (face->uPolygonType == POLYGON_Floor)
+				if (face->uPolygonType == PolygonType::Floor)
 				{
 					actor.vVelocity.z = 0;
 					actor.vPosition.z = pOutdoor->pBModels[collision_state.pid >> 9].pVertices[face->pVertexIDs[0]].z + 1;
@@ -869,7 +869,7 @@ void ProcessActorCollisionsODM(Actor& actor, bool isFlying)
 						v72b = collision_state.speed / 8;
 
 					actor.vVelocity += v72b * face->pFacePlane.vNormal;
-					if (face->uPolygonType != POLYGON_InBetweenFloorAndWall)
+					if (face->uPolygonType != PolygonType::InBetweenFloorAndWall)
 					{
 						float v46 = collision_state.radius_lo - face->pFacePlane.signedDistanceTo(actor.vPosition);
 						if (v46 > 0)

@@ -15,5 +15,5 @@ struct Size
 	}
 };
 
-using Sizei = Size<int>;
+using Sizei = Size<int32_t>;
 using Sizef = Size<float>;

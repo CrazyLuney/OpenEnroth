@@ -125,7 +125,7 @@ void RenderBase::DrawSpriteObjects() {
         int z = object->vPosition.z;
 
         // view culling
-        if (uCurrentlyLoadedLevelType == LEVEL_Indoor) {
+        if (uCurrentlyLoadedLevelType == WorldType::Indoor) {
             bool onlist = false;
             for (uint j = 0; j < pBspRenderer->uNumVisibleNotEmptySectors; j++) {
                 if (pBspRenderer->pVisibleSectorIDs_toDrawDecorsActorsEtcFrom[j] == object->uSectorID) {
@@ -444,7 +444,7 @@ void RenderBase::TransformBillboard(SoftwareBillboard *pSoftBillboard, RenderBil
     unsigned int diffuse = ::GetActorTintColor(dimming_level, 0, pSoftBillboard->screen_space_z, 0, pBillboard);
 
     bool opaquetest{ false };
-    if (uCurrentlyLoadedLevelType == LEVEL_Outdoor) {
+    if (uCurrentlyLoadedLevelType == WorldType::Outdoor) {
         opaquetest = pSoftBillboard->sTintColor & 0xFF000000;
     } else {
         opaquetest = dimming_level & 0xFF000000;

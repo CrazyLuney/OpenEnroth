@@ -339,7 +339,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 		{
 			BSPModel* bmodel = &pOutdoor->pBModels[(signed int)collision_state.pid >> 9];
 			ODMFace* face = &bmodel->pFaces[PID_ID(collision_state.pid) & 0x3F];
-			if (face->uPolygonType == POLYGON_Floor)
+			if (face->uPolygonType == PolygonType::Floor)
 			{
 				pSpriteObjects[uLayingItemID].vPosition.z = bmodel->pVertices[face->pVertexIDs[0]].z + 1;
 				if (Vec::length2_xy(pSpriteObjects[uLayingItemID].vVelocity) >= 400)
@@ -527,7 +527,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 			if (PID_TYPE(collision_state.pid) == OBJECT_Face)
 			{
 				collision_state.ignored_face_id = PID_ID(collision_state.pid);
-				if (pIndoor->pFaces[pidId].uPolygonType != POLYGON_Floor)
+				if (pIndoor->pFaces[pidId].uPolygonType != PolygonType::Floor)
 				{
 					// Before this variable changed floor_lvl variable which is obviously invalid.
 					int dotFix = static_cast<int>(glm::abs(glm::dot(Vec3f(pIndoor->pFaces[pidId].pFacePlane_old.vNormal), Vec3f(pSpriteObject->vVelocity)))) >> 16;
@@ -598,7 +598,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 	if (!(pObject->uFlags & OBJECT_DESC_INTERACTABLE) || processSpellImpact(uLayingItemID, 0))
 	{
 		pSpriteObject->vPosition.z = floor_lvl + 1;
-		if (pIndoor->pFaces[uFaceID].uPolygonType == POLYGON_Floor)
+		if (pIndoor->pFaces[uFaceID].uPolygonType == PolygonType::Floor)
 		{
 			pSpriteObject->vVelocity.z = 0;
 		}
@@ -1578,7 +1578,7 @@ void UpdateObjects()
 				if (!(object->uFlags & OBJECT_DESC_TEMPORARY) ||
 					pSpriteObjects[i].uSpriteFrameID < lifetime)
 				{
-					if (uCurrentlyLoadedLevelType == LEVEL_Indoor)
+					if (uCurrentlyLoadedLevelType == WorldType::Indoor)
 					{
 						SpriteObject::updateObjectBLV(i);
 					}

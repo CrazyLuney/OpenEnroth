@@ -2097,7 +2097,7 @@ void TempleDialog() {
         pPrice = p2DEvents[window_SpeakInHouse->wData.val - 1].fPriceMultiplier;
         if (pParty->GetGold() >= pPrice) {
             pParty->TakeGold(pPrice);
-            if (uCurrentlyLoadedLevelType != LEVEL_Outdoor)
+            if (uCurrentlyLoadedLevelType != WorldType::Outdoor)
                 ddm = &pIndoor->dlv;
             else
                 ddm = &pOutdoor->ddm;
@@ -2345,7 +2345,7 @@ void TrainingDialog(const char *s) {
                             if (window_SpeakInHouse->wData.val == HOUSE_TRAINING_HALL_PIT || window_SpeakInHouse->wData.val == HOUSE_TRAINING_HALL_NIGHON)
                                 v42 += 12 * 60;
                             RestAndHeal(v42 + 7 * 24 * 60);
-                            if (uCurrentlyLoadedLevelType == LEVEL_Outdoor)
+                            if (uCurrentlyLoadedLevelType == WorldType::Outdoor)
                                 pOutdoor->SetFog();
                         }
                         pPlayers[pParty->getActiveCharacter()]->playReaction(SPEECH_LevelUp);

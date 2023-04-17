@@ -104,7 +104,7 @@ void TileTable::FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob&
 	Assert(sNumTiles);
 
 	auto tiles = new TileDesc[sNumTiles];
-	auto tile_data = (TileDesc_MM7*)((unsigned char*)data_mm7.data() + 4);
+	auto tile_data = data_mm7.data_view<data::mm7::TileDesc>(4);
 	for (unsigned int i = 0; i < num_mm7_tiles; ++i)
 	{
 		tiles[i].name = tile_data->pTileName.data();
@@ -112,9 +112,7 @@ void TileTable::FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob&
 			tiles[i].name.begin(), ::tolower);
 		if (tiles[i].name.find("wtrdr") == 0)
 		{
-			tiles[i].name.insert(
-				tiles[i].name.begin(),
-				'h');  // mm7 uses hd water tiles with legacy names
+			tiles[i].name.insert(tiles[i].name.begin(), 'h');  // mm7 uses hd water tiles with legacy names
 		}
 
 		tiles[i].uTileID = tile_data->uTileID;

@@ -26,6 +26,19 @@ struct BBox
 		return result;
 	}
 
+	BBox() = default;
+
+	template <typename U>
+	BBox(const Vec3<U>& min, const Vec3<U>& max)
+		: x1{ min.x }
+		, y1{ min.y }
+		, z1{ min.z }
+		, x2{ max.x }
+		, y2{ max.y }
+		, z2{ max.z }
+	{
+	}
+
 	[[nodiscard]] bool containsXY(T x, T y) const
 	{
 		return x >= x1 && x <= x2 && y >= y1 && y <= y2;
@@ -68,8 +81,8 @@ struct BBox
 	}
 };
 
-using BBoxi = BBox<int>;
-using BBoxs = BBox<short>;
+using BBoxi = BBox<int32_t>;
+using BBoxs = BBox<int16_t>;
 using BBoxf = BBox<float>;
 
 static_assert(sizeof(BBoxi) == 24);

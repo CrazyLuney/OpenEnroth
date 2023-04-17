@@ -7,7 +7,7 @@
 struct Planei
 {
 	Vec3i vNormal; // Plane normal, unit vector stored as fixpoint.
-	int dist = 0;  // D in A*x + B*y + C*z + D = 0 (basically D = -A*x_0 - B*y_0 - C*z_0), stored as fixpoint.
+	Vec3i::value_type dist = 0;  // D in A*x + B*y + C*z + D = 0 (basically D = -A*x_0 - B*y_0 - C*z_0), stored as fixpoint.
 
 	/**
 	 * @param point                     Point to calculate distance to. Note that the point is NOT in fixpoint format.
@@ -62,7 +62,7 @@ static_assert(sizeof(Planei) == 16);
 struct Planef
 {
 	Vec3f vNormal;
-	float dist = 0.0f;
+	Vec3f::value_type dist = 0.0f;
 
 	/**
 	 * @param point                     Point to calculate distance to.
@@ -101,7 +101,9 @@ struct PlaneZCalcll
 	{
 		if (plane.vNormal.z == 0)
 		{
-			this->a = this->b = this->c = 0;
+			this->a = 0;
+			this->b = 0;
+			this->c = 0;
 		}
 		else
 		{

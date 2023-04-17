@@ -308,14 +308,16 @@ void SpriteFrameTable::FromFile(const Blob &data_mm6, const Blob &data_mm7, cons
         num_mm7_frames /*+ num_mm6_frames + num_mm8_frames*/;
 
     this->pSpriteSFrames = new SpriteFrame[this->uNumSpriteFrames];
-    for (unsigned int i = 0; i < this->uNumSpriteFrames; ++i) {
-        Deserialize(*((SpriteFrame_MM7 *)((char *)data_mm7.data() + 8) + i), &this->pSpriteSFrames[i]);
+    auto mm7_sprites_data = data_mm7.data_view<data::mm7::SpriteFrame>(8);
+    for (unsigned int i = 0; i < this->uNumSpriteFrames; ++i)
+    {
+        Deserialize(mm7_sprites_data[i], &this->pSpriteSFrames[i]);
     }
 
     this->uNumEFrames = num_mm7_eframes /*+ num_mm6_eframes + num_mm8_eframes*/;
     this->pSpriteEFrames = (int16_t *)malloc(uNumSpriteFrames * sizeof(short));
 
-    uint mm7_frames_size = num_mm7_frames * sizeof(SpriteFrame_MM7);
+    uint mm7_frames_size = num_mm7_frames * sizeof(data::mm7::SpriteFrame);
     memcpy(pSpriteEFrames, (char *)data_mm7.data() + 8 + mm7_frames_size,
            2 * num_mm7_eframes);
 

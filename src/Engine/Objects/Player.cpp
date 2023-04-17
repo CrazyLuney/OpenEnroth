@@ -5216,12 +5216,12 @@ bool Player::CompareVariable(VariableType VarNum, int pValue)
 
 	case VAR_ReputationInCurrentLocation:
 		v19 = &pOutdoor->ddm;
-		if (uCurrentlyLoadedLevelType != LEVEL_Outdoor) v19 = &pIndoor->dlv;
+		if (uCurrentlyLoadedLevelType != WorldType::Outdoor) v19 = &pIndoor->dlv;
 		return (v19->uReputation >= pValue);
 
 	case VAR_Unknown1:
 		v21 = &pOutdoor->ddm;
-		if (uCurrentlyLoadedLevelType != LEVEL_Outdoor) v21 = &pIndoor->dlv;
+		if (uCurrentlyLoadedLevelType != WorldType::Outdoor) v21 = &pIndoor->dlv;
 		return (v21->field_C_alert == pValue);  // yes, equality, not >=
 
 	case VAR_GoldInBank:
@@ -5678,7 +5678,7 @@ void Player::SetVariable(VariableType var_type, signed int var_value)
 		return;
 
 	case VAR_ReputationInCurrentLocation:
-		if (uCurrentlyLoadedLevelType != LEVEL_Outdoor)
+		if (uCurrentlyLoadedLevelType != WorldType::Outdoor)
 			ddm = &pIndoor->dlv;
 		else
 			ddm = &pOutdoor->ddm;
@@ -6260,7 +6260,7 @@ void Player::AddVariable(VariableType var_type, signed int val)
 		this->uSkillPoints += val;
 		return;
 	case VAR_ReputationInCurrentLocation:
-		if (uCurrentlyLoadedLevelType != LEVEL_Outdoor)
+		if (uCurrentlyLoadedLevelType != WorldType::Outdoor)
 			ddm = &pIndoor->dlv;
 		else
 			ddm = &pOutdoor->ddm;
@@ -6973,7 +6973,7 @@ void Player::SubtractVariable(VariableType VarNum, signed int pValue)
 		return;
 	case VAR_ReputationInCurrentLocation:
 		locationHeader = &pOutdoor->ddm;
-		if (uCurrentlyLoadedLevelType != LEVEL_Outdoor)
+		if (uCurrentlyLoadedLevelType != WorldType::Outdoor)
 			locationHeader = &pIndoor->dlv;
 		locationHeader->uReputation -= pValue;
 		if (locationHeader->uReputation < -10000)

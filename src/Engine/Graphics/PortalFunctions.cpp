@@ -164,7 +164,7 @@ bool stru10::CalcFaceBounding(BLVFace *pFace, RenderVertexSoft *pFaceLimits,
     float var_28;
     float var_24;
     switch (pFace->uPolygonType) {
-        case POLYGON_VerticalWall:
+        case PolygonType::VerticalWall:
             a1.x = -pFace->pFacePlane.vNormal.y;  // направление полигона
             a1.y = pFace->pFacePlane.vNormal.x;
             a1.z = 0.0f;
@@ -174,8 +174,8 @@ bool stru10::CalcFaceBounding(BLVFace *pFace, RenderVertexSoft *pFaceLimits,
             var_24 = 1;
             break;
 
-        case POLYGON_Floor:
-        case POLYGON_Ceiling:
+        case PolygonType::Floor:
+        case PolygonType::Ceiling:
             a1.x = 1;
             a1.y = 0;
             a1.z = 0.0f;
@@ -224,7 +224,7 @@ bool stru10::CalcFaceBounding(BLVFace *pFace, RenderVertexSoft *pFaceLimits,
         var_8 = face_center_z -
                 pFaceLimits[1].vWorldPosition.z;  // высота от центра
 
-        if (pFace->uPolygonType == POLYGON_VerticalWall) a3 /= a1.x;
+        if (pFace->uPolygonType == PolygonType::VerticalWall) a3 /= a1.x;
     }
     if (pFace->uAttributes & FACE_YZ_PLANE) {
         face_center_x = (pFaceLimits[0].vWorldPosition.x +
@@ -240,7 +240,7 @@ bool stru10::CalcFaceBounding(BLVFace *pFace, RenderVertexSoft *pFaceLimits,
         a3 = face_center_y - pFaceLimits[0].vWorldPosition.y;
         var_8 = face_center_z - pFaceLimits[1].vWorldPosition.z;
         // [0.5]
-        if (pFace->uPolygonType == POLYGON_VerticalWall) {
+        if (pFace->uPolygonType == PolygonType::VerticalWall) {
             if (a1.x != 1.0f) a3 /= a1.y;
         }
     }

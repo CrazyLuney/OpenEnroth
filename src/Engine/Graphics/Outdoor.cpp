@@ -996,7 +996,7 @@ bool OutdoorLocation::Load(const std::string& filename, int days_played,
 	pGameLoadingUI_ProgressBar->Progress();
 	pGameLoadingUI_ProgressBar->Progress();  // прогресс загрузки
 
-	stream.ReadLegacyVector<SpawnPoint_MM7>(&pSpawnPoints);
+	stream.ReadLegacyVector<data::mm7::SpawnPoint>(&pSpawnPoints);
 
 	pGameLoadingUI_ProgressBar->Progress();  // прогресс загрузки
 
@@ -1033,8 +1033,8 @@ bool OutdoorLocation::Load(const std::string& filename, int days_played,
 		respawn_interval_days = 0x1BAF800;
 
 	bool should_respawn =
-		days_played - ddm.uLastRepawnDay >= respawn_interval_days ||
-		!ddm.uLastRepawnDay;
+		days_played - ddm.uLastRespawnDay >= respawn_interval_days ||
+		!ddm.uLastRespawnDay;
 
 	std::array<char, 968> Src{};
 	std::array<char, 968> Dst{};
@@ -1052,7 +1052,7 @@ bool OutdoorLocation::Load(const std::string& filename, int days_played,
 			stream.ReadRaw(&Src);
 		}
 
-		ddm.uLastRepawnDay = days_played;
+		ddm.uLastRespawnDay = days_played;
 		if (!object_count_in_level_changed_since_save)
 			++ddm.uNumRespawns;
 
@@ -1110,14 +1110,14 @@ bool OutdoorLocation::Load(const std::string& filename, int days_played,
 	pGameLoadingUI_ProgressBar->Progress();  // прогресс загрузки
 	pGameLoadingUI_ProgressBar->Progress();  // прогресс загрузки
 
-	stream.ReadLegacyVector<Actor_MM7>(&pActors);
+	stream.ReadLegacyVector<data::mm7::Actor>(&pActors);
 	for (size_t i = 0; i < pActors.size(); i++)
 		pActors[i].id = i;
 
 	pGameLoadingUI_ProgressBar->Progress();  // прогресс загрузки
 	pGameLoadingUI_ProgressBar->Progress();  // прогресс загрузки
 
-	stream.ReadLegacyVector<SpriteObject_MM7>(&pSpriteObjects);
+	stream.ReadLegacyVector<data::mm7::SpriteObject>(&pSpriteObjects);
 
 	pGameLoadingUI_ProgressBar->Progress();  // прогресс загрузки
 
@@ -1598,7 +1598,7 @@ void OutdoorLocation::PrepareActorsDrawList()
 		if (uNumBillboardsToDraw >= 500) return;
 
 		// view culling
-		if (uCurrentlyLoadedLevelType == LEVEL_Indoor)
+		if (uCurrentlyLoadedLevelType == WorldType::Indoor)
 		{
 			bool onlist = false;
 			for (uint j = 0; j < pBspRenderer->uNumVisibleNotEmptySectors; j++)
@@ -1791,7 +1791,7 @@ int ODM_GetFloorLevel(const Vec3i& pos, int unused, bool* pIsOnWater,
 			if (face.uNumVertices == 0)
 				continue;
 
-			if (face.uPolygonType != POLYGON_Floor && face.uPolygonType != POLYGON_InBetweenFloorAndWall)
+			if (face.uPolygonType != PolygonType::Floor && face.uPolygonType != PolygonType::InBetweenFloorAndWall)
 				continue;
 
 			if (!face.pBoundingBox.containsXY(pos.x, pos.y))
@@ -1802,7 +1802,7 @@ int ODM_GetFloorLevel(const Vec3i& pos, int unused, bool* pIsOnWater,
 				continue;
 
 			int floor_level;
-			if (face.uPolygonType == POLYGON_Floor)
+			if (face.uPolygonType == PolygonType::Floor)
 			{
 				floor_level = model.pVertices[face.pVertexIDs[0]].z;
 			}
@@ -2601,7 +2601,7 @@ void ODM_ProcessPartyActions()
 			}
 
 			// TODO(pskelton): these should probably be if else for polygon types
-			if (pODMFace->uPolygonType == POLYGON_Floor)
+			if (pODMFace->uPolygonType == PolygonType::Floor)
 			{
 				pParty->bFlying = false;
 				pParty->uFlags &= ~PARTY_FLAGS_1_LANDING;
@@ -2609,7 +2609,7 @@ void ODM_ProcessPartyActions()
 				partyNewZ = pModel->pVertices[pODMFace->pVertexIDs[0]].z + 1;
 			}
 
-			if (!bSmallZDelta && (pODMFace->uPolygonType != POLYGON_InBetweenFloorAndWall || bFaceSlopeTooSteep))
+			if (!bSmallZDelta && (pODMFace->uPolygonType != PolygonType::InBetweenFloorAndWall || bFaceSlopeTooSteep))
 			{  // упёрся в столб
 				partySlopeMod = true;
 
@@ -2635,7 +2635,7 @@ void ODM_ProcessPartyActions()
 				}
 			}
 
-			if (pODMFace->uPolygonType == POLYGON_InBetweenFloorAndWall)
+			if (pODMFace->uPolygonType == PolygonType::InBetweenFloorAndWall)
 			{
 				pParty->bFlying = false;
 				pParty->uFlags &= ~PARTY_FLAGS_1_LANDING;
@@ -2920,7 +2920,7 @@ int GetCeilingHeight(int Party_X, signed int Party_Y, int Party_ZHeight, int* pF
 			if (face.Ethereal())
 				continue;
 
-			if (face.uPolygonType != POLYGON_Ceiling && face.uPolygonType != POLYGON_InBetweenCeilingAndWall)
+			if (face.uPolygonType != PolygonType::Ceiling && face.uPolygonType != PolygonType::InBetweenCeilingAndWall)
 				continue;
 
 			if (!face.pBoundingBox.containsXY(Party_X, Party_Y))
@@ -2934,7 +2934,7 @@ int GetCeilingHeight(int Party_X, signed int Party_Y, int Party_ZHeight, int* pF
 				break;
 
 			int height_level;
-			if (face.uPolygonType == POLYGON_Ceiling)
+			if (face.uPolygonType == PolygonType::Ceiling)
 				height_level = model.pVertices[face.pVertexIDs[0]].z;
 			else
 				height_level = face.zCalc.calculate(Party_X, Party_Y);

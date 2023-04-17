@@ -57,8 +57,9 @@ GUIFont *GUIFont::LoadFont(const char *pFontFile, const char *pFontPalette) {
     GUIFont *pFont = new GUIFont;
 
     // pFont->pData = (FontData*)pIcons_LOD->LoadCompressedTexture(pFontFile);
-    Blob tmp_font = pIcons_LOD->LoadCompressedTexture(pFontFile);
-    Deserialize(*static_cast<const FontData_MM7 *>(tmp_font.data()), tmp_font.size(), pFont->pData);
+    Blob data_mm7 = pIcons_LOD->LoadCompressedTexture(pFontFile);
+    auto mm7_font_data = data_mm7.data_view<data::mm7::FontData>();
+    Deserialize(*mm7_font_data, data_mm7.size(), pFont->pData);
 
     int pallete_index = pIcons_LOD->LoadTexture(pFontPalette, TEXTURE_24BIT_PALETTE);
     if (pallete_index == -1)

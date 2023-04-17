@@ -71,7 +71,7 @@ void LoadGame(unsigned int uSlot)
 
 	{
 		Blob partyBlob = pNew_LOD->LoadRaw("party.bin");
-		Party_MM7* serialization = (Party_MM7*)partyBlob.data();
+		auto serialization = partyBlob.data_view<data::mm7::Party>();
 		if (serialization == nullptr)
 		{
 			logger->warning("{}", localization->FormatString(LSTR_FMT_SAVEGAME_CORRUPTED, 101));
@@ -103,7 +103,7 @@ void LoadGame(unsigned int uSlot)
 
 	{
 		Blob timerBlob = pNew_LOD->LoadRaw("clock.bin");
-		Timer_MM7* serialization = (Timer_MM7*)timerBlob.data();
+		auto serialization = timerBlob.data_view<data::mm7::Timer>();
 		if (serialization == nullptr)
 		{
 			logger->warning("{}", localization->FormatString(LSTR_FMT_SAVEGAME_CORRUPTED, 102));
@@ -116,7 +116,7 @@ void LoadGame(unsigned int uSlot)
 
 	{
 		Blob blob = pNew_LOD->LoadRaw("overlay.bin");
-		OtherOverlayList_MM7* serialization = (OtherOverlayList_MM7*)blob.data();
+		auto serialization = blob.data_view<data::mm7::OtherOverlayList>();
 		if (serialization == nullptr)
 		{
 			logger->warning("{}", localization->FormatString(LSTR_FMT_SAVEGAME_CORRUPTED, 103));
@@ -129,7 +129,7 @@ void LoadGame(unsigned int uSlot)
 
 	{
 		Blob blob = pNew_LOD->LoadRaw("npcdata.bin");
-		NPCData_MM7* serialization = (NPCData_MM7*)blob.data();
+		auto serialization = blob.data_view<data::mm7::NPCData>();
 		if (serialization == nullptr)
 		{
 			logger->warning("{}", localization->FormatString(LSTR_FMT_SAVEGAME_CORRUPTED, 104));
@@ -252,7 +252,7 @@ void SaveGame(bool IsAutoSAve, bool NotSaveWorld)
 
 	pParty->_viewYaw = pParty->_viewPrevYaw;
 	pParty->_viewPitch = pParty->_viewPrevPitch;
-	if (uCurrentlyLoadedLevelType == LEVEL_Indoor)
+	if (uCurrentlyLoadedLevelType == WorldType::Indoor)
 		pIndoor->stru1.last_visit = pParty->GetPlayingTime();
 	else
 		pOutdoor->loc_time.last_visit = pParty->GetPlayingTime();
@@ -300,7 +300,7 @@ void SaveGame(bool IsAutoSAve, bool NotSaveWorld)
 	}
 
 	{
-		Party_MM7 serialization;
+		data::mm7::Party serialization;
 		Serialize(*pParty, &serialization);
 
 		if (pNew_LOD->Write("party.bin", &serialization, sizeof(serialization), 0))
@@ -310,7 +310,7 @@ void SaveGame(bool IsAutoSAve, bool NotSaveWorld)
 	}
 
 	{
-		Timer_MM7 serialization;
+		data::mm7::Timer serialization;
 		Serialize(*pEventTimer, &serialization);
 
 		if (pNew_LOD->Write("clock.bin", &serialization, sizeof(serialization), 0))
@@ -320,7 +320,7 @@ void SaveGame(bool IsAutoSAve, bool NotSaveWorld)
 	}
 
 	{
-		OtherOverlayList_MM7 serialization;
+		data::mm7::OtherOverlayList serialization;
 		Serialize(*pOtherOverlayList, &serialization);
 
 		if (pNew_LOD->Write("overlay.bin", &serialization, sizeof(serialization), 0))
@@ -330,7 +330,7 @@ void SaveGame(bool IsAutoSAve, bool NotSaveWorld)
 	}
 
 	{
-		NPCData_MM7 serialization[501];
+		data::mm7::NPCData serialization[501];
 		for (unsigned int i = 0; i < 501; ++i)
 		{
 			Serialize(pNPCStats->pNewNPCData[i], &serialization[i]);
@@ -342,9 +342,11 @@ void SaveGame(bool IsAutoSAve, bool NotSaveWorld)
 		}
 	}
 
-	if (pNew_LOD->Write("npcgroup.bin", pNPCStats->pGroups_copy.data(), sizeof(pNPCStats->pGroups_copy), 0))
 	{
-		logger->warning("{}", localization->FormatString(LSTR_FMT_SAVEGAME_CORRUPTED, 206));
+		if (pNew_LOD->Write("npcgroup.bin", pNPCStats->pGroups_copy.data(), sizeof(pNPCStats->pGroups_copy), 0))
+		{
+			logger->warning("{}", localization->FormatString(LSTR_FMT_SAVEGAME_CORRUPTED, 206));
+		}
 	}
 
 	for (size_t i = 0; i < 4; ++i)
@@ -380,7 +382,7 @@ void SaveGame(bool IsAutoSAve, bool NotSaveWorld)
 		CompactLayingItemsList();
 
 		char* data_write_pos = uncompressed_buff;
-		if (uCurrentlyLoadedLevelType == LEVEL_Indoor)
+		if (uCurrentlyLoadedLevelType == WorldType::Indoor)
 		{
 			pIndoor->dlv.uNumFacesInBModels = pIndoor->pFaces.size();
 			pIndoor->dlv.uNumBModels = 0;
@@ -401,49 +403,37 @@ void SaveGame(bool IsAutoSAve, bool NotSaveWorld)
 				data_write_pos += 2;
 			}
 
-			uint32_t uNumActors = pActors.size();
-			memcpy(data_write_pos, &uNumActors, 4);
-			data_write_pos += 4;
-
-			// memcpy(data_write_pos, &pActors, uNumActors * sizeof(Actor));
-			// data_write_pos += uNumActors * sizeof(Actor);
-			Actor_MM7* tmp_actor = (Actor_MM7*)malloc(sizeof(Actor_MM7));
-
-			for (int i = 0; i < uNumActors; ++i)
 			{
-				Serialize(pActors[i], tmp_actor);
-				memcpy(data_write_pos + i * sizeof(Actor_MM7), tmp_actor, sizeof(Actor_MM7));
+				uint32_t uNumActors = pActors.size();
+				memcpy(data_write_pos, &uNumActors, 4);
+				data_write_pos += 4;
+				for (int i = 0; i < uNumActors; ++i)
+				{
+					Serialize(pActors[i], reinterpret_cast<data::mm7::Actor*>(data_write_pos));
+					data_write_pos += sizeof(data::mm7::Actor);
+				}
 			}
-			free(tmp_actor);
-			data_write_pos += uNumActors * sizeof(Actor_MM7);
 
-			uint32_t uNumSpriteObjects = pSpriteObjects.size();
-			memcpy(data_write_pos, &uNumSpriteObjects, 4);
-			data_write_pos += 4;
-			// memcpy(data_write_pos, pSpriteObjects.data(), 112 * uNumSpriteObjects);
-			// data_write_pos += 112 * uNumSpriteObjects;
-			SpriteObject_MM7* tmp_sprite = (SpriteObject_MM7*)malloc(sizeof(SpriteObject_MM7));
-
-			for (int i = 0; i < uNumSpriteObjects; ++i)
 			{
-				Serialize(pSpriteObjects[i], tmp_sprite);
-				memcpy(data_write_pos + i * sizeof(SpriteObject_MM7), tmp_sprite, sizeof(SpriteObject_MM7));
+				uint32_t uNumSpriteObjects = pSpriteObjects.size();
+				memcpy(data_write_pos, &uNumSpriteObjects, 4);
+				data_write_pos += 4;
+				for (int i = 0; i < uNumSpriteObjects; ++i)
+				{
+					Serialize(pSpriteObjects[i], reinterpret_cast<data::mm7::SpriteObject*>(data_write_pos));
+					data_write_pos += sizeof(data::mm7::SpriteObject);
+				}
 			}
-			free(tmp_sprite);
-			data_write_pos += uNumSpriteObjects * sizeof(SpriteObject_MM7);
 
 			data_write_pos += ChestsSerialize(data_write_pos);
 
-			// memcpy(data_write_pos, pIndoor->pDoors, sizeof(BLVDoor) * 200);
-			// data_write_pos += 16000;
-			BLVDoor_MM7* tmp_door = (BLVDoor_MM7*)malloc(sizeof(BLVDoor_MM7));
-			for (int i = 0; i < pIndoor->pDoors.size(); ++i)
 			{
-				Serialize(pIndoor->pDoors[i], tmp_door);
-				memcpy(data_write_pos + i * sizeof(BLVDoor_MM7), tmp_door, sizeof(BLVDoor_MM7));
+				for (int i = 0; i < pIndoor->pDoors.size(); ++i)
+				{
+					Serialize(pIndoor->pDoors[i], reinterpret_cast<data::mm7::BLVDoor*>(data_write_pos));
+					data_write_pos += sizeof(data::mm7::BLVDoor);
+				}
 			}
-			free(tmp_door);
-			data_write_pos += pIndoor->pDoors.size() * sizeof(BLVDoor_MM7);
 
 			memcpy(data_write_pos, pIndoor->ptr_0002B4_doors_ddata.data(), pIndoor->blv.uDoors_ddata_Size);
 			data_write_pos += pIndoor->blv.uDoors_ddata_Size;
@@ -482,37 +472,28 @@ void SaveGame(bool IsAutoSAve, bool NotSaveWorld)
 				memcpy(data_write_pos, &pLevelDecorations[i].uFlags, 2);
 				data_write_pos += 2;
 			}
-			uint32_t uNumActors = pActors.size();
-			memcpy(data_write_pos, &uNumActors, 4);
-			data_write_pos += 4;
 
-			// memcpy(data_write_pos, &pActors, uNumActors * sizeof(Actor));
-			// data_write_pos += uNumActors * sizeof(Actor);
-			Actor_MM7* tmp_actor = (Actor_MM7*)malloc(sizeof(Actor_MM7));
-
-			for (int i = 0; i < uNumActors; ++i)
 			{
-				Serialize(pActors[i], tmp_actor);
-				memcpy(data_write_pos + i * sizeof(Actor_MM7), tmp_actor, sizeof(Actor_MM7));
+				uint32_t uNumActors = pActors.size();
+				memcpy(data_write_pos, &uNumActors, 4);
+				data_write_pos += 4;
+				for (int i = 0; i < uNumActors; ++i)
+				{
+					Serialize(pActors[i], reinterpret_cast<data::mm7::Actor*>(data_write_pos));
+					data_write_pos += sizeof(data::mm7::Actor);
+				}
 			}
-			free(tmp_actor);
-			data_write_pos += uNumActors * sizeof(Actor_MM7);
 
-			uint32_t uNumSpriteObjects = pSpriteObjects.size();
-			memcpy(data_write_pos, &uNumSpriteObjects, 4);
-			data_write_pos += 4;
-
-			// memcpy(data_write_pos, pSpriteObjects.data(), uNumSpriteObjects * sizeof(SpriteObject));
-			// data_write_pos += uNumSpriteObjects * sizeof(SpriteObject);
-			SpriteObject_MM7* tmp_sprite = (SpriteObject_MM7*)malloc(sizeof(SpriteObject_MM7));
-
-			for (int i = 0; i < uNumSpriteObjects; ++i)
 			{
-				Serialize(pSpriteObjects[i], tmp_sprite);
-				memcpy(data_write_pos + i * sizeof(SpriteObject_MM7), tmp_sprite, sizeof(SpriteObject_MM7));
+				uint32_t uNumSpriteObjects = pSpriteObjects.size();
+				memcpy(data_write_pos, &uNumSpriteObjects, 4);
+				data_write_pos += 4;
+				for (int i = 0; i < uNumSpriteObjects; ++i)
+				{
+					Serialize(pSpriteObjects[i], reinterpret_cast<data::mm7::SpriteObject*>(data_write_pos));
+					data_write_pos += sizeof(data::mm7::SpriteObject);
+				}
 			}
-			free(tmp_sprite);
-			data_write_pos += uNumSpriteObjects * sizeof(SpriteObject_MM7);
 
 			data_write_pos += ChestsSerialize(data_write_pos);
 

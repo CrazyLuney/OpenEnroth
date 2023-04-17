@@ -869,7 +869,7 @@ void Game::processQueuedMessages()
 									rest_ui_hourglass_frame_current = nullptr;
 								}
 
-								if (uCurrentlyLoadedLevelType == LEVEL_Outdoor)
+								if (uCurrentlyLoadedLevelType == WorldType::Outdoor)
 								{
 									pOutdoor->UpdateSunlightVectors();
 									pOutdoor->UpdateFog();
@@ -1213,7 +1213,7 @@ void Game::processQueuedMessages()
 				}
 				if (type == OBJECT_Face)
 				{
-					if (uCurrentlyLoadedLevelType == LEVEL_Outdoor)
+					if (uCurrentlyLoadedLevelType == WorldType::Outdoor)
 					{
 						ODMFace* pODMFace = &pOutdoor->pBModels[pid >> 9].pFaces[id];
 						interactionPossible = (pODMFace->Clickable() && pODMFace->sCogTriggeredID);
@@ -1577,7 +1577,7 @@ void Game::processQueuedMessages()
 					int x = atoi(frameTableTxtLine.pProperties[0]);
 					int y = atoi(frameTableTxtLine.pProperties[1]);
 					int z = atoi(frameTableTxtLine.pProperties[2]);
-					if (uCurrentlyLoadedLevelType == LEVEL_Indoor)
+					if (uCurrentlyLoadedLevelType == WorldType::Indoor)
 					{
 						if (pIndoor->GetSector(x, y, z))
 						{
@@ -2373,7 +2373,7 @@ void Game::processQueuedMessages()
 				++viewparams->field_28;
 				viewparams->uMinimapZoom *= 2;
 
-				if (uCurrentlyLoadedLevelType == LEVEL_Indoor)
+				if (uCurrentlyLoadedLevelType == WorldType::Indoor)
 				{
 					if (viewparams->uMinimapZoom > 4096)
 					{
@@ -2400,7 +2400,7 @@ void Game::processQueuedMessages()
 				--viewparams->field_28;
 				viewparams->uMinimapZoom /= 2;
 
-				if (uCurrentlyLoadedLevelType == LEVEL_Outdoor)
+				if (uCurrentlyLoadedLevelType == WorldType::Outdoor)
 				{
 					if (viewparams->uMinimapZoom < 512)
 					{

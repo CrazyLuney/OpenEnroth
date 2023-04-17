@@ -79,7 +79,7 @@ bool Chest::Open(int uChestID)
 			}
 			if (PID_TYPE(EvtTargetObj) == OBJECT_Face)
 			{
-				if (uCurrentlyLoadedLevelType == LEVEL_Outdoor)
+				if (uCurrentlyLoadedLevelType == WorldType::Outdoor)
 				{
 					pODMFace = &pOutdoor->pBModels[EvtTargetObj >> 9]
 						.pFaces[(EvtTargetObj >> 3) & 0x3F];

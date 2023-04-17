@@ -126,6 +126,18 @@ public:
 		return _data;
 	}
 
+	const char* bytes() const
+	{
+		return reinterpret_cast<const char*>(_data);
+	}
+
+	template <typename T>
+	const T* data_view(std::ptrdiff_t offset_bytes = 0) const
+	{
+		assert(sizeof(T) + offset_bytes <= _size);
+		return reinterpret_cast<const T*>(bytes() + offset_bytes);
+	}
+
 	bool operator!() const
 	{
 		return empty();

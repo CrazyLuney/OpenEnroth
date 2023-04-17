@@ -124,9 +124,9 @@ void ViewingParams::CenterOnPartyZoomOut() {
 void ViewingParams::CenterOnPartyZoomIn() {
     int MaxZoom;
 
-    if (uCurrentlyLoadedLevelType == LEVEL_Outdoor)
+    if (uCurrentlyLoadedLevelType == WorldType::Outdoor)
         MaxZoom = 1536;
-    else if (uCurrentlyLoadedLevelType == LEVEL_Indoor)
+    else if (uCurrentlyLoadedLevelType == WorldType::Indoor)
         MaxZoom = 3072;
     else
         assert(false);
@@ -180,7 +180,7 @@ void ViewingParams::_443365() {
     int maximum_x;    // [sp+1Ch] [bp-4h]@2
 
     InitGrayPalette();
-    if (uCurrentlyLoadedLevelType == LEVEL_Indoor) {
+    if (uCurrentlyLoadedLevelType == WorldType::Indoor) {
         minimum_x = 0x40000000;
         minimum_y = 0x40000000;
 
@@ -378,7 +378,7 @@ void Engine::OnGameViewportClick() {
             DecorationInteraction(id, pid);
         }
     } else if (PID_TYPE(pid) == OBJECT_Face && in_range) {
-        if (uCurrentlyLoadedLevelType == LEVEL_Indoor) {
+        if (uCurrentlyLoadedLevelType == WorldType::Indoor) {
             if (!pIndoor->pFaces[PID_ID(pid)].Clickable()) {
                 if (pParty->pPickedItem.uItemID == ITEM_NULL) {
                     GameUI_StatusBar_NothingHere();
@@ -391,7 +391,7 @@ void Engine::OnGameViewportClick() {
                 pEventID = pIndoor->pFaceExtras[pIndoor->pFaces[PID_ID(pid)].uFaceExtraID].uEventID;
                 EventProcessor(pEventID, pid, 1);
             }
-        } else if (uCurrentlyLoadedLevelType == LEVEL_Outdoor) {
+        } else if (uCurrentlyLoadedLevelType == WorldType::Outdoor) {
             if (!pOutdoor->pBModels[(signed int)(pid) >> 9].pFaces[PID_ID(pid) & 0x3F].Clickable()) {
                 if (pParty->pPickedItem.uItemID == ITEM_NULL) {
                     GameUI_StatusBar_NothingHere();

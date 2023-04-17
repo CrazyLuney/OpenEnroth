@@ -1141,9 +1141,9 @@ bool RenderOpenGL::AreRenderSurfacesOk() {
 uint32_t *RenderOpenGL::MakeScreenshot32(const int width, const int height) {
     BeginScene3D();
 
-    if (uCurrentlyLoadedLevelType == LEVEL_Indoor) {
+    if (uCurrentlyLoadedLevelType == WorldType::Indoor) {
         pIndoor->Draw();
-    } else if (uCurrentlyLoadedLevelType == LEVEL_Outdoor) {
+    } else if (uCurrentlyLoadedLevelType == WorldType::Outdoor) {
         pOutdoor->Draw();
     }
 
@@ -1158,7 +1158,7 @@ uint32_t *RenderOpenGL::MakeScreenshot32(const int width, const int height) {
     memset(pPixels, 0, sizeof(uint32_t) * height * width);
 
     uint32_t *for_pixels = pPixels;
-    if (uCurrentlyLoadedLevelType == LEVEL_null) {
+    if (uCurrentlyLoadedLevelType == WorldType::None) {
         memset(&for_pixels, 0, sizeof(for_pixels));
     } else {
         for (uint y = 0; y < (unsigned int)height; ++y) {
@@ -2212,12 +2212,11 @@ void RenderOpenGL::DrawOutdoorTerrain() {
 
                 // TODO(pskelton): terrain and boxes should be saved for easier retrieval
                 // test expanded box against bloodsplat
-                BBoxf thissquare{ terrshaderstore[6 * (loopx + (127 * loopy))].x ,
-                                  terrshaderstore[6 * (loopx + (127 * loopy)) + 1].x,
-                                  terrshaderstore[6 * (loopx + (127 * loopy)) + 1].y,
-                                  terrshaderstore[6 * (loopx + (127 * loopy))].y,
-                                  WorldMinZ,
-                                  WorldMaxZ };
+                BBoxf thissquare
+                {
+                    Vec3f{ terrshaderstore[6 * (loopx + (127 * loopy))].x, terrshaderstore[6 * (loopx + (127 * loopy)) + 1].y, WorldMinZ },
+                    Vec3f{ terrshaderstore[6 * (loopx + (127 * loopy)) + 1].x, terrshaderstore[6 * (loopx + (127 * loopy))].y, WorldMaxZ },
+                };
 
                 // skip this square if no splat over lap
                 if (!thissquare.intersectsCube(decal_builder->bloodsplat_container->pBloodsplats_to_apply[i].pos, decal_builder->bloodsplat_container->pBloodsplats_to_apply[i].radius))
@@ -2303,7 +2302,7 @@ void RenderOpenGL::DrawOutdoorSky() {
 
     pSkyPolygon.texture = pOutdoor->sky_texture;
     if (pSkyPolygon.texture) {
-        pSkyPolygon.dimming_level = (uCurrentlyLoadedLevelType == LEVEL_Outdoor)? 31 : 0;
+        pSkyPolygon.dimming_level = (uCurrentlyLoadedLevelType == WorldType::Outdoor)? 31 : 0;
         pSkyPolygon.uNumVertices = 4;
 
         // centering(центруем)-----------------------------------------------------------------
@@ -2609,7 +2608,7 @@ void RenderOpenGL::DrawForcePerVerts() {
     int fpfogmiddle{};
     uint fpfogcol{ GetLevelFogColor() };
 
-    if (engine->config->graphics.Fog.value() && uCurrentlyLoadedLevelType == LEVEL_Outdoor) {
+    if (engine->config->graphics.Fog.value() && uCurrentlyLoadedLevelType == WorldType::Outdoor) {
         if (fpfogcol) {
             fpfogstart = day_fogrange_1;
             fpfogmiddle = day_fogrange_2;
@@ -2672,7 +2671,7 @@ void RenderOpenGL::DrawForcePerVerts() {
 void RenderOpenGL::SetFogParametersGL() {
     uint fogcol{ GetLevelFogColor() };
 
-    if (engine->config->graphics.Fog.value() && uCurrentlyLoadedLevelType == LEVEL_Outdoor) {
+    if (engine->config->graphics.Fog.value() && uCurrentlyLoadedLevelType == WorldType::Outdoor) {
         if (fogcol) {
             fogstart = day_fogrange_1;
             fogmiddle = day_fogrange_2;
@@ -4500,7 +4499,7 @@ void RenderOpenGL::DrawIndoorFaces() {
                     float skymodtimex{};
                     float skymodtimey{};
                     if (face->Indoor_sky()) {
-                        if (face->uPolygonType != POLYGON_InBetweenFloorAndWall && face->uPolygonType != POLYGON_Floor) {
+                        if (face->uPolygonType != PolygonType::InBetweenFloorAndWall && face->uPolygonType != PolygonType::Floor) {
                             // draw forced perspective sky
                             DrawIndoorSky(face->uNumVertices, uFaceID);
                             continue;
