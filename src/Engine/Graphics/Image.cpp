@@ -63,35 +63,55 @@ void TextureFrameTable::ToFile()
 	// static_assert(sizeof(TextureFrameTable) == 0x14u);
 	__debugbreak();
 
-	fwrite(&this->sNumTextures, 4u, 1u, file);
-	fwrite(this->pTextures, 0x14u, this->sNumTextures, file);
+	fwrite(&sNumTextures, sizeof(sNumTextures), 1, file);
+	fwrite(pTextures.get(), sizeof(TextureFrame), sNumTextures, file);
 	fclose(file);
 }
 
 void TextureFrameTable::FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8)
 {
-	uint num_mm6_frames = data_mm6 ? *(int*)data_mm6.data() : 0,
-		num_mm7_frames = data_mm7 ? *(int*)data_mm7.data() : 0,
-		num_mm8_frames = data_mm8 ? *(int*)data_mm8.data() : 0;
-
-	this->sNumTextures =
-		/*num_mm6_frames + */ num_mm7_frames /*+ num_mm8_frames*/;
-	Assert(sNumTextures, 0);
-	// Assert(!num_mm8_frames);
-
-	auto frame_data = reinterpret_cast<data::mm7::TextureFrame*>((unsigned char*)data_mm7.data() + 4);
-	auto frames = new TextureFrame[this->sNumTextures];
-	for (unsigned int i = 0; i < this->sNumTextures; ++i)
+#pragma pack(push, 1)
+	struct TextureFrameTableHeader final
 	{
-		frames[i].name = frame_data->pTextureName.data();
+		uint32_t num_textures;
+	};
+#pragma pack(pop)
 
-		std::transform(frames[i].name.begin(), frames[i].name.end(), frames[i].name.begin(), ::tolower);
+	size_t mm6_num_textures = 0;
+	if (data_mm6)
+	{
+		const auto& header = *data_mm6.data_view<TextureFrameTableHeader>();
 
-		frames[i].uAnimLength = frame_data->uAnimLength;
-		frames[i].uAnimTime = frame_data->uAnimTime;
-		frames[i].uFlags = frame_data->uFlags;
+		mm6_num_textures = header.num_textures;
+	}
 
-		++frame_data;
+	size_t mm7_num_textures = 0;
+	if (data_mm7)
+	{
+		const auto& header = *data_mm7.data_view<TextureFrameTableHeader>();
+
+		mm7_num_textures = header.num_textures;
+	}
+
+	size_t mm8_num_textures = 0;
+	if (data_mm8)
+	{
+		const auto& header = *data_mm8.data_view<TextureFrameTableHeader>();
+
+		mm8_num_textures = header.num_textures;
+	}
+
+	sNumTextures = mm7_num_textures; /*num_mm6_frames + */  /*+ num_mm8_frames*/
+
+	pTextures = std::make_unique<TextureFrame[]>(sNumTextures);
+
+	if (data_mm7)
+	{
+		auto mm7_frames = data_mm7.data_view<data::mm7::TextureFrame>(sizeof(TextureFrameTableHeader));
+		for (size_t i = 0; i < mm7_num_textures; ++i)
+		{
+			Deserialize(mm7_frames[i], &pTextures[i]);
+		}
 	}
 
 	// pTextures = (TextureFrame *)malloc(sNumTextures * sizeof(TextureFrame));
@@ -100,29 +120,24 @@ void TextureFrameTable::FromFile(const Blob& data_mm6, const Blob& data_mm7, con
 	// (char *)data_mm6 + 4, num_mm6_frames * sizeof(TextureFrame));
 	// memcpy(pTextures + num_mm6_frames + num_mm7_frames, (char *)data_mm8 + 4,
 	// num_mm8_frames * sizeof(TextureFrame));
-
-	this->pTextures = frames;
 }
 
-void TextureFrameTable::LoadAnimationSequenceAndPalettes(int uFrameID)
+void TextureFrameTable::LoadAnimationSequenceAndPalettes(size_t uFrameID)
 {
-	if (uFrameID <= this->sNumTextures && uFrameID >= 0)
+	for (size_t i = uFrameID; i < sNumTextures; ++i)
 	{
-		for (unsigned int i = uFrameID;; ++i)
-		{
-			// this->pTextures[i].uTextureID =
-			// pBitmaps_LOD->LoadTexture(this->pTextures[i].pTextureName,
-			// TEXTURE_DEFAULT);
+		// this->pTextures[i].uTextureID =
+		// pBitmaps_LOD->LoadTexture(this->pTextures[i].pTextureName,
+		// TEXTURE_DEFAULT);
 
-			// if (this->pTextures[i].uTextureID != -1)
-			//    pBitmaps_LOD->pTextures[this->pTextures[i].uTextureID].palette_id2
-			//    =
-			//    pPaletteManager->LoadPalette(pBitmaps_LOD->pTextures[this->pTextures[i].uTextureID].palette_id1);
+		// if (this->pTextures[i].uTextureID != -1)
+		//    pBitmaps_LOD->pTextures[this->pTextures[i].uTextureID].palette_id2
+		//    =
+		//    pPaletteManager->LoadPalette(pBitmaps_LOD->pTextures[this->pTextures[i].uTextureID].palette_id1);
 
-			if (this->pTextures[i].uFlags & 1) break;
-		}
+		if (pTextures[i].uFlags & TEXTURE_FRAME_TABLE_MORE_FRAMES)
+			break;
 	}
-	return;
 }
 
 int64_t TextureFrameTable::FindTextureByName(const char* Str2)
@@ -137,28 +152,31 @@ int64_t TextureFrameTable::FindTextureByName(const char* Str2)
 	return -1;
 }
 
-Texture* TextureFrameTable::GetFrameTexture(int uFrameID, signed int a3)
+Texture* TextureFrameTable::GetFrameTexture(size_t uFrameID, int time)
 {
-	int v3 = uFrameID;
-	TextureFrame* v4 = this->pTextures;
-	TextureFrame* v5 = &v4[uFrameID];
-	int v6 = v5->uAnimLength;
-	if (v5->uFlags & 1 && (v6 != 0))
+	if (uFrameID >= sNumTextures)
+		return nullptr;
+
+	size_t frame_id = uFrameID;
+	TextureFrame& frame = pTextures[frame_id];
+
+	if (!!(frame.uFlags & TEXTURE_FRAME_TABLE_MORE_FRAMES) && (frame.uAnimLength > 0))
 	{
-		int v7 = (a3 >> 3) % v6;
-		for (char* i = (char*)&v5->uAnimTime;; i += 20)
+		int v7 = (time >> 3) % frame.uAnimLength;
+
+		for (size_t i = frame_id; i < sNumTextures; ++i)
 		{
-			int v9 = *(short*)i;
-			if (v7 <= v9) break;
-			v7 -= v9;
-			++v3;
+			if (v7 <= pTextures[i].uAnimTime)
+				return pTextures[i].GetTexture();
+
+			v7 -= pTextures[i].uAnimTime;
 		}
-		return v4[v3].GetTexture();
+
+		// must not reach
+		__debugbreak();
 	}
-	else
-	{
-		return v5->GetTexture();
-	}
+
+	return frame.GetTexture();
 }
 
 void Texture_MM7::Release()

@@ -80,19 +80,16 @@ extern LightsData Lights;  // idb
 #pragma pack(push, 1)
 struct DDM_DLV_Header
 {
-	//----- (00462607) --------------------------------------------------------
-	inline DDM_DLV_Header() {}
-
-	int uNumRespawns = 0;
-	int uLastRespawnDay = 0;
-	int uReputation = 0;
-	int field_C_alert = 0; // Actually bool
-	unsigned int uNumFacesInBModels = 0;
-	unsigned int uNumDecorations = 0;
-	unsigned int uNumBModels = 0;
-	int field_1C = 0;
-	int field_20 = 0;
-	int field_24 = 0;
+	int32_t uNumRespawns = 0;
+	int32_t uLastRespawnDay = 0;
+	int32_t uReputation = 0;
+	int32_t field_C_alert = 0; // Actually bool
+	uint32_t uNumFacesInBModels = 0;
+	uint32_t uNumDecorations = 0;
+	uint32_t uNumBModels = 0;
+	int32_t field_1C = 0;
+	int32_t field_20 = 0;
+	int32_t field_24 = 0;
 };
 #pragma pack(pop)
 
@@ -100,22 +97,22 @@ struct DDM_DLV_Header
 #pragma pack(push, 1)
 struct stru315
 {
-	int field_0;
-	int field_4;
-	int field_8;
-	int field_C;
-	int field_10;
-	int field_14;
-	int field_18;
-	int field_1C;
-	int field_20;
-	int field_24;
-	int field_28;
-	int field_2C;
-	int field_30;
+	int32_t field_0;
+	int32_t field_4;
+	int32_t field_8;
+	int32_t field_C;
+	int32_t field_10;
+	int32_t field_14;
+	int32_t field_18;
+	int32_t field_1C;
+	int32_t field_20;
+	int32_t field_24;
+	int32_t field_28;
+	int32_t field_2C;
+	int32_t field_30;
 	uint16_t* field_34_palette;
 	uint16_t* pTextureLOD;
-	unsigned int* pDepthBuffer;
+	uint16_t* pDepthBuffer;
 	uint16_t* pColorBuffer;
 };
 #pragma pack(pop)
@@ -124,15 +121,15 @@ struct stru315
 #pragma pack(push, 1)
 struct stru316
 {
-	int field_0;
-	int field_4;
-	int field_8;
-	int field_C;
-	int field_10;
-	int field_14;
-	int field_18;
-	int field_1C;
-	int field_20;
+	int32_t field_0;
+	int32_t field_4;
+	int32_t field_8;
+	int32_t field_C;
+	int32_t field_10;
+	int32_t field_14;
+	int32_t field_18;
+	int32_t field_1C;
+	int32_t field_20;
 	uint16_t* field_24_palette;
 };
 #pragma pack(pop)
@@ -141,11 +138,11 @@ struct stru316
 #pragma pack(push, 1)
 struct stru337_stru0
 {
-	int field_0;
-	int field_4;
-	int field_8;
-	int field_C;
-	int field_10;
+	int32_t field_0;
+	int32_t field_4;
+	int32_t field_8;
+	int32_t field_C;
+	int32_t field_10;
 };
 #pragma pack(pop)
 
@@ -154,14 +151,14 @@ struct stru337_stru0
 struct stru337_unused
 {
 	stru337_stru0 field_0;
-	int field_14;
-	int field_18;
-	int field_1C;
-	int field_20;
-	int field_24;
-	int field_28;
-	int field_2C;
-	int field_30;
+	int32_t field_14;
+	int32_t field_18;
+	int32_t field_1C;
+	int32_t field_20;
+	int32_t field_24;
+	int32_t field_28;
+	int32_t field_2C;
+	int32_t field_30;
 	stru337_stru0 field_34;
 };
 #pragma pack(pop)
@@ -194,32 +191,32 @@ struct stru154
 #pragma pack(push, 1)
 struct stru352
 {
-	int field_0;
-	int field_4;
-	int field_8;
-	int field_C;
-	int field_10;
-	int field_14;
-	int field_18;
-	int field_1C;
-	int field_20;
-	int field_24;
-	int field_28;
-	int field_2C;
-	int field_30;
-	int field_34;
+	int32_t field_0;
+	int32_t field_4;
+	int32_t field_8;
+	int32_t field_C;
+	int32_t field_10;
+	int32_t field_14;
+	int32_t field_18;
+	int32_t field_1C;
+	int32_t field_20;
+	int32_t field_24;
+	int32_t field_28;
+	int32_t field_2C;
+	int32_t field_30;
+	int32_t field_34;
 };
 #pragma pack(pop)
 // extern std::array<stru352, 480> stru_F83B80;
 
 #pragma pack(push, 1)
-struct LocationTime_stru1
+struct WorldTime
 {
 	GameTime last_visit{};
 	char sky_texture_name[12]{};
-	int day_attrib = 0;
-	int day_fogrange_1 = 0;
-	int day_fogrange_2 = 0;
+	int32_t day_attrib = 0;
+	int32_t day_fogrange_1 = 0;
+	int32_t day_fogrange_2 = 0;
 	char field_2F4[24]{};
 };
 #pragma pack(pop)
@@ -239,10 +236,10 @@ extern WorldType uCurrentlyLoadedLevelType;
 struct BLVHeader
 {
 	char field_0[104];
-	unsigned int uFaces_fdata_Size;
-	unsigned int uSector_rdata_Size;
-	unsigned int uSector_lrdata_Size;
-	unsigned int uDoors_ddata_Size;
+	uint32_t uFaces_fdata_Size;
+	uint32_t uSector_rdata_Size;
+	uint32_t uSector_lrdata_Size;
+	uint32_t uDoors_ddata_Size;
 	char field_78[16];
 };
 #pragma pack(pop)
@@ -251,7 +248,7 @@ struct BLVHeader
 #pragma pack(push, 1)
 struct BLVSectorMM8
 {
-	int dword_000074;
+	uint32_t dword_000074;
 };
 #pragma pack(pop)
 
@@ -591,7 +588,7 @@ struct IndoorLocation
 	std::vector<uint16_t> ptr_0002B8_sector_lrdata;
 	std::vector<SpawnPoint> pSpawnPoints;
 	DDM_DLV_Header dlv;
-	LocationTime_stru1 stru1;
+	WorldTime world_time;
 	std::array<char, 875> _visible_outlines;
 	char padding;
 

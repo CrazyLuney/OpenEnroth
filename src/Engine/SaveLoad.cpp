@@ -253,9 +253,9 @@ void SaveGame(bool IsAutoSAve, bool NotSaveWorld)
 	pParty->_viewYaw = pParty->_viewPrevYaw;
 	pParty->_viewPitch = pParty->_viewPrevPitch;
 	if (uCurrentlyLoadedLevelType == WorldType::Indoor)
-		pIndoor->stru1.last_visit = pParty->GetPlayingTime();
+		pIndoor->world_time.last_visit = pParty->GetPlayingTime();
 	else
-		pOutdoor->loc_time.last_visit = pParty->GetPlayingTime();
+		pOutdoor->world_time.last_visit = pParty->GetPlayingTime();
 
 	// saving - please wait
 
@@ -439,7 +439,7 @@ void SaveGame(bool IsAutoSAve, bool NotSaveWorld)
 			data_write_pos += pIndoor->blv.uDoors_ddata_Size;
 			memcpy(data_write_pos, &stru_5E4C90_MapPersistVars, 0xC8);
 			data_write_pos += 200;
-			memcpy(data_write_pos, &pIndoor->stru1, 0x38);
+			memcpy(data_write_pos, &pIndoor->world_time, 0x38);
 			data_write_pos += 56;
 
 		}
@@ -499,7 +499,7 @@ void SaveGame(bool IsAutoSAve, bool NotSaveWorld)
 
 			memcpy(data_write_pos, &stru_5E4C90_MapPersistVars, 0xC8);
 			data_write_pos += 200;
-			memcpy(data_write_pos, &pOutdoor->loc_time, 0x38);
+			memcpy(data_write_pos, &pOutdoor->world_time, 0x38);
 			data_write_pos += 56;
 		}
 

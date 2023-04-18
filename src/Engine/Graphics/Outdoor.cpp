@@ -26,7 +26,7 @@
 #include "Engine/Serialization/Deserializer.h"
 #include "Engine/SpellFxRenderer.h"
 #include "Engine/stru123.h"
-#include "Engine/Tables/TileFrameTable.h"
+#include "Engine/Tables/TileTable.h"
 #include "Engine/Time.h"
 #include "Engine/TurnEngine/TurnEngine.h"
 #include "Engine/Graphics/Vis.h"
@@ -275,9 +275,9 @@ bool OutdoorLocation::Initialize(const std::string& filename, int days_played,
 			CreateDebugLocation();
 		}
 
-		::day_attrib = this->loc_time.day_attrib;
-		::day_fogrange_1 = this->loc_time.day_fogrange_1;
-		::day_fogrange_2 = this->loc_time.day_fogrange_2;
+		::day_attrib = this->world_time.day_attrib;
+		::day_fogrange_1 = this->world_time.day_fogrange_1;
+		::day_fogrange_2 = this->world_time.day_fogrange_2;
 		if (Is_out15odm_underwater()) SetUnderwaterFog();
 		_6BE134_odm_main_tile_group = this->pTileTypes[0].tileset;
 
@@ -549,9 +549,9 @@ void OutdoorLocation::SetFog()
 	}
 
 	if (Is_out15odm_underwater()) SetUnderwaterFog();
-	pOutdoor->loc_time.day_fogrange_1 = ::day_fogrange_1;
-	pOutdoor->loc_time.day_fogrange_2 = ::day_fogrange_2;
-	pOutdoor->loc_time.day_attrib = ::day_attrib;
+	pOutdoor->world_time.day_fogrange_1 = ::day_fogrange_1;
+	pOutdoor->world_time.day_fogrange_2 = ::day_fogrange_2;
+	pOutdoor->world_time.day_attrib = ::day_attrib;
 }
 
 //----- (0047C7A9) --------------------------------------------------------
@@ -744,8 +744,7 @@ void OutdoorLocationTerrain::FillDMap(int X, int Y, int W, int Z)
 }
 
 //----- (0047CB57) --------------------------------------------------------
-int OutdoorLocationTerrain::_47CB57(unsigned char* pixels_8bit, int a2,
-	int num_pixels)
+int OutdoorLocationTerrain::_47CB57(unsigned char* pixels_8bit, int a2, int num_pixels)
 {
 	int result;  // eax@2
 	//  uint16_t *v5; // edx@3
@@ -1130,8 +1129,8 @@ bool OutdoorLocation::Load(const std::string& filename, int days_played,
 
 	pGameLoadingUI_ProgressBar->Progress();  // прогресс загрузки
 
-	static_assert(sizeof(loc_time) == 0x38);
-	stream.ReadRaw(&loc_time);
+	static_assert(sizeof(world_time) == 0x38);
+	stream.ReadRaw(&world_time);
 
 	pTileTable->InitializeTileset(Tileset_Dirt);
 	pTileTable->InitializeTileset(Tileset_Snow);
@@ -1153,26 +1152,26 @@ bool OutdoorLocation::Load(const std::string& filename, int days_played,
 	// LABEL_150:
 	if (pWeather->bRenderSnow)
 	{  // Ritor1: it's include for snow
-		strcpy(loc_time.sky_texture_name, "sky19");
+		strcpy(world_time.sky_texture_name, "sky19");
 	}
-	else if (loc_time.last_visit)
+	else if (world_time.last_visit)
 	{
-		if (loc_time.last_visit.GetDays() % 28 != pParty->uCurrentDayOfMonth)
+		if (world_time.last_visit.GetDays() % 28 != pParty->uCurrentDayOfMonth)
 		{
 			int sky_to_use;
 			if (vrng->random(100) >= 20)
 				sky_to_use = dword_4EC268[vrng->random(dword_4EC2A8)];
 			else
 				sky_to_use = dword_4EC28C[vrng->random(dword_4EC2AC)];
-			sprintf(loc_time.sky_texture_name, "plansky%d", sky_to_use);
+			sprintf(world_time.sky_texture_name, "plansky%d", sky_to_use);
 		}
 	}
 	else
 	{
-		strcpy(loc_time.sky_texture_name, "plansky3");
+		strcpy(world_time.sky_texture_name, "plansky3");
 	}
 
-	this->sky_texture = assets->GetBitmap(loc_time.sky_texture_name);
+	this->sky_texture = assets->GetBitmap(world_time.sky_texture_name);
 
 	//pPaletteManager->RecalculateAll();
 
@@ -1763,8 +1762,7 @@ void OutdoorLocation::PrepareActorsDrawList()
 	}
 }
 
-int ODM_GetFloorLevel(const Vec3i& pos, int unused, bool* pIsOnWater,
-	int* bmodel_pid, int bWaterWalk)
+int ODM_GetFloorLevel(const Vec3i& pos, int unused, bool* pIsOnWater, int* bmodel_pid, int bWaterWalk)
 {
 	std::array<int, 20> current_Face_id{};                   // dword_721110
 	std::array<int, 20> current_BModel_id{};                 // dword_721160

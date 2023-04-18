@@ -141,19 +141,14 @@ protected:
 #pragma pack(push, 1)
 struct TextureFrameTable
 {
-	inline TextureFrameTable()
-	{
-		pTextures = 0;
-		sNumTextures = 0;
-	}
 	void ToFile();
 	void FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8);
-	void LoadAnimationSequenceAndPalettes(int uIconID);
-	Texture* GetFrameTexture(int uFrameID, int time);
+	void LoadAnimationSequenceAndPalettes(size_t uFrameID);
+	Texture* GetFrameTexture(size_t uFrameID, int time);
 	int64_t FindTextureByName(const char* Str2);
 
-	uint32_t sNumTextures;
-	TextureFrame* pTextures;
+	size_t sNumTextures = 0;
+	std::unique_ptr<TextureFrame[]> pTextures;
 };
 #pragma pack(pop)
 

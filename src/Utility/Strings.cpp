@@ -3,7 +3,7 @@
 
 static inline unsigned char asciiToLower(unsigned char c)
 {
-	return ((((c) >= 'A') && ((c) <= 'Z')) ? ((c)-'A' + 'a') : (c));
+	return ((((c) >= 'A') && ((c) <= 'Z')) ? ((c) - 'A' + 'a') : (c));
 }
 
 static int asciiCaseInsensitiveCompare(const char* l, const char* r, size_t size)
@@ -25,7 +25,7 @@ static int asciiCaseInsensitiveCompare(const char* l, const char* r, size_t size
 
 static std::string_view toCharStringView(std::u8string_view s)
 {
-	return std::string_view(reinterpret_cast<const char*>(s.data()), s.size());
+	return std::string_view(reinterpret_cast<const char*>(s.data()), s.length());
 }
 
 std::vector<char*> tokenize(char* input, const char separator)
@@ -36,7 +36,7 @@ std::vector<char*> tokenize(char* input, const char separator)
 	{
 		if (*input == separator)
 		{
-			*input = '\0';
+			*input = 0;
 			retVect.push_back(input + 1);
 		}
 		++input;
@@ -60,28 +60,28 @@ std::string toUpper(std::string_view text)
 
 bool istarts_with(std::string_view s, std::string_view prefix)
 {
-	if (s.size() < prefix.size())
+	if (s.length() < prefix.length())
 		return false;
 
-	return asciiCaseInsensitiveCompare(s.data(), prefix.data(), prefix.size()) == 0;
+	return asciiCaseInsensitiveCompare(s.data(), prefix.data(), prefix.length()) == 0;
 }
 
 bool iequals(std::string_view a, std::string_view b)
 {
-	if (a.size() != b.size())
+	if (a.length() != b.length())
 		return false;
 
-	return asciiCaseInsensitiveCompare(a.data(), b.data(), a.size()) == 0;
+	return asciiCaseInsensitiveCompare(a.data(), b.data(), a.length()) == 0;
 }
 
 bool iless(std::string_view a, std::string_view b)
 {
-	int result = asciiCaseInsensitiveCompare(a.data(), b.data(), std::min(a.size(), b.size()));
+	int result = asciiCaseInsensitiveCompare(a.data(), b.data(), std::min(a.length(), b.length()));
 	if (result < 0)
 		return true;
 	if (result > 0)
 		return false;
-	return a.size() < b.size();
+	return a.length() < b.length();
 }
 
 bool iequalsAscii(std::u8string_view a, std::u8string_view b)

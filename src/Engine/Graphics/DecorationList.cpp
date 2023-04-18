@@ -17,28 +17,36 @@ void DecorationList::FromFile(const Blob& data_mm6, const Blob& data_mm7, const 
 	Assert(uNumDecorations);
 	Assert(!num_mm8_decs);
 
-	DecorationDesc* decors = (DecorationDesc*)((char*)data_mm7.data() + 4);
-	for (size_t i = 0; i < num_mm7_decs; i++)
+	if (data_mm6)
 	{
-		pDecorations.push_back(decors[i]);
+		auto mm6_decors = data_mm6.data_view<data::mm6::DecorationDesc>(4);
+		for (size_t i = 0; i < num_mm6_decs; ++i)
+		{
+			data::mm7::DecorationDesc decor{ mm6_decors[i] };
+			decor.uColoredLightRed = 255;
+			decor.uColoredLightGreen = 255;
+			decor.uColoredLightBlue = 255;
+			decor.__padding = 255;
+			pDecorations.emplace_back(decor);
+		}
 	}
 
-	DecorationDesc_mm6* decors_mm6 = (DecorationDesc_mm6*)((char*)data_mm6.data() + 4);
-	for (size_t i = 0; i < num_mm6_decs; ++i)
+	if (data_mm7)
 	{
-		DecorationDesc decor;
-		static_cast<DecorationDesc_mm6&>(decor) = decors_mm6[i];
-		decor.uColoredLightRed = 255;
-		decor.uColoredLightGreen = 255;
-		decor.uColoredLightBlue = 255;
-		decor.__padding = 255;
-		pDecorations.push_back(decor);
+		auto mm7_decors = data_mm7.data_view<data::mm7::DecorationDesc>(4);
+		for (size_t i = 0; i < num_mm7_decs; i++)
+		{
+			pDecorations.push_back(mm7_decors[i]);
+		}
 	}
 
-	DecorationDesc* decors_mm8 = (DecorationDesc*)((char*)data_mm8.data() + 4);
-	for (size_t i = 0; i < num_mm8_decs; i++)
+	if (data_mm8)
 	{
-		pDecorations.push_back(decors_mm8[i]);
+		auto mm8_decors = data_mm8.data_view<data::mm8::DecorationDesc>(4);
+		for (size_t i = 0; i < num_mm8_decs; i++)
+		{
+			pDecorations.push_back(mm8_decors[i]);
+		}
 	}
 }
 

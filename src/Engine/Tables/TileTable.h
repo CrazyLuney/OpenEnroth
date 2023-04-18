@@ -20,7 +20,7 @@ enum TILE_DESC_FLAGS
 	TILE_DESC_SCROLL_DOWN = 0x400,
 	TILE_DESC_SCROLL_UP = 0x800,
 	TILE_DESC_SCROLL_LEFT = 0x1000,
-	TILE_DESC_SCROLL_RIGHT = 0x2000
+	TILE_DESC_SCROLL_RIGHT = 0x2000,
 };
 
 enum TILE_SECT_FLAGS
@@ -49,11 +49,9 @@ enum TILE_SECT_FLAGS
 	TILE_SECT_S1_DSW = 0x13,
 	TILE_SECT_XNE1_XSE1_DNE = 0x14,
 	TILE_SECT_DSE = 0x15,
-	TILE_SECT_XNW1_XSW1_DNW = 0x16
+	TILE_SECT_XNW1_XSW1_DNW = 0x16,
 };
 
-#pragma warning(push)
-#pragma warning(disable : 4341)
 enum Tileset : int16_t
 {
 	Tileset_Grass = 0,
@@ -82,9 +80,8 @@ enum Tileset : int16_t
 	Tileset_RoadTropicalDirt = 27,
 	Tileset_RoadCityStone = 28,
 	Tileset_NULL = -1,
-	Tileset_Start = -2
+	Tileset_Start = -2,
 };
-#pragma warning(pop)
 
 class Texture;
 
@@ -110,7 +107,7 @@ public:
 
 	// inline bool IsWaterTile() const         { return this->name == "wtrtyl";
 	// }
-	inline bool IsWaterTile() const { return this->uAttributes & 2; }
+	inline bool IsWaterTile() const { return this->uAttributes & TILE_DESC_WATER; }
 	inline bool IsWaterBorderTile() const
 	{
 		return this->name.find("wtrdr", 0) == 0 ||
@@ -122,16 +119,14 @@ protected:
 };
 
 /*   49 */
-#pragma pack(push, 1)
 struct TileTable
 {
 	//----- (00487E13) --------------------------------------------------------
-	TileTable()
+	~TileTable()
 	{
-		this->pTiles = nullptr;
-		this->sNumTiles = 0;
+		sNumTiles = 0;
+		pTiles.reset();
 	}
-	~TileTable();
 
 	TileDesc* GetTileById(unsigned int uTileID);
 	void InitializeTileset(Tileset tileset);
@@ -141,7 +136,6 @@ struct TileTable
 	void FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8);
 	int FromFileTxt(const char* pFilename);
 
-	int sNumTiles;
-	TileDesc* pTiles;
+	size_t sNumTiles = 0;
+	std::unique_ptr<TileDesc[]> pTiles;
 };
-#pragma pack(pop)

@@ -8,6 +8,7 @@
 #include "Engine/Objects/NPC.h"
 #include "Engine/Party.h"
 #include "Engine/Tables/IconFrameTable.h"
+#include "Engine/Tables/TileTable.h"
 #include "Engine/Time.h"
 
 #include "Utility/Color.h"
@@ -35,13 +36,11 @@ namespace data::mm7
 {
 	void Deserialize(const SpriteFrame& src, ::SpriteFrame* dst)
 	{
-		dst->icon_name = src.pIconName.data();
-		std::transform(dst->icon_name.begin(), dst->icon_name.end(),
-			dst->icon_name.begin(), ::tolower);
+		detail::Deserialize(src.pIconName, &dst->icon_name);
+		strings::to_lower(dst->icon_name);
 
-		dst->texture_name = src.pTextureName.data();
-		std::transform(dst->texture_name.begin(), dst->texture_name.end(),
-			dst->texture_name.begin(), ::tolower);
+		detail::Deserialize(src.pTextureName, &dst->texture_name);
+		strings::to_lower(dst->texture_name);
 
 		for (unsigned int i = 0; i < 8; ++i)
 		{
@@ -82,6 +81,38 @@ namespace data::mm7
 		dst->uNumVertices = src.uNumVertices;
 		dst->field_5E = src.field_5E;
 		dst->field_5F = src.field_5F;
+	}
+}
+
+namespace data::mm7
+{
+	void Deserialize(const TileDesc& src, ::TileDesc* dst)
+	{
+		detail::Deserialize(src.pTileName, &dst->name);
+		strings::to_lower(dst->name);
+
+		if (dst->name.find("wtrdr") == 0)
+		{
+			dst->name.insert(std::begin(dst->name), 'h');  // mm7 uses hd water tiles with legacy names
+		}
+
+		dst->uTileID = src.uTileID;
+		dst->tileset = (Tileset)src.tileset;
+		dst->uSection = src.uSection;
+		dst->uAttributes = src.uAttributes;
+	}
+}
+
+namespace data::mm7
+{
+	void Deserialize(const TextureFrame& src, ::TextureFrame* dst)
+	{
+		detail::Deserialize(src.pTextureName, &dst->name);
+		strings::to_lower(dst->name);
+
+		dst->uAnimLength = src.uAnimLength;
+		dst->uAnimTime = src.uAnimTime;
+		dst->uFlags = src.uFlags;
 	}
 }
 

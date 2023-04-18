@@ -32,6 +32,8 @@ struct Party;
 struct MonsterDesc;
 struct ODMFace;
 class SpriteFrame;
+class TextureFrame;
+class TileDesc;
 
 namespace data
 {
@@ -57,7 +59,7 @@ namespace data::mm6
 		int16_t uAnimTime;
 	};
 
-	static_assert(sizeof(SpriteFrame) == 56);
+	static_assert(sizeof(SpriteFrame) == 0x38);
 }
 
 namespace data::mm7
@@ -68,7 +70,7 @@ namespace data::mm7
 		int16_t _pad;
 	};
 
-	static_assert(sizeof(SpriteFrame) == 60);
+	static_assert(sizeof(SpriteFrame) == 0x3C);
 
 	void Deserialize(const SpriteFrame& src, ::SpriteFrame* dst);
 }
@@ -117,7 +119,9 @@ namespace data::mm7
 		uint16_t uAttributes;
 	};
 
-	static_assert(sizeof(TileDesc) == 26);
+	static_assert(sizeof(TileDesc) == 0x1A);
+
+	void Deserialize(const TileDesc& src, ::TileDesc* dst);
 }
 
 namespace data::mm7
@@ -131,7 +135,9 @@ namespace data::mm7
 		int16_t uFlags;
 	};
 
-	static_assert(sizeof(TextureFrame) == 20);
+	static_assert(sizeof(TextureFrame) == 0x14);
+
+	void Deserialize(const TextureFrame& src, ::TextureFrame* dst);
 }
 
 namespace data::mm7
@@ -724,7 +730,7 @@ namespace data::mm6
 		std::array<std::array<char, 10>, 10> pSpriteNames;
 	};
 
-	static_assert(sizeof(MonsterDesc) == 148);
+	static_assert(sizeof(MonsterDesc) == 0x94);
 
 	void Deserialize(const MonsterDesc& src, ::MonsterDesc* dst);
 }
@@ -743,7 +749,7 @@ namespace data::mm7
 		std::array<std::array<char, 10>, 10> pSpriteNames;
 	};
 
-	static_assert(sizeof(MonsterDesc) == 152);
+	static_assert(sizeof(MonsterDesc) == 0x98);
 
 	void Serialize(const ::MonsterDesc& src, MonsterDesc* dst);
 	void Deserialize(const MonsterDesc& src, ::MonsterDesc* dst);
@@ -926,7 +932,7 @@ namespace data::mm6
 		uint16_t uAttributes;
 	};
 
-	static_assert(sizeof(SpawnPoint) == 20);
+	static_assert(sizeof(SpawnPoint) == 0x14);
 }
 
 namespace data::mm7
@@ -936,7 +942,7 @@ namespace data::mm7
 		uint32_t uGroup;
 	};
 
-	static_assert(sizeof(SpawnPoint) == 24);
+	static_assert(sizeof(SpawnPoint) == 0x18);
 }
 
 namespace data::mm7
@@ -975,7 +981,7 @@ namespace data::mm7
 		char field_133;
 	};
 
-	static_assert(sizeof(ODMFace) == 308);
+	static_assert(sizeof(ODMFace) == 0x134);
 
 	void Deserialize(const SpawnPoint& src, ::SpawnPoint* dst);
 	void Deserialize(const ODMFace& src, ::ODMFace* dst);

@@ -17,11 +17,11 @@ inline char* removeQuotes(char* str)
 
 inline std::string trimRemoveQuotes(std::string str)
 {
-	while (str.length() > 0 && (str.at(0) == ' ' || str.at(0) == '"'))
+	while (str.length() > 0 && (str.front() == ' ' || str.front() == '"'))
 	{
 		str.erase(0, 1);
 	}
-	while (str.length() > 0 && (str.at(str.length() - 1) == ' ' || str.at(str.length() - 1) == '"'))
+	while (str.length() > 0 && (str.back() == ' ' || str.back() == '"'))
 	{
 		str.pop_back();
 	}
@@ -32,10 +32,10 @@ inline std::string trimRemoveQuotes(std::string str)
 inline std::string_view trim(std::string_view s)
 {
 	size_t l = 0;
-	size_t r = s.size();
-	while (l < r && s[l] == ' ')
+	size_t r = s.length();
+	while (l < r && std::isspace(s[l]))
 		l++;
-	while (l < r && s[r - 1] == ' ')
+	while (l < r && std::isspace(s[r - 1]))
 		r--;
 	return s.substr(l, r - l);
 }
@@ -53,4 +53,12 @@ struct ILess
 		return iless(a, b);
 	}
 };
+
+namespace strings
+{
+	inline void to_lower(std::string& s)
+	{
+		std::transform(std::begin(s), std::end(s), std::begin(s), ::tolower);
+	}
+}
 

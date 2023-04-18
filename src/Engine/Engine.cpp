@@ -1000,68 +1000,68 @@ bool Engine::MM7_Initialize()
 
 	{
 		Blob sft_mm6 = pIcons_LOD_mm6 ? pIcons_LOD_mm6->LoadCompressedTexture("dsft.bin") : Blob();
-		Blob sft_mm8;
 		Blob sft_mm7 = pEvents_LOD->LoadCompressedTexture("dsft.bin");
+		Blob sft_mm8;
 		pSpriteFrameTable = new SpriteFrameTable;
 		pSpriteFrameTable->FromFile(sft_mm6, sft_mm7, sft_mm8);
 
 		Blob tft_mm6 = pIcons_LOD_mm6 ? pIcons_LOD_mm6->LoadCompressedTexture("dtft.bin") : Blob();
-		Blob tft_mm8;
 		Blob tft_mm7 = pEvents_LOD->LoadCompressedTexture("dtft.bin");
+		Blob tft_mm8;
 		pTextureFrameTable = new TextureFrameTable;
 		pTextureFrameTable->FromFile(tft_mm6, tft_mm7, tft_mm8);
 
 		Blob tiles_mm6 = pIcons_LOD_mm6 ? pIcons_LOD_mm6->LoadCompressedTexture("dtile.bin") : Blob();
-		Blob tiles_mm8;
 		Blob tiles_mm7 = pEvents_LOD->LoadCompressedTexture("dtile.bin");
+		Blob tiles_mm8;
 		pTileTable = new TileTable;
 		pTileTable->FromFile(tiles_mm6, tiles_mm7, tiles_mm8);
 
 		Blob pft_mm6 = pIcons_LOD_mm6 ? pIcons_LOD_mm6->LoadCompressedTexture("dpft.bin") : Blob();
-		Blob pft_mm8;
 		Blob pft_mm7 = pEvents_LOD->LoadCompressedTexture("dpft.bin");
+		Blob pft_mm8;
 		pPlayerFrameTable = new PlayerFrameTable;
 		pPlayerFrameTable->FromFile(pft_mm6, pft_mm7, pft_mm8);
 
 		Blob ift_mm6 = pIcons_LOD_mm6 ? pIcons_LOD_mm6->LoadCompressedTexture("dift.bin") : Blob();
-		Blob ift_mm8;
 		Blob ift_mm7 = pEvents_LOD->LoadCompressedTexture("dift.bin");
+		Blob ift_mm8;
 		pIconsFrameTable = new IconFrameTable;
 		pIconsFrameTable->FromFile(ift_mm6, ift_mm7, ift_mm8);
 
 		Blob decs_mm6 = pIcons_LOD_mm6 ? pIcons_LOD_mm6->LoadCompressedTexture("ddeclist.bin") : Blob();
-		Blob decs_mm8;
 		Blob decs_mm7 = pEvents_LOD->LoadCompressedTexture("ddeclist.bin");
+		Blob decs_mm8;
 		pDecorationList = new DecorationList;
 		pDecorationList->FromFile(decs_mm6, decs_mm7, decs_mm8);
 
 		Blob objs_mm6 = pIcons_LOD_mm6 ? pIcons_LOD_mm6->LoadCompressedTexture("dobjlist.bin") : Blob();
-		Blob objs_mm8;
 		Blob objs_mm7 = pEvents_LOD->LoadCompressedTexture("dobjlist.bin");
+		Blob objs_mm8;
 		pObjectList = new ObjectList;
 		pObjectList->FromFile(objs_mm6, objs_mm7, objs_mm8);
 
 		Blob mons_mm6 = pIcons_LOD_mm6 ? pIcons_LOD_mm6->LoadCompressedTexture("dmonlist.bin") : Blob();
-		Blob mons_mm8;
 		Blob mons_mm7 = pEvents_LOD->LoadCompressedTexture("dmonlist.bin");
+		Blob mons_mm8;
 		pMonsterList = new MonsterList;
 		pMonsterList->FromFile(mons_mm6, mons_mm7, mons_mm8);
 
 		Blob chests_mm6 = pIcons_LOD_mm6 ? pIcons_LOD_mm6->LoadCompressedTexture("dchest.bin") : Blob();
-		Blob chests_mm8;
 		Blob chests_mm7 = pEvents_LOD->LoadCompressedTexture("dchest.bin");
+		Blob chests_mm8;
 		pChestList = new ChestList;
 		pChestList->FromFile(chests_mm6, chests_mm7, chests_mm8);
 
 		Blob overlays_mm6 = pIcons_LOD_mm6 ? pIcons_LOD_mm6->LoadCompressedTexture("doverlay.bin") : Blob();
-		Blob overlays_mm8;
 		Blob overlays_mm7 = pEvents_LOD->LoadCompressedTexture("doverlay.bin");
+		Blob overlays_mm8;
 		pOverlayList = new OverlayList;
 		pOverlayList->FromFile(overlays_mm6, overlays_mm7, overlays_mm8);
 
 		Blob sounds_mm6 = pIcons_LOD_mm6 ? pIcons_LOD_mm6->LoadCompressedTexture("dsounds.bin") : Blob();
-		Blob sounds_mm8;
 		Blob sounds_mm7 = pEvents_LOD->LoadCompressedTexture("dsounds.bin");
+		Blob sounds_mm8;
 		pSoundList = new SoundList;
 		pSoundList->FromFile(sounds_mm6, sounds_mm7, sounds_mm8);
 	}
@@ -2387,9 +2387,9 @@ void OnMapLoad()
 			_evt->_e_type == EVENT_OnLongTimer)
 		{
 			// v3 = &MapsLongTimersList[MapsLongTimers_count];
-			v20 = pOutdoor->loc_time.last_visit;
+			v20 = pOutdoor->world_time.last_visit;
 			if (uCurrentlyLoadedLevelType == WorldType::Indoor)
-				v20 = pIndoor->stru1.last_visit;
+				v20 = pIndoor->world_time.last_visit;
 
 			MapsLongTimersList[MapsLongTimers_count].timer_evt_type = _evt->_e_type;
 			MapsLongTimersList[MapsLongTimers_count].timer_evt_ID = pEvent.event_id;
