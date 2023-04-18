@@ -14,7 +14,7 @@ set(ENGINE_TABLES_HEADERS
         IconFrameTable.h
         PlayerFrameTable.h
         StorylineTextTable.h
-        TileFrameTable.h)
+        TileTable.h)
 
 add_library(engine_tables STATIC ${ENGINE_TABLES_SOURCES} ${ENGINE_TABLES_HEADERS})
 target_link_libraries(engine_tables engine)

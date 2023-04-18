@@ -5,7 +5,7 @@
 #include "Library/Random/Random.h"
 
 #include "FrameTableInc.h"
-#include "TileFrameTable.h"
+#include "TileTable.h"
 
 
 //----- (00487E1D) --------------------------------------------------------
@@ -97,19 +97,45 @@ void TileTable::ToFile()
 //----- (00488000) --------------------------------------------------------
 void TileTable::FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8)
 {
-	uint num_mm6_tiles = data_mm6 ? *(int*)data_mm6.data() : 0,
-		num_mm7_tiles = data_mm7 ? *(int*)data_mm7.data() : 0,
-		num_mm8_tiles = data_mm8 ? *(int*)data_mm8.data() : 0;
-	this->sNumTiles = num_mm7_tiles /*+ num_mm6_tiles + num_mm8_tiles*/;
-	Assert(sNumTiles);
+#pragma pack(push, 1)
+	struct TileTableHeader final
+	{
+		uint32_t num_tiles;
+	};
+#pragma pack(pop)
+
+	size_t mm6_num_tiles = 0;
+	if (data_mm6)
+	{
+		const auto& header = *data_mm6.data_view<TileTableHeader>();
+
+		mm6_num_tiles = header.num_tiles;
+	}
+
+	size_t mm7_num_tiles = 0;
+	if (data_mm7)
+	{
+		const auto& header = *data_mm7.data_view<TileTableHeader>();
+
+		mm7_num_tiles = header.num_tiles;
+	}
+
+	size_t mm8_num_tiles = 0;
+	if (data_mm8)
+	{
+		const auto& header = *data_mm8.data_view<TileTableHeader>();
+
+		mm8_num_tiles = header.num_tiles;
+	}
+
+	sNumTiles = mm7_num_tiles /*+ num_mm6_tiles + num_mm8_tiles*/;
 
 	auto tiles = new TileDesc[sNumTiles];
-	auto tile_data = data_mm7.data_view<data::mm7::TileDesc>(4);
-	for (unsigned int i = 0; i < num_mm7_tiles; ++i)
+	auto tile_data = data_mm7.data_view<data::mm7::TileDesc>(sizeof(TileTableHeader));
+	for (unsigned int i = 0; i < mm7_num_tiles; ++i)
 	{
 		tiles[i].name = tile_data->pTileName.data();
-		std::transform(tiles[i].name.begin(), tiles[i].name.end(),
-			tiles[i].name.begin(), ::tolower);
+		std::transform(tiles[i].name.begin(), tiles[i].name.end(), tiles[i].name.begin(), ::tolower);
 		if (tiles[i].name.find("wtrdr") == 0)
 		{
 			tiles[i].name.insert(tiles[i].name.begin(), 'h');  // mm7 uses hd water tiles with legacy names
