@@ -106,14 +106,14 @@ int SpriteObject::Create(int yaw, int pitch, int speed, int which_char)
 	return sprite_slot;
 }
 
-static void createSpriteTrailParticle(Vec3i pos, OBJECT_DESC_FLAGS flags)
+static void createSpriteTrailParticle(Vec3i pos, ObjectDescFlags flags)
 {
 	Particle_sw particle;
 	memset(&particle, 0, sizeof(Particle_sw));
 	particle.x = pos.x;
 	particle.y = pos.y;
 	particle.z = pos.z;
-	if (flags & OBJECT_DESC_TRIAL_FIRE)
+	if (flags & ObjectDescFlag::TrailFire)
 	{
 		particle.type = ParticleType_Bitmap | ParticleType_Rotating | ParticleType_Ascending;
 		particle.uDiffuse = colorTable.OrangeyRed.c32();
@@ -122,7 +122,7 @@ static void createSpriteTrailParticle(Vec3i pos, OBJECT_DESC_FLAGS flags)
 		particle.particle_size = 1.0f;
 		particle_engine->AddParticle(&particle);
 	}
-	else if (flags & OBJECT_DESC_TRIAL_LINE)
+	else if (flags & ObjectDescFlag::TrailLine)
 	{
 		particle.type = ParticleType_Line;
 		particle.uDiffuse = vrng->random(RAND_MAX); // TODO(captainurist): TBH this makes no sense, investigate
@@ -131,7 +131,7 @@ static void createSpriteTrailParticle(Vec3i pos, OBJECT_DESC_FLAGS flags)
 		particle.particle_size = 1.0f;
 		particle_engine->AddParticle(&particle);
 	}
-	else if (flags & OBJECT_DESC_TRIAL_PARTICLE)
+	else if (flags & ObjectDescFlag::TrailParticle)
 	{
 		particle.type = ParticleType_Bitmap | ParticleType_Ascending;
 		particle.uDiffuse = vrng->random(RAND_MAX);
@@ -161,7 +161,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 		SpriteObject::OnInteraction(uLayingItemID);
 	}
 
-	if (!(object->uFlags & OBJECT_DESC_NO_GRAVITY))
+	if (!(object->uFlags & ObjectDescFlag::NoGravity))
 	{
 		if (isAboveGround)
 		{
@@ -184,7 +184,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 		}
 		else
 		{
-			if (object->uFlags & OBJECT_DESC_INTERACTABLE)
+			if (object->uFlags & ObjectDescFlag::Interactable)
 			{
 				if (pSpriteObjects[uLayingItemID].vPosition.z < level)
 				{
@@ -196,7 +196,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 				}
 			}
 			pSpriteObjects[uLayingItemID].vPosition.z = level + 1;
-			if (object->uFlags & OBJECT_DESC_BOUNCE)
+			if (object->uFlags & ObjectDescFlag::Bounce)
 			{
 				int bounceZVel = -(pSpriteObjects[uLayingItemID].vVelocity.z / 2);
 				pSpriteObjects[uLayingItemID].vVelocity.z = bounceZVel;
@@ -222,7 +222,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 			}
 		}
 	}
-	if (object->uFlags & OBJECT_DESC_INTERACTABLE)
+	if (object->uFlags & ObjectDescFlag::Interactable)
 	{
 		if (abs(pSpriteObjects[uLayingItemID].vPosition.x) > 32768 ||
 			abs(pSpriteObjects[uLayingItemID].vPosition.y) > 32768 ||
@@ -320,7 +320,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 		pSpriteObjects[uLayingItemID].vPosition += delta;
 		pSpriteObjects[uLayingItemID].uSectorID = collision_state.uSectorID;
 		collision_state.total_move_distance += collision_state.adjusted_move_distance;
-		if (object->uFlags & OBJECT_DESC_INTERACTABLE)
+		if (object->uFlags & ObjectDescFlag::Interactable)
 		{
 			if (pSpriteObjects[uLayingItemID].vPosition.z < level)
 			{
@@ -422,7 +422,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 
 	pSpriteObject->uSectorID = uSectorID;
 
-	if (pObject->uFlags & OBJECT_DESC_NO_GRAVITY)
+	if (pObject->uFlags & ObjectDescFlag::NoGravity)
 	{
 		goto LABEL_25;
 	}
@@ -492,7 +492,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 			{
 				pSpriteObject->vPosition = Vec3f(collision_state.new_position_lo) - Vec3f(0, 0, collision_state.radius_lo - 1);
 				pSpriteObject->uSectorID = collision_state.uSectorID;
-				if (!(pObject->uFlags & OBJECT_DESC_TRIAL_PARTICLE))
+				if (!(pObject->uFlags & ObjectDescFlag::TrailParticle))
 				{
 					return;
 				}
@@ -509,8 +509,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 			collision_state.total_move_distance += collision_state.adjusted_move_distance;
 
 			// if weve collided but dont need to react return
-			if ((pObject->uFlags & OBJECT_DESC_INTERACTABLE) &&
-				!processSpellImpact(uLayingItemID, collision_state.pid))
+			if ((pObject->uFlags & ObjectDescFlag::Interactable) && !processSpellImpact(uLayingItemID, collision_state.pid))
 			{
 				return;
 			}
@@ -557,7 +556,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 					pSpriteObject->vVelocity.z = fixpoint_mul(58500, pSpriteObject->vVelocity.z);
 					continue;
 				}
-				if (pObject->uFlags & OBJECT_DESC_BOUNCE)
+				if (pObject->uFlags & ObjectDescFlag::Bounce)
 				{
 					pSpriteObject->vVelocity.z = -pSpriteObject->vVelocity.z / 2;
 					if (pSpriteObject->vVelocity.z < 10)
@@ -595,7 +594,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 		// end loop
 	}
 
-	if (!(pObject->uFlags & OBJECT_DESC_INTERACTABLE) || processSpellImpact(uLayingItemID, 0))
+	if (!(pObject->uFlags & ObjectDescFlag::Interactable) || processSpellImpact(uLayingItemID, 0))
 	{
 		pSpriteObject->vPosition.z = floor_lvl + 1;
 		if (pIndoor->pFaces[uFaceID].uPolygonType == PolygonType::Floor)
@@ -615,7 +614,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 		if (glm::length2(Vec2f(pSpriteObject->vVelocity.xy())) < 400)
 		{
 			pSpriteObject->vVelocity = Vec3s(0, 0, 0);
-			if (!(pObject->uFlags & OBJECT_DESC_NO_SPRITE))
+			if (!(pObject->uFlags & ObjectDescFlag::NoSprite))
 			{
 				return;
 			}
@@ -701,7 +700,7 @@ SpriteFrame* SpriteObject::GetSpriteFrame()
 bool SpriteObject::IsUnpickable()
 {
 	ObjectDesc* pObjectDesc = &pObjectList->pObjects[uObjectDescID];
-	return ((pObjectDesc->uFlags & OBJECT_DESC_UNPICKABLE) == OBJECT_DESC_UNPICKABLE);
+	return ((pObjectDesc->uFlags & ObjectDescFlag::NoPick) == ObjectDescFlag::NoPick);
 }
 
 bool SpriteObject::HasSprite()
@@ -766,7 +765,7 @@ void SpriteObject::InitializeSpriteObjects()
 	for (size_t i = 0; i < pSpriteObjects.size(); ++i)
 	{
 		SpriteObject* item = &pSpriteObjects[i];
-		if (item->uObjectDescID && (item->uSoundID & 8 || pObjectList->pObjects[item->uObjectDescID].uFlags & OBJECT_DESC_UNPICKABLE))
+		if (item->uObjectDescID && (item->uSoundID & 8 || pObjectList->pObjects[item->uObjectDescID].uFlags & ObjectDescFlag::NoPick))
 		{
 			SpriteObject::OnInteraction(i);
 		}
@@ -1031,12 +1030,10 @@ bool processSpellImpact(unsigned int uLayingItemID, int pid)
 			SpriteObject::OnInteraction(uLayingItemID);
 		}
 		object->spellSpriteStop();
-		pushAoeAttack(PID(OBJECT_Item, uLayingItemID), engine->config->gameplay.AoeDamageDistance.value(),
-			pSpriteObjects[uLayingItemID].vPosition, ABILITY_ATTACK1);
-		if (objectDesc->uFlags & OBJECT_DESC_TRIAL_PARTICLE)
+		pushAoeAttack(PID(OBJECT_Item, uLayingItemID), engine->config->gameplay.AoeDamageDistance.value(), pSpriteObjects[uLayingItemID].vPosition, ABILITY_ATTACK1);
+		if (objectDesc->uFlags & ObjectDescFlag::TrailParticle)
 		{
-			trail_particle_generator.GenerateTrailParticles(object->vPosition.x, object->vPosition.y, object->vPosition.z,
-				objectDesc->uParticleTrailColor);
+			trail_particle_generator.GenerateTrailParticles(object->vPosition.x, object->vPosition.y, object->vPosition.z, objectDesc->uParticleTrailColor);
 		}
 		pAudioPlayer->playSound(SOUND_fireBall, PID(OBJECT_Item, uLayingItemID));
 		return 0;
@@ -1461,7 +1458,7 @@ bool processSpellImpact(unsigned int uLayingItemID, int pid)
 		object->spellSpriteStop();
 		pushAoeAttack(PID(OBJECT_Item, uLayingItemID), engine->config->gameplay.AoeDamageDistance.value(),
 			pSpriteObjects[uLayingItemID].vPosition, object->field_61);
-		if (objectDesc->uFlags & OBJECT_DESC_TRIAL_PARTICLE)
+		if (objectDesc->uFlags & ObjectDescFlag::TrailParticle)
 		{
 			trail_particle_generator.GenerateTrailParticles(
 				object->vPosition.x, object->vPosition.y, object->vPosition.z,
@@ -1539,7 +1536,7 @@ void UpdateObjects()
 					continue;
 				}
 				pSpriteObjects[i].uSpriteFrameID += pEventTimer->uTimeElapsed;
-				if (!(object->uFlags & OBJECT_DESC_TEMPORARY))
+				if (!(object->uFlags & ObjectDescFlag::Temporary))
 				{
 					continue;
 				}
@@ -1562,7 +1559,7 @@ void UpdateObjects()
 			{
 				int lifetime = 0;
 				pSpriteObjects[i].uSpriteFrameID += pEventTimer->uTimeElapsed;
-				if (object->uFlags & OBJECT_DESC_TEMPORARY)
+				if (object->uFlags & ObjectDescFlag::Temporary)
 				{
 					if (pSpriteObjects[i].uSpriteFrameID < 0)
 					{
@@ -1575,7 +1572,7 @@ void UpdateObjects()
 						lifetime = pSpriteObjects[i].tempLifetime;
 					}
 				}
-				if (!(object->uFlags & OBJECT_DESC_TEMPORARY) ||
+				if (!(object->uFlags & ObjectDescFlag::Temporary) ||
 					pSpriteObjects[i].uSpriteFrameID < lifetime)
 				{
 					if (uCurrentlyLoadedLevelType == WorldType::Indoor)
@@ -1597,7 +1594,7 @@ void UpdateObjects()
 					SpriteObject::OnInteraction(i);
 					continue;
 				}
-				if (!(object->uFlags & OBJECT_DESC_INTERACTABLE))
+				if (!(object->uFlags & ObjectDescFlag::Interactable))
 				{
 					SpriteObject::OnInteraction(i);
 					continue;
@@ -1611,7 +1608,7 @@ void UpdateObjects()
 unsigned int collideWithActor(unsigned int uLayingItemID, signed int pid)
 {
 	unsigned int result = uLayingItemID;
-	if (pObjectList->pObjects[pSpriteObjects[uLayingItemID].uObjectDescID].uFlags & OBJECT_DESC_UNPICKABLE)
+	if (pObjectList->pObjects[pSpriteObjects[uLayingItemID].uObjectDescID].uFlags & ObjectDescFlag::NoPick)
 	{
 		result = processSpellImpact(uLayingItemID, pid);
 	}

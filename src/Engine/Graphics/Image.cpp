@@ -101,25 +101,18 @@ void TextureFrameTable::FromFile(const Blob& data_mm6, const Blob& data_mm7, con
 		mm8_num_textures = header.num_textures;
 	}
 
-	sNumTextures = mm7_num_textures; /*num_mm6_frames + */  /*+ num_mm8_frames*/
+	sNumTextures = mm7_num_textures;
 
 	pTextures = std::make_unique<TextureFrame[]>(sNumTextures);
 
 	if (data_mm7)
 	{
-		auto mm7_frames = data_mm7.data_view<data::mm7::TextureFrame>(sizeof(TextureFrameTableHeader));
+		auto mm7_frames_data = data_mm7.data_view<data::mm7::TextureFrame>(sizeof(TextureFrameTableHeader));
 		for (size_t i = 0; i < mm7_num_textures; ++i)
 		{
-			Deserialize(mm7_frames[i], &pTextures[i]);
+			Deserialize(mm7_frames_data[i], &pTextures[i]);
 		}
 	}
-
-	// pTextures = (TextureFrame *)malloc(sNumTextures * sizeof(TextureFrame));
-	// memcpy(pTextures,                                   (char *)data_mm7 + 4,
-	// num_mm7_frames * sizeof(TextureFrame)); memcpy(pTextures + num_mm7_frames,
-	// (char *)data_mm6 + 4, num_mm6_frames * sizeof(TextureFrame));
-	// memcpy(pTextures + num_mm6_frames + num_mm7_frames, (char *)data_mm8 + 4,
-	// num_mm8_frames * sizeof(TextureFrame));
 }
 
 void TextureFrameTable::LoadAnimationSequenceAndPalettes(size_t uFrameID)

@@ -1492,7 +1492,7 @@ void UI_OnMouseRightClick(int mouse_x, int mouse_y) {
                     MonsterPopup_Draw(PID_ID(v5), &popup_window);
                 }
                 if (PID_TYPE(v5) == OBJECT_Item) {
-                    if (!(pObjectList->pObjects[pSpriteObjects[PID_ID(v5)].uObjectDescID].uFlags & OBJECT_DESC_UNPICKABLE)) {
+                    if (!(pObjectList->pObjects[pSpriteObjects[PID_ID(v5)].uObjectDescID].uFlags & ObjectDescFlag::NoPick)) {
                         GameUI_DrawItemInfo(&pSpriteObjects[PID_ID(v5)].containing_item);
                     }
                 }

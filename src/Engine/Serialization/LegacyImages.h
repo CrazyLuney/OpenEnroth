@@ -34,6 +34,8 @@ struct ODMFace;
 class SpriteFrame;
 class TextureFrame;
 class TileDesc;
+struct DecorationDesc;
+struct ObjectDesc;
 
 namespace data
 {
@@ -1019,6 +1021,116 @@ namespace data::mm7
 
 	void Serialize(const ::SpriteObject& src, SpriteObject* dst);
 	void Deserialize(const SpriteObject& src, ::SpriteObject* dst);
+}
+
+namespace data::mm7
+{
+	struct PlayerFrame
+	{
+		CHARACTER_EXPRESSION_ID expression;
+		uint16_t uTextureID;
+		int16_t uAnimTime;
+		int16_t uAnimLength;
+		int16_t uFlags;
+	};
+
+	static_assert(sizeof(PlayerFrame) == 0xA);
+}
+
+namespace data::mm6
+{
+	struct DecorationDesc
+	{
+		std::array<char, 32> pName;
+		std::array<char, 32> field_20;
+		int16_t uType;
+		uint16_t uDecorationHeight;
+		int16_t uRadius;
+		int16_t uLightRadius;
+		uint16_t uSpriteID;
+		uint16_t uFlags;
+		int16_t uSoundID;
+		int16_t _pad_a;
+	};
+
+	static_assert(sizeof(DecorationDesc) == 0x50);
+
+	void Deserialize(const DecorationDesc& src, ::DecorationDesc* dst);
+}
+
+namespace data::mm7
+{
+	struct DecorationDesc : data::mm6::DecorationDesc
+	{
+		uint8_t uColoredLightRed;
+		uint8_t uColoredLightGreen;
+		uint8_t uColoredLightBlue;
+		uint8_t _pad_b;
+	};
+
+	static_assert(sizeof(DecorationDesc) == 0x54);
+
+	void Deserialize(const DecorationDesc& src, ::DecorationDesc* dst);
+}
+
+namespace data::mm8
+{
+	using data::mm7::DecorationDesc;
+}
+
+namespace data::mm6
+{
+	struct ObjectDesc
+	{
+		std::array<char, 32> field_0;
+		int16_t uObjectID;
+		int16_t uRadius;
+		int16_t uHeight;
+		uint16_t uFlags;
+		uint16_t uSpriteID;
+		int16_t uLifetime;
+		uint16_t uParticleTrailColor;
+		int16_t uSpeed;
+		int8_t uParticleTrailColorR;
+		int8_t uParticleTrailColorG;
+		int8_t uParticleTrailColorB;
+		int8_t field_35_clr;
+	};
+
+	static_assert(sizeof(ObjectDesc) == 0x34);
+
+	void Deserialize(const ObjectDesc& src, ::ObjectDesc* dst);
+}
+
+namespace data::mm7
+{
+	struct ObjectDesc
+	{
+		std::array<char, 32> field_0;
+		int16_t uObjectID;
+		int16_t uRadius;
+		int16_t uHeight;
+		uint16_t uFlags;
+		uint16_t uSpriteID;
+		int16_t uLifetime;
+		uint32_t uParticleTrailColor;
+		int16_t uSpeed;
+		int8_t uParticleTrailColorR;
+		int8_t uParticleTrailColorG;
+		int8_t uParticleTrailColorB;
+		int8_t field_35_clr;
+		int8_t field_36_clr;
+		int8_t field_37_clr;
+	};
+
+	static_assert(sizeof(ObjectDesc) == 0x38);
+
+	void Deserialize(const ObjectDesc& src, ::ObjectDesc* dst);
+}
+
+namespace data::mm8
+{
+	using data::mm7::ObjectDesc;
 }
 
 #pragma pack(pop)

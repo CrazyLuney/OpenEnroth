@@ -1204,8 +1204,7 @@ void Game::processQueuedMessages()
 				}
 				if (type == OBJECT_Item)
 				{
-					int flags = pObjectList->pObjects[pSpriteObjects[id].uObjectDescID].uFlags;
-					interactionPossible = (flags & OBJECT_DESC_UNPICKABLE) != OBJECT_DESC_UNPICKABLE;
+					interactionPossible = (pObjectList->pObjects[pSpriteObjects[id].uObjectDescID].uFlags & ObjectDescFlag::NoPick) != ObjectDescFlag::NoPick;
 				}
 				if (type == OBJECT_Decoration)
 				{

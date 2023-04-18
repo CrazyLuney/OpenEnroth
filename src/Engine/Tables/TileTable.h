@@ -134,7 +134,6 @@ struct TileTable
 	unsigned int GetTileId(unsigned int uTerrainType, unsigned int uSection);
 	void ToFile();
 	void FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8);
-	int FromFileTxt(const char* pFilename);
 
 	size_t sNumTiles = 0;
 	std::unique_ptr<TileDesc[]> pTiles;

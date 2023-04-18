@@ -1,6 +1,8 @@
 #include "Engine/Graphics/DecorationList.h"
 #include "Engine/stru123.h"
 #include "Engine/Engine.h"
+#include "Engine/Serialization/Deserializer.h"
+#include "Engine/Serialization/LegacyImages.h"
 #include "Level/Decoration.h"
 #include "Sprites.h"
 
@@ -9,44 +11,74 @@ DecorationList* pDecorationList;
 //----- (0045864C) --------------------------------------------------------
 void DecorationList::FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8)
 {
-	size_t num_mm6_decs = data_mm6 ? *(uint32_t*)data_mm6.data() : 0;
-	size_t num_mm7_decs = data_mm7 ? *(uint32_t*)data_mm7.data() : 0;
-	size_t num_mm8_decs = data_mm8 ? *(uint32_t*)data_mm8.data() : 0;
+#pragma pack(push, 1)
+	struct DecorationsListHeader
+	{
+		uint32_t num_decorations;
+	};
+#pragma pack(pop)
 
-	size_t uNumDecorations = num_mm6_decs + num_mm7_decs + num_mm8_decs;
-	Assert(uNumDecorations);
-	Assert(!num_mm8_decs);
+	size_t mm6_num_decorations = 0;
+	if (data_mm6)
+	{
+		const auto& header = *data_mm6.data_view<DecorationsListHeader>();
+
+		mm6_num_decorations = header.num_decorations;
+	}
+
+	size_t mm7_num_decorations = 0;
+	if (data_mm7)
+	{
+		const auto& header = *data_mm7.data_view<DecorationsListHeader>();
+
+		mm7_num_decorations = header.num_decorations;
+	}
+
+	size_t mm8_num_decorations = 0;
+	if (data_mm8)
+	{
+		const auto& header = *data_mm8.data_view<DecorationsListHeader>();
+
+		mm8_num_decorations = header.num_decorations;
+	}
+
+	uNumDecorations = mm6_num_decorations + mm7_num_decorations + mm8_num_decorations;
+
+	pDecorations = std::make_unique<DecorationDesc[]>(uNumDecorations);
+
+	auto decorations = pDecorations.get();
 
 	if (data_mm6)
 	{
-		auto mm6_decors = data_mm6.data_view<data::mm6::DecorationDesc>(4);
-		for (size_t i = 0; i < num_mm6_decs; ++i)
+		auto mm6_decorations_data = data_mm6.data_view<data::mm6::DecorationDesc>(sizeof(DecorationsListHeader));
+		for (size_t i = 0; i < mm6_num_decorations; ++i)
 		{
-			data::mm7::DecorationDesc decor{ mm6_decors[i] };
-			decor.uColoredLightRed = 255;
-			decor.uColoredLightGreen = 255;
-			decor.uColoredLightBlue = 255;
-			decor.__padding = 255;
-			pDecorations.emplace_back(decor);
+			Deserialize(mm6_decorations_data[i], &decorations[i]);
 		}
+
+		decorations += mm6_num_decorations;
 	}
 
 	if (data_mm7)
 	{
-		auto mm7_decors = data_mm7.data_view<data::mm7::DecorationDesc>(4);
-		for (size_t i = 0; i < num_mm7_decs; i++)
+		auto mm7_decorations_data = data_mm7.data_view<data::mm7::DecorationDesc>(sizeof(DecorationsListHeader));
+		for (size_t i = 0; i < mm7_num_decorations; ++i)
 		{
-			pDecorations.push_back(mm7_decors[i]);
+			Deserialize(mm7_decorations_data[i], &decorations[i]);
 		}
+
+		decorations += mm7_num_decorations;
 	}
 
 	if (data_mm8)
 	{
-		auto mm8_decors = data_mm8.data_view<data::mm8::DecorationDesc>(4);
-		for (size_t i = 0; i < num_mm8_decs; i++)
+		auto mm8_decorations_data = data_mm8.data_view<data::mm8::DecorationDesc>(sizeof(DecorationsListHeader));
+		for (size_t i = 0; i < mm8_num_decorations; ++i)
 		{
-			pDecorations.push_back(mm8_decors[i]);
+			Deserialize(mm8_decorations_data[i], &decorations[i]);
 		}
+
+		decorations += mm8_num_decorations;
 	}
 }
 
@@ -63,9 +95,8 @@ void DecorationList::ToFile()
 		Error("Unable to save ddeclist.bin!", 0);
 	}
 
-	uint32_t size = this->pDecorations.size();
-	fwrite(&size, 4, 1, file);
-	fwrite(&pDecorations[0], sizeof(DecorationDesc), pDecorations.size(), file);
+	fwrite(&uNumDecorations, sizeof(uNumDecorations), 1, file);
+	fwrite(pDecorations.get(), sizeof(DecorationDesc), uNumDecorations, file);
 	fclose(file);
 }
 
@@ -74,9 +105,9 @@ uint16_t DecorationList::GetDecorIdByName(std::string_view pName)
 	if (pName.empty())
 		return 0;
 
-	if (pDecorations.size() > 1)
+	if (uNumDecorations > 1)
 	{
-		for (uint uID = 1; uID < pDecorations.size(); ++uID)
+		for (size_t uID = 1; uID < uNumDecorations; ++uID)
 		{
 			if (iequals(pName, pDecorations[uID].pName))
 				return uID;
@@ -102,8 +133,7 @@ void RespawnGlobalDecorations()
 				if (decorEventIdx < 124)
 				{
 					decor->_idx_in_stru123 = decorEventIdx + 75;
-					stru_5E4C90_MapPersistVars._decor_events[decorEventIdx++] =
-						decor->GetGlobalEvent();
+					stru_5E4C90_MapPersistVars._decor_events[decorEventIdx++] = decor->GetGlobalEvent();
 				}
 			}
 		}

@@ -4,8 +4,10 @@
 #include "Engine/Graphics/Indoor.h"
 #include "Engine/Graphics/Overlays.h"
 #include "Engine/Graphics/Sprites.h"
+#include "Engine/Graphics/DecorationList.h"
 #include "Engine/Objects/Actor.h"
 #include "Engine/Objects/NPC.h"
+#include "Engine/Objects/ObjectList.h"
 #include "Engine/Party.h"
 #include "Engine/Tables/IconFrameTable.h"
 #include "Engine/Tables/TileTable.h"
@@ -1714,5 +1716,91 @@ namespace data::mm7
 		dst->field_62[0] = src.field_62[0];
 		dst->field_62[1] = src.field_62[1];
 		dst->initialPosition = src.initialPosition;
+	}
+}
+
+namespace data::mm6
+{
+	void Deserialize(const DecorationDesc& src, ::DecorationDesc* dst)
+	{
+		detail::Deserialize(src.pName, &dst->pName);
+		detail::Deserialize(src.field_20, &dst->field_20);
+
+		dst->uType = src.uType;
+		dst->uDecorationHeight = src.uType;
+		dst->uRadius = src.uRadius;
+		dst->uLightRadius = src.uLightRadius;
+		dst->uSpriteID = src.uSpriteID;
+		dst->uFlags = DecorationDescFlags(src.uFlags);
+		dst->uSoundID = src.uSoundID;
+		dst->uColoredLightRed = 255;
+		dst->uColoredLightGreen = 255;
+		dst->uColoredLightBlue = 255;
+	}
+}
+
+namespace data::mm7
+{
+	void Deserialize(const DecorationDesc& src, ::DecorationDesc* dst)
+	{
+		detail::Deserialize(src.pName, &dst->pName);
+		detail::Deserialize(src.field_20, &dst->field_20);
+
+		dst->uType = src.uType;
+		dst->uDecorationHeight = src.uType;
+		dst->uRadius = src.uRadius;
+		dst->uLightRadius = src.uLightRadius;
+		dst->uSpriteID = src.uSpriteID;
+		dst->uFlags = DecorationDescFlags(src.uFlags);
+		dst->uSoundID = src.uSoundID;
+		dst->uColoredLightRed = src.uColoredLightRed;
+		dst->uColoredLightGreen = src.uColoredLightGreen;
+		dst->uColoredLightBlue = src.uColoredLightBlue;
+	}
+}
+
+namespace data::mm6
+{
+	void Deserialize(const ObjectDesc& src, ::ObjectDesc* dst)
+	{
+		detail::Deserialize(src.field_0, &dst->field_0);
+
+		dst->uObjectID = src.uObjectID;
+		dst->uRadius = src.uRadius;
+		dst->uHeight = src.uHeight;
+		dst->uFlags = ObjectDescFlags(src.uFlags);
+		dst->uSpriteID = src.uSpriteID;
+		dst->uLifetime = src.uLifetime;
+		dst->uParticleTrailColor = color32(src.uParticleTrailColor);
+		dst->uSpeed = src.uSpeed;
+		dst->uParticleTrailColorR = src.uParticleTrailColorR;
+		dst->uParticleTrailColorG = src.uParticleTrailColorG;
+		dst->uParticleTrailColorB = src.uParticleTrailColorB;
+		dst->field_35_clr = src.field_35_clr;
+		dst->field_36_clr = 0;
+		dst->field_37_clr = 0;
+	}
+}
+
+namespace data::mm7
+{
+	void Deserialize(const ObjectDesc& src, ::ObjectDesc* dst)
+	{
+		detail::Deserialize(src.field_0, &dst->field_0);
+
+		dst->uObjectID = src.uObjectID;
+		dst->uRadius = src.uRadius;
+		dst->uHeight = src.uHeight;
+		dst->uFlags = ObjectDescFlags(src.uFlags);
+		dst->uSpriteID = src.uSpriteID;
+		dst->uLifetime = src.uLifetime;
+		dst->uParticleTrailColor = src.uParticleTrailColor;
+		dst->uSpeed = src.uSpeed;
+		dst->uParticleTrailColorR = src.uParticleTrailColorR;
+		dst->uParticleTrailColorG = src.uParticleTrailColorG;
+		dst->uParticleTrailColorB = src.uParticleTrailColorB;
+		dst->field_35_clr = src.field_35_clr;
+		dst->field_36_clr = src.field_36_clr;
+		dst->field_37_clr = src.field_37_clr;
 	}
 }

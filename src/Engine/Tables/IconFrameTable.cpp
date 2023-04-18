@@ -90,160 +90,60 @@ void IconFrameTable::ToFile()
 	FILE* v2 = fopen(MakeDataPath("data", "dift.bin").c_str(), "wb");
 	if (!v2)
 		Error("Unable to save dift.bin!");
-	fwrite(&this->uNumIcons, 4, 1, v2);
-	fwrite(this->pIcons, 0x20u, this->uNumIcons, v2);
+	fwrite(&uNumIcons, sizeof(uNumIcons), 1, v2);
+	fwrite(pIcons.get(), sizeof(Icon), uNumIcons, v2);
 	fclose(v2);
 }
 
 //----- (00495056) --------------------------------------------------------
 void IconFrameTable::FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8)
 {
-	const uint32_t mm6_num_frames = data_mm6 ? *data_mm6.data_view<uint32_t>() : 0;
-	const uint32_t mm7_num_frames = data_mm7 ? *data_mm7.data_view<uint32_t>() : 0;
-	const uint32_t mm8_num_frames = data_mm8 ? *data_mm8.data_view<uint32_t>() : 0;
-
-	uNumIcons = mm6_num_frames + mm7_num_frames + mm8_num_frames;
-
-	Assert(uNumIcons);
-	Assert(!mm6_num_frames);
-	Assert(!mm8_num_frames);
-
-	pIcons = new Icon[uNumIcons];
-
-	auto mm7_icons = data_mm7.data_view<data::mm7::IconFrame>(4);
-	for (unsigned int i = 0; i < uNumIcons; ++i, ++mm7_icons)
+#pragma pack(push, 1)
+	struct IconFrameTableHeader final
 	{
-		Deserialize(*mm7_icons, &this->pIcons[i]);
+		uint32_t num_frames;
+	};
+#pragma pack(pop)
 
-		this->pIcons[i].id = i;
+	size_t mm6_num_frames = 0;
+	if (data_mm6)
+	{
+		const auto& header = *data_mm6.data_view<IconFrameTableHeader>();
+
+		mm6_num_frames = header.num_frames;
+	}
+
+	size_t mm7_num_frames = 0;
+	if (data_mm7)
+	{
+		const auto& header = *data_mm7.data_view<IconFrameTableHeader>();
+
+		mm7_num_frames = header.num_frames;
+	}
+
+	size_t mm8_num_frames = 0;
+	if (data_mm8)
+	{
+		const auto& header = *data_mm8.data_view<IconFrameTableHeader>();
+
+		mm8_num_frames = header.num_frames;
+	}
+
+	uNumIcons = mm7_num_frames;
+
+	pIcons = std::make_unique<Icon[]>(uNumIcons);
+
+	if (data_mm7)
+	{
+		auto mm7_frames_data = data_mm7.data_view<data::mm7::IconFrame>(sizeof(IconFrameTableHeader));
+		for (size_t i = 0; i < mm7_num_frames; ++i)
+		{
+			Deserialize(mm7_frames_data[i], &pIcons[i]);
+
+			pIcons[i].id = i;
+		}
 	}
 }
-
-/*
-//----- (0049509D) --------------------------------------------------------
-int IconFrameTable::FromFileTxt(const char *Args)
-{
-  //IconFrameTable *v2; // ebx@1
-  FILE *v3; // eax@1
-  int v4; // esi@3
-  void *v5; // eax@10
-  FILE *v6; // ST0C_4@12
-  char *i; // eax@12
-  const char *v8; // ST00_4@15
-  int v9; // eax@16
-  int v10; // edx@20
-  int v11; // ecx@21
-  int v12; // eax@22
-  signed int j; // edx@25
-  IconFrame_MM7 *v14; // ecx@26
-  int v15; // esi@26
-  int k; // eax@27
-  signed int result; // eax@11
-  char Buf; // [sp+Ch] [bp-2F8h]@3
-  FrameTableTxtLine v19; // [sp+200h] [bp-104h]@4
-  FrameTableTxtLine v20; // [sp+27Ch] [bp-88h]@4
-  int v21; // [sp+2F8h] [bp-Ch]@3
-  int v22; // [sp+2FCh] [bp-8h]@3
-  FILE *File; // [sp+300h] [bp-4h]@1
-  int Argsa; // [sp+30Ch] [bp+8h]@26
-
-  //v2 = this;
-  //TileTable::dtor((TileTable *)this);
-  __debugbreak();//Ritor1: this function not used
-  v3 = fopen(Args, "r");
-  File = v3;
-  if ( !v3 )
-	Error("IconFrameTable::load - Unable to open file: %s.", Args);
-  v4 = 0;
-  v21 = 0;
-  v22 = 1;
-  if ( fgets(&Buf, 490, v3) )
-  {
-	do
-	{
-	  *strchr(&Buf, 10) = 0;
-	  memcpy(&v20, frame_table_txt_parser(&Buf, &v19), sizeof(v20));
-	  if ( v20.uPropCount && *v20.pProperties[0] != 47 )
-	  {
-		if ( v20.uPropCount < 3 )
-		  Error("IconFrameTable::loadText, too few arguments, %s line %i.",
-Args, v22);
-		++v21;
-	  }
-	  ++v22;
-	}
-	while ( fgets(&Buf, 490, File) );
-	v4 = v21;
-  }
-  this->uNumIcons = v4;
-  v5 = malloc(32 * v4);//, "I Frames");
-  this->pIcons = (IconFrame_MM7 *)v5;
-  if ( v5 )
-  {
-	v6 = File;
-	this->uNumIcons = 0;
-	fseek(v6, 0, 0);
-	for ( i = fgets(&Buf, 490, File); i; i = fgets(&Buf, 490, File) )
-	{
-	  *strchr(&Buf, 10) = 0;
-	  memcpy(&v20, frame_table_txt_parser(&Buf, &v19), sizeof(v20));
-	  if ( v20.uPropCount && *v20.pProperties[0] != 47 )
-	  {
-		strcpy(this->pIcons[this->uNumIcons].pAnimationName,
-v20.pProperties[0]); strcpy(this->pIcons[this->uNumIcons].pTextureName,
-v20.pProperties[1]); v8 = v20.pProperties[2];
-		this->pIcons[this->uNumIcons].uFlags = 0;
-		if ( iequals(v8, "new") )
-		{
-		  v9 = (int)&this->pIcons[this->uNumIcons].uFlags;
-		  *(char *)v9 |= 4u;
-		}
-		this->pIcons[this->uNumIcons].uAnimTime = atoi(v20.pProperties[3]);
-		this->pIcons[this->uNumIcons].uAnimLength = 0;
-		this->pIcons[this->uNumIcons++].uTextureID = 0;
-	  }
-	}
-	fclose(File);
-	v10 = 0;
-	if ( (signed int)(this->uNumIcons - 1) > 0 )
-	{
-	  v11 = 0;
-	  do
-	  {
-		v12 = (int)&this->pIcons[v11];
-		if ( !(*(char *)(v12 + 60) & 4) )
-		  *(char *)(v12 + 28) |= 1u;
-		++v10;
-		++v11;
-	  }
-	  while ( v10 < (signed int)(this->uNumIcons - 1) );
-	}
-	for ( j = 0; j < (signed int)this->uNumIcons; *(short *)(Argsa + 26) = v15 )
-	{
-	  v14 = this->pIcons;
-	  Argsa = (int)&v14[j];
-	  v15 = *(short *)(Argsa + 24);
-	  if ( *(char *)(Argsa + 28) & 1 )
-	  {
-		++j;
-		for ( k = (int)&v14[j]; *(char *)(k + 28) & 1; k += 32 )
-		{
-		  v15 += *(short *)(k + 24);
-		  ++j;
-		}
-		LOWORD(v15) = v14[j].uAnimTime + v15;
-	  }
-	  ++j;
-	}
-	result = 1;
-  }
-  else
-  {
-	fclose(File);
-	result = 0;
-  }
-  return result;
-}*/
 
 /*
 //----- (0042EB78) --------------------------------------------------------

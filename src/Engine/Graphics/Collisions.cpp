@@ -472,7 +472,7 @@ void _46ED8A_collide_against_sprite_objects(unsigned int pid)
 			continue;
 
 		ObjectDesc* object = &pObjectList->pObjects[pSpriteObjects[i].uObjectDescID];
-		if (object->uFlags & OBJECT_DESC_NO_COLLISION)
+		if (object->uFlags & ObjectDescFlag::NoCollision)
 			continue;
 
 		// This code is very close to what we have in CollideWithCylinder, but factoring out common parts just

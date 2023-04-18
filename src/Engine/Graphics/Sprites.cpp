@@ -297,9 +297,9 @@ SpriteFrame* SpriteFrameTable::GetFrameBy_x(unsigned int uSpriteID, signed int a
 // new
 void SpriteFrameTable::ResetPaletteIndexes()
 {
-	for (int i = 0; i < this->uNumSpriteFrames; i++)
+	for (size_t i = 0; i < uNumSpriteFrames; i++)
 	{
-		this->pSpriteSFrames[i].ResetPaletteIndex();
+		pSpriteSFrames[i].ResetPaletteIndex();
 	}
 }
 
@@ -358,46 +358,29 @@ void SpriteFrameTable::FromFile(const Blob& data_mm6, const Blob& data_mm7, cons
 		mm8_num_eframes = header.num_eframes;
 	}
 
-	uNumSpriteFrames = mm7_num_frames /*+ num_mm6_frames + num_mm8_frames*/;
-	uNumEFrames = mm7_num_eframes /*+ num_mm6_eframes + num_mm8_eframes*/;
+	uNumSpriteFrames = mm7_num_frames;
+	uNumEFrames = mm7_num_eframes;
 
 	pSpriteSFrames = std::make_unique<SpriteFrame[]>(uNumSpriteFrames);
 	pSpritePFrames = std::make_unique<SpriteFrame*[]>(uNumEFrames);
 	pSpriteEFrames = std::make_unique<uint16_t[]>(uNumEFrames);
 
-	auto mm7_sprites_data = data_mm7.data_view<data::mm7::SpriteFrame>(sizeof(SpriteFrameTableHeader));
-	for (size_t i = 0; i < mm7_num_frames; ++i)
+	if (data_mm7)
 	{
-		Deserialize(mm7_sprites_data[i], &pSpriteSFrames[i]);
+		auto mm7_sprites_data = data_mm7.data_view<data::mm7::SpriteFrame>(sizeof(SpriteFrameTableHeader));
+		for (size_t i = 0; i < mm7_num_frames; ++i)
+		{
+			Deserialize(mm7_sprites_data[i], &pSpriteSFrames[i]);
+		}
+
+		auto mm7_eframes_data = data_mm7.data_view<uint16_t>(sizeof(SpriteFrameTableHeader) + mm7_num_frames * sizeof(data::mm7::SpriteFrame));
+		std::copy_n(mm7_eframes_data, mm7_num_eframes, pSpriteEFrames.get());
+
+		for (size_t i = 0; i < mm7_num_eframes; ++i)
+		{
+			pSpritePFrames[i] = &pSpriteSFrames[pSpriteEFrames[i]];
+		}
 	}
-
-	auto mm7_eframes_data = data_mm7.data_view<uint16_t>(sizeof(SpriteFrameTableHeader) + mm7_num_frames * sizeof(data::mm7::SpriteFrame));
-	std::copy_n(mm7_eframes_data, mm7_num_eframes, pSpriteEFrames.get());
-
-	for (size_t i = 0; i < mm7_num_eframes; ++i)
-	{
-		pSpritePFrames[i] = &pSpriteSFrames[pSpriteEFrames[i]];
-	}
-
-	/*uint mm6_frames_size = num_mm6_frames * sizeof(SpriteFrame_mm6);
-	for (uint i = 0; i < num_mm6_frames; ++i)
-	{
-		memcpy(pSpriteSFrames + num_mm7_frames + i, (char *)data_mm6 + 8 + i *
-	sizeof(SpriteFrame_mm6), sizeof(SpriteFrame_mm6));
-		pSpriteSFrames[num_mm7_frames + i].uAnimLength = 0;
-	}
-	memcpy(pSpriteEFrames + num_mm7_frames, (char *)data_mm6 + 8 +
-	mm6_frames_size, 2 * num_mm6_eframes);*/
-
-	/*uint mm8_frames_size = num_mm8_frames * sizeof(SpriteFrame);
-	memcpy(pSpriteSFrames + num_mm6_frames + num_mm7_frames, (char *)data_mm8 +
-	8, mm8_frames_size); memcpy(pSpriteEFrames + num_mm6_frames +
-	num_mm7_frames, (char *)data_mm8 + 8 + mm8_frames_size, 2 *
-	num_mm8_eframes);*/
-
-	// the original was using num_mmx_frames, but never accessed any element
-	// beyond num_mmx_eframes, but boing beyong eframes caused invalid memory
-	// accesses
 }
 
 SpriteFrame* LevelDecorationChangeSeason(const DecorationDesc* desc, int t, int month)

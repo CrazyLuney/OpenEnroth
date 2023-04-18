@@ -1105,7 +1105,7 @@ void GameUI_WritePointedObjectStatusString()
 			pickedObjectID = (signed)PID_ID(pickedObject.object_pid);
 			if (PID_TYPE(pickedObject.object_pid) == OBJECT_Item)
 			{
-				if (pObjectList->pObjects[pSpriteObjects[pickedObjectID].uObjectDescID].uFlags & OBJECT_DESC_UNPICKABLE)
+				if (pObjectList->pObjects[pSpriteObjects[pickedObjectID].uObjectDescID].uFlags & ObjectDescFlag::NoPick)
 				{
 					mouse->uPointingObjectID = 0;
 					game_ui_status_bar_string.clear();
@@ -1137,7 +1137,7 @@ void GameUI_WritePointedObjectStatusString()
 						[pLevelDecorations[pickedObjectID]._idx_in_stru123 -
 						75] + 380].pTopic;  // неверно для костра
 					else
-						pText = pDecorationList->GetDecoration(pLevelDecorations[pickedObjectID].uDecorationDescID)->field_20;
+						pText = pDecorationList->GetDecoration(pLevelDecorations[pickedObjectID].uDecorationDescID)->field_20.data();
 					GameUI_StatusBar_Set(pText);
 				}
 				else
@@ -1989,9 +1989,7 @@ void GameUI_DrawMinimap(unsigned int uX, unsigned int uY, unsigned int uZ,
 				//     pPoint_Y >= render->raster_clip_y && pPoint_Y <=
 				//     render->raster_clip_w)
 				{
-					if (pObjectList->pObjects[pSpriteObjects[i].uObjectDescID]
-						.uFlags &
-						OBJECT_DESC_UNPICKABLE)
+					if (pObjectList->pObjects[pSpriteObjects[i].uObjectDescID].uFlags & ObjectDescFlag::NoPick)
 					{
 						render->RasterLine2D(pPoint_X, pPoint_Y, pPoint_X + 1,
 							pPoint_Y + 1, color32(ui_game_minimap_projectile_color));

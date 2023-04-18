@@ -1,53 +1,35 @@
 #pragma once
 
+#include "Utility/Flags.h"
 #include "Utility/Memory/Blob.h"
 
-// TODO: Use enum class & class Flags.
-enum OBJECT_DESC_FLAGS : int16_t
+enum class ObjectDescFlag : uint16_t
 {
-	OBJECT_DESC_NO_SPRITE = 0x1,
-	OBJECT_DESC_NO_COLLISION = 0x2,
-	OBJECT_DESC_TEMPORARY = 0x4,
-	OBJECT_DESC_SFT_LIFETIME = 0x8,
-	OBJECT_DESC_UNPICKABLE = 0x10,
-	OBJECT_DESC_NO_GRAVITY = 0x20,
-	OBJECT_DESC_INTERACTABLE = 0x40,
-	OBJECT_DESC_BOUNCE = 0x80,
-	OBJECT_DESC_TRIAL_PARTICLE = 0x100,
-	OBJECT_DESC_TRIAL_FIRE = 0x200,
-	OBJECT_DESC_TRIAL_LINE = 0x400,
+	NoSprite = 0x1,
+	NoCollision = 0x2,
+	Temporary = 0x4,
+	LifetimeRelated = 0x8,
+	NoPick = 0x10,
+	NoGravity = 0x20,
+	Interactable = 0x40,
+	Bounce = 0x80,
+	TrailParticle = 0x100,
+	TrailFire = 0x200,
+	TrailLine = 0x400,
 };
 
-#pragma pack(push, 1)
-// TODO(caprainurist): this belongs to LegacyImages.h
-struct ObjectDesc_mm6
-{
-	inline bool NoSprite() const { return uFlags & OBJECT_DESC_NO_SPRITE; }
-
-	char field_0[32];
-	int16_t uObjectID;
-	int16_t uRadius;
-	int16_t uHeight;
-	OBJECT_DESC_FLAGS uFlags;
-	uint16_t uSpriteID;
-	int16_t uLifetime;
-	uint16_t uParticleTrailColor;
-	int16_t uSpeed;
-	char uParticleTrailColorR;
-	char uParticleTrailColorG;
-	char uParticleTrailColorB;
-	char field_35_clr;
-};
+MM_DECLARE_FLAGS(ObjectDescFlags, ObjectDescFlag)
+MM_DECLARE_OPERATORS_FOR_FLAGS(ObjectDescFlags)
 
 struct ObjectDesc
 {
-	inline bool NoSprite() const { return uFlags & OBJECT_DESC_NO_SPRITE; }
+	inline bool NoSprite() const { return uFlags & ObjectDescFlag::NoSprite; }
 
-	char field_0[32];
+	std::string field_0;
 	int16_t uObjectID;
 	int16_t uRadius;
 	int16_t uHeight;
-	OBJECT_DESC_FLAGS uFlags;
+	ObjectDescFlags uFlags;
 	uint16_t uSpriteID;
 	int16_t uLifetime;
 	uint32_t uParticleTrailColor;
@@ -55,11 +37,10 @@ struct ObjectDesc
 	uint8_t uParticleTrailColorR;
 	uint8_t uParticleTrailColorG;
 	uint8_t uParticleTrailColorB;
-	char field_35_clr;
-	char field_36_clr;
-	char field_37_clr;
+	int8_t field_35_clr;
+	int8_t field_36_clr;
+	int8_t field_37_clr;
 };
-#pragma pack(pop)
 
 class ObjectList
 {
@@ -70,7 +51,8 @@ public:
 	unsigned int ObjectIDByItemID(unsigned int uItemID);
 
 public:
-	std::vector<ObjectDesc> pObjects;
+	size_t uNumObjects = 0;
+	std::unique_ptr<ObjectDesc[]> pObjects;
 };
 
 extern ObjectList* pObjectList;

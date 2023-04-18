@@ -4,8 +4,6 @@
 #include "Utility/Flags.h"
 #include "Utility/Memory/Blob.h"
 
-#include "LegacyImages.h"
-
 /*  321 */
 enum class DecorationDescFlag : uint16_t
 {
@@ -25,61 +23,38 @@ enum class DecorationDescFlag : uint16_t
 MM_DECLARE_FLAGS(DecorationDescFlags, DecorationDescFlag)
 MM_DECLARE_OPERATORS_FOR_FLAGS(DecorationDescFlags)
 
-/*   54 */
-#pragma pack(push, 1)
-namespace data::mm6
+struct DecorationDesc
 {
-	struct DecorationDesc
+	inline bool CanMoveThrough() const
 	{
-		inline bool CanMoveThrough() const
-		{
-			return uFlags & DecorationDescFlag::MoveThrough;
-		}
-		inline bool DontDraw() const
-		{
-			return uFlags & DecorationDescFlag::DontDraw;
-		}
-		inline bool SoundOnDawn() const
-		{
-			return uFlags & DecorationDescFlag::SoundOnDawn;
-		}
-		inline bool SoundOnDusk() const
-		{
-			return uFlags & DecorationDescFlag::SoundOnDusk;
-		}
-
-		char pName[32];
-		char field_20[32];
-		int16_t uType;
-		uint16_t uDecorationHeight;
-		int16_t uRadius;
-		int16_t uLightRadius;
-		uint16_t uSpriteID;
-		DecorationDescFlags uFlags;
-		int16_t uSoundID;
-		int16_t _pad;
-	};
-}
-
-namespace data::mm7
-{
-	struct DecorationDesc : data::mm6::DecorationDesc
+		return uFlags & DecorationDescFlag::MoveThrough;
+	}
+	inline bool DontDraw() const
 	{
-		uint8_t uColoredLightRed;
-		uint8_t uColoredLightGreen;
-		uint8_t uColoredLightBlue;
-		uint8_t __padding;
-	};
-}
+		return uFlags & DecorationDescFlag::DontDraw;
+	}
+	inline bool SoundOnDawn() const
+	{
+		return uFlags & DecorationDescFlag::SoundOnDawn;
+	}
+	inline bool SoundOnDusk() const
+	{
+		return uFlags & DecorationDescFlag::SoundOnDusk;
+	}
 
-namespace data::mm8
-{
-	using data::mm7::DecorationDesc;
-}
-
-#pragma pack(pop)
-
-using DecorationDesc = data::mm7::DecorationDesc;
+	std::string pName;
+	std::string field_20;
+	int16_t uType;
+	uint16_t uDecorationHeight;
+	int16_t uRadius;
+	int16_t uLightRadius;
+	uint16_t uSpriteID;
+	DecorationDescFlags uFlags;
+	int16_t uSoundID;
+	uint8_t uColoredLightRed;
+	uint8_t uColoredLightGreen;
+	uint8_t uColoredLightBlue;
+};
 
 class DecorationList
 {
@@ -91,13 +66,15 @@ public:
 	void InitializeDecorationSprite(unsigned int uDecID);
 	uint16_t GetDecorIdByName(std::string_view pName);
 
-	const DecorationDesc* GetDecoration(unsigned int index) const
+	const DecorationDesc* GetDecoration(size_t index) const
 	{
+		assert(index < uNumDecorations);
 		return &pDecorations[index];
 	}
 
 protected:
-	std::vector<DecorationDesc> pDecorations;
+	size_t uNumDecorations = 0;
+	std::unique_ptr<DecorationDesc[]> pDecorations;
 };
 
 extern class DecorationList* pDecorationList;
