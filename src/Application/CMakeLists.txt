@@ -39,7 +39,6 @@ target_link_libraries(application
         gui
         io
         library_config
-        library_lod
         media
         platform
         utility)
