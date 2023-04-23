@@ -14,8 +14,7 @@ struct MonsterStats* pMonsterStats;
 struct MonsterList* pMonsterList;
 
 int ParseAttackType(const char* damage_type_str);
-void ParseDamage(char* damage_str, uint8_t* dice_rolls,
-	uint8_t* dice_sides, uint8_t* dmg_bonus);
+void ParseDamage(char* damage_str, uint8_t* dice_rolls, uint8_t* dice_sides, uint8_t* dmg_bonus);
 int ParseMissleAttackType(const char* missle_attack_str);
 int ParseSpecialAttack(const char* spec_att_str);
 
@@ -225,8 +224,7 @@ int ParseAttackType(const char* damage_type_str)
 }
 
 //----- (00454D7D) --------------------------------------------------------
-void ParseDamage(char* damage_str, uint8_t* dice_rolls,
-	uint8_t* dice_sides, uint8_t* dmg_bonus)
+void ParseDamage(char* damage_str, uint8_t* dice_rolls, uint8_t* dice_sides, uint8_t* dmg_bonus)
 {
 	int str_len = 0;
 	int str_pos = 0;
@@ -872,79 +870,58 @@ void MonsterStats::Initialize()
 						switch (tolower(test_string[str_pos]))
 						{
 						case '0':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x0004;
+							pInfos[curr_rec_num].uAttackPreference |= 0x0004;
 							break;
 						case '2':
-							pInfos[curr_rec_num]
-								.uNumCharactersAttackedPerSpecialAbility =
-								2;
+							pInfos[curr_rec_num].uNumCharactersAttackedPerSpecialAbility = 2;
 							break;
 						case '3':
-							pInfos[curr_rec_num]
-								.uNumCharactersAttackedPerSpecialAbility =
-								3;
+							pInfos[curr_rec_num].uNumCharactersAttackedPerSpecialAbility = 3;
 							break;
 						case '4':
-							pInfos[curr_rec_num]
-								.uNumCharactersAttackedPerSpecialAbility =
-								4;
+							pInfos[curr_rec_num].uNumCharactersAttackedPerSpecialAbility = 4;
 							break;
 						case 'c':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x0010;
+							pInfos[curr_rec_num].uAttackPreference |= 0x0010;
 							break;
 						case 'd':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x0008;
+							pInfos[curr_rec_num].uAttackPreference |= 0x0008;
 							break;
 						case 'e':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x1000;
+							pInfos[curr_rec_num].uAttackPreference |= 0x1000;
 							break;
 						case 'f':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x0400;
+							pInfos[curr_rec_num].uAttackPreference |= 0x0400;
 							break;
 						case 'h':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x0800;
+							pInfos[curr_rec_num].uAttackPreference |= 0x0800;
 							break;
 						case 'k':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x0001;
+							pInfos[curr_rec_num].uAttackPreference |= 0x0001;
 							break;
 						case 'm':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x0100;
+							pInfos[curr_rec_num].uAttackPreference |= 0x0100;
 							break;
 						case 'o':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x0400;
+							pInfos[curr_rec_num].uAttackPreference |= 0x0400;
 							break;
 						case 'p':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x0002;
+							pInfos[curr_rec_num].uAttackPreference |= 0x0002;
 							break;
 						case 'r':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x0040;
+							pInfos[curr_rec_num].uAttackPreference |= 0x0040;
 							break;
 						case 's':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x0020;
+							pInfos[curr_rec_num].uAttackPreference |= 0x0020;
 							break;
 						case 't':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x0080;
+							pInfos[curr_rec_num].uAttackPreference |= 0x0080;
 							break;
 						case 'w':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x2000;
+							pInfos[curr_rec_num].uAttackPreference |= 0x2000;
 							break;
 						case 'x':
-							pInfos[curr_rec_num].uAttackPreference |=
-								0x0200;
+							pInfos[curr_rec_num].uAttackPreference |= 0x0200;
 							break;
 						}
 					}
@@ -1171,7 +1148,7 @@ void MonsterStats::Initialize()
 				{
 					//                    int param_num;
 					//                    char type_flag;
-					pInfos[curr_rec_num].uSpecialAbilityType = 0;
+					pInfos[curr_rec_num].uSpecialAbilityType = MONSTER_SPECIAL_ABILITY_NONE;
 					pInfos[curr_rec_num].uSpecialAbilityDamageDiceBonus = 0;
 					strcpy(parse_str, test_string);
 					parse_str[0] = ' ';
@@ -1184,17 +1161,12 @@ void MonsterStats::Initialize()
 						{
 							if (iequals(parsed_field.pProperties[0], "shot"))
 							{
-								pInfos[curr_rec_num].uSpecialAbilityType =
-									1;
-								pInfos[curr_rec_num]
-									.uSpecialAbilityDamageDiceBonus = atoi(
-										(char*)(parsed_field.pProperties[1] +
-											1));
+								pInfos[curr_rec_num].uSpecialAbilityType = MONSTER_SPECIAL_ABILITY_SHOT;
+								pInfos[curr_rec_num].uSpecialAbilityDamageDiceBonus = atoi((char*)(parsed_field.pProperties[1] + 1));
 							}
 							else if (iequals(parsed_field.pProperties[0], "summon"))
 							{
-								pInfos[curr_rec_num].uSpecialAbilityType =
-									2;
+								pInfos[curr_rec_num].uSpecialAbilityType = MONSTER_SPECIAL_ABILITY_SUMMON;
 								if (parsed_field.uPropCount > 1)
 								{
 									str = parsed_field.pProperties[2];
@@ -1206,96 +1178,54 @@ void MonsterStats::Initialize()
 											do
 											{
 												str += " ";
-												char test_char =
-													parsed_field.pProperties
-													[prop_cnt][0];
-												str +=
-													parsed_field.pProperties
-													[prop_cnt];
-												if (prop_cnt ==
-													(parsed_field
-														.uPropCount -
-														1))
+												char test_char = parsed_field.pProperties[prop_cnt][0];
+												str += parsed_field.pProperties[prop_cnt];
+												if (prop_cnt == (parsed_field.uPropCount - 1))
 												{
-													switch (tolower(
-														test_char))
+													switch (tolower(test_char))
 													{
 													case 'a':
-														pInfos[curr_rec_num]
-															.uSpecialAbilityDamageDiceRolls =
-															1;
+														pInfos[curr_rec_num].uSpecialAbilityDamageDiceRolls = 1;
 														break;
 													case 'b':
-														pInfos[curr_rec_num]
-															.uSpecialAbilityDamageDiceRolls =
-															2;
+														pInfos[curr_rec_num].uSpecialAbilityDamageDiceRolls = 2;
 														break;
 													case 'c':
-														pInfos[curr_rec_num]
-															.uSpecialAbilityDamageDiceRolls =
-															3;
+														pInfos[curr_rec_num].uSpecialAbilityDamageDiceRolls = 3;
 														break;
 													default:
-														pInfos[curr_rec_num]
-															.uSpecialAbilityDamageDiceRolls =
-															0;
+														pInfos[curr_rec_num].uSpecialAbilityDamageDiceRolls = 0;
 													}
 												}
 												++prop_cnt;
-											} while (
-												prop_cnt <
-												parsed_field.uPropCount);
+											}
+											while (prop_cnt < parsed_field.uPropCount);
 										}
 									}
 									else
 									{
-										pInfos[curr_rec_num]
-											.uSpecialAbilityDamageDiceRolls =
-											0;
+										pInfos[curr_rec_num].uSpecialAbilityDamageDiceRolls = 0;
 									}
 									if (!pMonsterList->pMonsters.empty())
 									{
-										pInfos[curr_rec_num]
-											.field_3C_some_special_attack =
-											pMonsterList
-											->GetMonsterIDByName(
-												str.c_str()) +
-											1;
-										if (pInfos[curr_rec_num]
-											.field_3C_some_special_attack ==
-											-1)
+										pInfos[curr_rec_num].field_3C_some_special_attack = pMonsterList->GetMonsterIDByName(str.c_str()) + 1;
+										if (pInfos[curr_rec_num].field_3C_some_special_attack == -1)
 										{
 											logger->warning("Can't create random monster: '{}'. See MapStats!", str);
 										}
 									}
-									pInfos[curr_rec_num]
-										.uSpecialAbilityDamageDiceSides = 0;
+									pInfos[curr_rec_num].uSpecialAbilityDamageDiceSides = 0;
 									if (iequals(parsed_field.pProperties[1], "ground"))
-										pInfos[curr_rec_num]
-										.uSpecialAbilityDamageDiceSides =
-										1;
-									if (pInfos[curr_rec_num]
-										.field_3C_some_special_attack ==
-										-1)
-										pInfos[curr_rec_num]
-										.uSpecialAbilityType = 0;
+										pInfos[curr_rec_num].uSpecialAbilityDamageDiceSides = 1;
+									if (pInfos[curr_rec_num].field_3C_some_special_attack == -1)
+										pInfos[curr_rec_num].uSpecialAbilityType = MONSTER_SPECIAL_ABILITY_NONE;
 								}
 							}
 							else if (iequals(parsed_field.pProperties[0], "explode"))
 							{
-								pInfos[curr_rec_num].uSpecialAbilityType =
-									3;
-								ParseDamage(
-									(char*)parsed_field.pProperties[1],
-									&pInfos[curr_rec_num]
-									.uSpecialAbilityDamageDiceRolls,
-									&pInfos[curr_rec_num]
-									.uSpecialAbilityDamageDiceSides,
-									&pInfos[curr_rec_num]
-									.uSpecialAbilityDamageDiceBonus);
-								pInfos[curr_rec_num]
-									.field_3C_some_special_attack =
-									ParseAttackType(test_string);
+								pInfos[curr_rec_num].uSpecialAbilityType = MONSTER_SPECIAL_ABILITY_EXPLODE;
+								ParseDamage((char*)parsed_field.pProperties[1], &pInfos[curr_rec_num].uSpecialAbilityDamageDiceRolls, &pInfos[curr_rec_num].uSpecialAbilityDamageDiceSides, &pInfos[curr_rec_num].uSpecialAbilityDamageDiceBonus);
+								pInfos[curr_rec_num].field_3C_some_special_attack = ParseAttackType(test_string);
 							}
 						}
 					}

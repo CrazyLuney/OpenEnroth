@@ -200,8 +200,7 @@ struct MonsterStats
 	void InitializePlacements();
 	signed int FindMonsterByTextureName(const char* Str2);
 
-	static bool BelongsToSupertype(unsigned int uMonsterInfoID,
-		enum MONSTER_SUPERTYPE eSupertype);
+	static bool BelongsToSupertype(unsigned int uMonsterInfoID, enum MONSTER_SUPERTYPE eSupertype);
 
 	MonsterInfo pInfos[265];      // 0 - 5b18h
 	char* pPlaceStrings[31];      // 5B18h placement counts from 1
