@@ -51,3 +51,4 @@ cpplint.tar.gz
 cpplint-1.6.1/
 *.ipch
 parser/gold-temp/
+parser/gold-build/

@@ -1,0 +1,136 @@
+##LANGUAGE 'C++'
+##TEMPLATE-NAME 'grammar.hpp'
+##ENGINE-NAME 'OpenEnroth'
+##FILE-EXTENSION 'hpp'
+##NOTES
+##END-NOTES
+##ID-SYMBOL-PREFIX 'S'
+##ID-RULE-PREFIX 'R'
+##ID-SEPARATOR '_'
+##DELIMITER ','
+//
+// THIS FILE IS GENERATED
+//
+#pragma once
+
+namespace MonsterInfoParser
+{
+    namespace Symbols
+    {
+        enum
+        {
+##SYMBOLS
+            %ID% = %Value%%Delimiter% // %Description%
+##END-SYMBOLS
+        };
+    }
+
+    namespace Rules
+    {
+        struct Rule
+        {
+            const int Head;
+            const int SymbolCount;
+        };
+
+        enum
+        {
+##RULES
+            %ID% = %Value%%Delimiter% // %Description%
+##END-RULES
+        };
+
+##RULE-TABLE
+        static constexpr Rule Rules[%Count%] =
+        {
+##RULES
+            { %NonterminalIndex%, %SymbolCount% }%Delimiter%
+##END-RULES
+        };
+##END-RULE-TABLE
+    }
+
+    namespace DFA
+    {
+##DFA-TABLE
+        static constexpr inline int InitialState = %InitialState%;
+##END-DFA-TABLE
+
+##CHAR-SET-TABLE
+##CHAR-SETS
+        static constexpr inline char Charset%Index%[%CharCount%] = { %Chars.List% };
+##END-CHAR-SETS
+##END-CHAR-SET-TABLE
+
+        template <std::size_t N>
+        static constexpr inline bool MatchCharset(char c, const char (&charset)[N]) requires (N > 0)
+        {
+    #if 1
+            if (c < charset[0])
+                return false;
+            if (c > charset[N - 1])
+                return false;
+            auto it = std::lower_bound(std::begin(charset), std::end(charset), c);
+            if (it == std::end(charset))
+                return false;
+            return *it == c;
+    #else
+            return charset.find(c) != std::string_view::npos;
+    #endif
+        }
+
+##DFA-TABLE
+        static int Match(int& state, std::string_view::iterator& c)
+        {
+            while (true)
+                switch (state)
+                {
+##DFA-STATES
+                case %Index%:
+##DFA-EDGES
+                    if (MatchCharset(*c, Charset%CharSetIndex%)) { state = %Target%; ++c; continue; }
+##END-DFA-EDGES
+                    return %AcceptIndex%;
+
+##END-DFA-STATES
+                default:
+                    return -1;
+                }
+        }
+##END-DFA-TABLE
+    }
+
+    namespace LALR
+    {
+        struct Action
+        {
+            enum
+            {
+                Shift = 1,
+                Reduce = 2,
+                Goto = 3,
+                Accept = 4,
+            };
+
+            const int Type;
+            const int Target;
+        };
+
+        using StateActions = std::map<int, Action>;
+
+##LALR-TABLE
+        static constexpr inline int InitialState = %InitialState%;
+
+        static const StateActions States[%Count%] =
+        {
+##LALR-STATES
+            {
+##LALR-ACTIONS
+                { %SymbolIndex%, { %Action%, %Value% } },
+##END-LALR-ACTIONS
+            },
+##END-LALR-STATES
+        };
+##END-LALR-TABLE
+    }
+}
