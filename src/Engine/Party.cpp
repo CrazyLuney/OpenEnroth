@@ -789,7 +789,7 @@ void Party::yell()
 		{
 			Actor& actor = pActors[i];
 			if (actor.CanAct() &&
-				actor.pMonsterInfo.uHostilityType != MonsterInfo::Hostility_Long &&
+				actor.pMonsterInfo.uHostilityType != MONSTER_HOSTILITY_RADIUS_LONG &&
 				actor.pMonsterInfo.uMovementType != MONSTER_MOVEMENT_TYPE_STATIONARY)
 			{
 				if (glm::length(Vec3f(actor.vPosition) - Vec3f(pParty->vPosition)) < 512)

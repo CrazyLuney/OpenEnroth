@@ -7,7 +7,7 @@
 #include "Utility/Workaround/ToUnderlying.h"
 
 // TODO(captainurist): this is the same enum as SPELL_SCHOOL in SpellEnums.h
-enum class DAMAGE_TYPE : unsigned int
+enum class DAMAGE_TYPE : uint8_t
 {
 	DMGT_FIRE = 0,
 	DMGT_ELECTR = 1,

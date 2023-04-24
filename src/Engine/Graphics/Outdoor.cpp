@@ -1508,7 +1508,7 @@ bool OutdoorLocation::InitalizeActors(int a1)
 				pActors[i].vVelocity.z = 0;
 				pActors[i].UpdateAnimation();
 				pActors[i].pMonsterInfo.uHostilityType =
-					MonsterInfo::Hostility_Friendly;
+					MONSTER_HOSTILITY_RADIUS_FRIENDLY;
 				pActors[i].PrepareSprites(0);
 			}
 			else
@@ -1538,7 +1538,7 @@ bool OutdoorLocation::InitalizeActors(int a1)
 			pActors[i].vVelocity.z = 0;
 			pActors[i].UpdateAnimation();
 			pActors[i].pMonsterInfo.uHostilityType =
-				MonsterInfo::Hostility_Friendly;
+				MONSTER_HOSTILITY_RADIUS_FRIENDLY;
 			pActors[i].PrepareSprites(0);
 		}
 		else
@@ -3028,7 +3028,7 @@ void UpdateActors_ODM()
 			{
 				if (pActors[Actor_ITR].vPosition.z < Floor_Level + 30)
 				{ // 30 to provide small error / rounding factor
-					if (pMonsterStats->pInfos[pActors[Actor_ITR].pMonsterInfo.uID].bBloodSplatOnDeath)
+					if (pMonsterStats->GetMonsterInfo(pActors[Actor_ITR].pMonsterInfo.uID).bBloodSplatOnDeath)
 					{
 						if (engine->config->graphics.BloodSplats.value())
 						{

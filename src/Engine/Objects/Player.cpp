@@ -7305,10 +7305,10 @@ void DamagePlayerFromMonster(unsigned int uObjID, ABILITY_INDEX dmgSource, Vec3i
 		switch (dmgSource)
 		{
 		case ABILITY_ATTACK1:
-			damageType = actorPtr->pMonsterInfo.uAttack1Type;
+			damageType = std::to_underlying(actorPtr->pMonsterInfo.uAttack1Type);
 			break;
 		case ABILITY_ATTACK2:
-			damageType = actorPtr->pMonsterInfo.uAttack2Type;
+			damageType = std::to_underlying(actorPtr->pMonsterInfo.uAttack2Type);
 			break;
 		case ABILITY_SPELL1:
 			spellId = actorPtr->pMonsterInfo.uSpell1ID;
@@ -7353,7 +7353,7 @@ void DamagePlayerFromMonster(unsigned int uObjID, ABILITY_INDEX dmgSource, Vec3i
 						Actor::ApplyFineForKillingPeasant(uActorID);
 						Actor::AggroSurroundingPeasants(uActorID, 1);
 						if (actorPtr->pMonsterInfo.uExp)
-							pParty->GivePartyExp(pMonsterStats->pInfos[actorPtr->pMonsterInfo.uID].uExp);
+							pParty->GivePartyExp(pMonsterStats->GetMonsterInfo(actorPtr->pMonsterInfo.uID).uExp);
 
 						// kill speech
 						PlayerSpeech speechToPlay = SPEECH_AttackHit;
@@ -7514,10 +7514,10 @@ void DamagePlayerFromMonster(unsigned int uObjID, ABILITY_INDEX dmgSource, Vec3i
 			switch (dmgSource)
 			{
 			case ABILITY_ATTACK1:
-				damageType = actorPtr->pMonsterInfo.uAttack1Type;
+				damageType = std::to_underlying(actorPtr->pMonsterInfo.uAttack1Type);
 				break;
 			case ABILITY_ATTACK2:
-				damageType = actorPtr->pMonsterInfo.uAttack2Type;
+				damageType = std::to_underlying(actorPtr->pMonsterInfo.uAttack2Type);
 				break;
 			case ABILITY_SPELL1:
 				spellId = actorPtr->pMonsterInfo.uSpell1ID;
@@ -7558,7 +7558,7 @@ void DamagePlayerFromMonster(unsigned int uObjID, ABILITY_INDEX dmgSource, Vec3i
 							Actor::ApplyFineForKillingPeasant(uActorID);
 							Actor::AggroSurroundingPeasants(uActorID, 1);
 							if (actorPtr->pMonsterInfo.uExp)
-								pParty->GivePartyExp(pMonsterStats->pInfos[actorPtr->pMonsterInfo.uID].uExp);
+								pParty->GivePartyExp(pMonsterStats->GetMonsterInfo(actorPtr->pMonsterInfo.uID).uExp);
 
 							PlayerSpeech speechToPlay = SPEECH_AttackHit;
 							if (vrng->random(100) < 20)

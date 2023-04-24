@@ -39,10 +39,10 @@ namespace data::mm7
 	void Deserialize(const SpriteFrame& src, ::SpriteFrame* dst)
 	{
 		detail::Deserialize(src.pIconName, &dst->icon_name);
-		strings::to_lower(dst->icon_name);
+		Strings::ToLower(dst->icon_name);
 
 		detail::Deserialize(src.pTextureName, &dst->texture_name);
-		strings::to_lower(dst->texture_name);
+		Strings::ToLower(dst->texture_name);
 
 		for (unsigned int i = 0; i < 8; ++i)
 		{
@@ -91,7 +91,7 @@ namespace data::mm7
 	void Deserialize(const TileDesc& src, ::TileDesc* dst)
 	{
 		detail::Deserialize(src.pTileName, &dst->name);
-		strings::to_lower(dst->name);
+		Strings::ToLower(dst->name);
 
 		if (dst->name.find("wtrdr") == 0)
 		{
@@ -110,7 +110,7 @@ namespace data::mm7
 	void Deserialize(const TextureFrame& src, ::TextureFrame* dst)
 	{
 		detail::Deserialize(src.pTextureName, &dst->name);
-		strings::to_lower(dst->name);
+		Strings::ToLower(dst->name);
 
 		dst->uAnimLength = src.uAnimLength;
 		dst->uAnimTime = src.uAnimTime;
@@ -1235,13 +1235,13 @@ namespace data::mm7
 		dst->pMonsterInfo.field_12 = src.pMonsterInfo.field_12;
 		dst->pMonsterInfo.uSpecialAttackType = src.pMonsterInfo.uSpecialAttackType;
 		dst->pMonsterInfo.uSpecialAttackLevel = src.pMonsterInfo.uSpecialAttackLevel;
-		dst->pMonsterInfo.uAttack1Type = src.pMonsterInfo.uAttack1Type;
+		dst->pMonsterInfo.uAttack1Type = std::to_underlying(src.pMonsterInfo.uAttack1Type);
 		dst->pMonsterInfo.uAttack1DamageDiceRolls = src.pMonsterInfo.uAttack1DamageDiceRolls;
 		dst->pMonsterInfo.uAttack1DamageDiceSides = src.pMonsterInfo.uAttack1DamageDiceSides;
 		dst->pMonsterInfo.uAttack1DamageBonus = src.pMonsterInfo.uAttack1DamageBonus;
 		dst->pMonsterInfo.uMissleAttack1Type = src.pMonsterInfo.uMissleAttack1Type;
 		dst->pMonsterInfo.uAttack2Chance = src.pMonsterInfo.uAttack2Chance;
-		dst->pMonsterInfo.uAttack2Type = src.pMonsterInfo.uAttack2Type;
+		dst->pMonsterInfo.uAttack2Type = std::to_underlying(src.pMonsterInfo.uAttack2Type);
 		dst->pMonsterInfo.uAttack2DamageDiceRolls = src.pMonsterInfo.uAttack2DamageDiceRolls;
 		dst->pMonsterInfo.uAttack2DamageDiceSides = src.pMonsterInfo.uAttack2DamageDiceSides;
 		dst->pMonsterInfo.uAttack2DamageBonus = src.pMonsterInfo.uAttack2DamageBonus;
@@ -1344,19 +1344,19 @@ namespace data::mm7
 		dst->pMonsterInfo.uTreasureLevel = ITEM_TREASURE_LEVEL(src.pMonsterInfo.uTreasureLevel);
 		dst->pMonsterInfo.uTreasureType = src.pMonsterInfo.uTreasureType;
 		dst->pMonsterInfo.uFlying = src.pMonsterInfo.uFlying;
-		dst->pMonsterInfo.uMovementType = src.pMonsterInfo.uMovementType;
-		dst->pMonsterInfo.uAIType = src.pMonsterInfo.uAIType;
-		dst->pMonsterInfo.uHostilityType = (::MonsterInfo::HostilityRadius)src.pMonsterInfo.uHostilityType;
+		dst->pMonsterInfo.uMovementType = static_cast<MONSTER_MOVEMENT_TYPE>(src.pMonsterInfo.uMovementType);
+		dst->pMonsterInfo.uAIType = static_cast<MONSTER_AI_TYPE>(src.pMonsterInfo.uAIType);
+		dst->pMonsterInfo.uHostilityType = static_cast<MONSTER_HOSTILITY_RADIUS>(src.pMonsterInfo.uHostilityType);
 		dst->pMonsterInfo.field_12 = src.pMonsterInfo.field_12;
-		dst->pMonsterInfo.uSpecialAttackType = (SPECIAL_ATTACK_TYPE)src.pMonsterInfo.uSpecialAttackType;
+		dst->pMonsterInfo.uSpecialAttackType = static_cast<SPECIAL_ATTACK_TYPE>(src.pMonsterInfo.uSpecialAttackType);
 		dst->pMonsterInfo.uSpecialAttackLevel = src.pMonsterInfo.uSpecialAttackLevel;
-		dst->pMonsterInfo.uAttack1Type = src.pMonsterInfo.uAttack1Type;
+		dst->pMonsterInfo.uAttack1Type = static_cast<DAMAGE_TYPE>(src.pMonsterInfo.uAttack1Type);
 		dst->pMonsterInfo.uAttack1DamageDiceRolls = src.pMonsterInfo.uAttack1DamageDiceRolls;
 		dst->pMonsterInfo.uAttack1DamageDiceSides = src.pMonsterInfo.uAttack1DamageDiceSides;
 		dst->pMonsterInfo.uAttack1DamageBonus = src.pMonsterInfo.uAttack1DamageBonus;
 		dst->pMonsterInfo.uMissleAttack1Type = src.pMonsterInfo.uMissleAttack1Type;
 		dst->pMonsterInfo.uAttack2Chance = src.pMonsterInfo.uAttack2Chance;
-		dst->pMonsterInfo.uAttack2Type = src.pMonsterInfo.uAttack2Type;
+		dst->pMonsterInfo.uAttack2Type = static_cast<DAMAGE_TYPE>(src.pMonsterInfo.uAttack2Type);
 		dst->pMonsterInfo.uAttack2DamageDiceRolls = src.pMonsterInfo.uAttack2DamageDiceRolls;
 		dst->pMonsterInfo.uAttack2DamageDiceSides = src.pMonsterInfo.uAttack2DamageDiceSides;
 		dst->pMonsterInfo.uAttack2DamageBonus = src.pMonsterInfo.uAttack2DamageBonus;
@@ -1375,7 +1375,7 @@ namespace data::mm7
 		dst->pMonsterInfo.uResLight = src.pMonsterInfo.uResLight;
 		dst->pMonsterInfo.uResDark = src.pMonsterInfo.uResDark;
 		dst->pMonsterInfo.uResPhysical = src.pMonsterInfo.uResPhysical;
-		dst->pMonsterInfo.uSpecialAbilityType = src.pMonsterInfo.uSpecialAbilityType;
+		dst->pMonsterInfo.uSpecialAbilityType = static_cast<MONSTER_SPECIAL_ABILITY_TYPE>(src.pMonsterInfo.uSpecialAbilityType);
 		dst->pMonsterInfo.uSpecialAbilityDamageDiceRolls = src.pMonsterInfo.uSpecialAbilityDamageDiceRolls;
 		dst->pMonsterInfo.uSpecialAbilityDamageDiceSides = src.pMonsterInfo.uSpecialAbilityDamageDiceSides;
 		dst->pMonsterInfo.uSpecialAbilityDamageDiceBonus = src.pMonsterInfo.uSpecialAbilityDamageDiceBonus;

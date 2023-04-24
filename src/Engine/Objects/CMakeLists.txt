@@ -29,6 +29,6 @@ set(ENGINE_OBJECTS_HEADERS
 
 add_library(engine_objects STATIC ${ENGINE_OBJECTS_SOURCES} ${ENGINE_OBJECTS_HEADERS})
 
-target_link_libraries(engine_objects engine gui library_random utility)
+target_link_libraries(engine_objects engine gui library_random engine_text_parsers utility)
 
 target_precompile_headers_reuse(engine_objects utility)

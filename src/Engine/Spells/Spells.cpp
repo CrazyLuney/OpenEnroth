@@ -1179,7 +1179,7 @@ void armageddonProgress()
 				Actor::Die(actor.id);
 				if (actor.pMonsterInfo.uExp)
 				{
-					pParty->GivePartyExp(pMonsterStats->pInfos[actor.pMonsterInfo.uID].uExp);
+					pParty->GivePartyExp(pMonsterStats->GetMonsterInfo(actor.pMonsterInfo.uID).uExp);
 				}
 			}
 		}

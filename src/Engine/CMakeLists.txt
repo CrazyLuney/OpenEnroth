@@ -79,5 +79,6 @@ add_subdirectory(Serialization)
 add_subdirectory(Spells)
 add_subdirectory(Tables)
 add_subdirectory(Components)
+add_subdirectory(TextParsers)
 add_subdirectory(TurnEngine)
 

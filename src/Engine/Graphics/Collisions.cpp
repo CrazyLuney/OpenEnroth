@@ -564,7 +564,7 @@ void ProcessActorCollisionsBLV(Actor& actor, bool isAboveGround, bool isFlying)
 
 			if (!isAboveGround && !isFlying)
 			{
-				if (actor.pMonsterInfo.uHostilityType == MonsterInfo::Hostility_Friendly || isInCrowd)
+				if (actor.pMonsterInfo.uHostilityType == MONSTER_HOSTILITY_RADIUS_FRIENDLY || isInCrowd)
 					Actor::AI_StandOrBored(actor.id, PID(OBJECT_Player, 0), 0, nullptr);
 
 				break; // Trying to walk into indoor sky, bad idea!
@@ -604,7 +604,7 @@ void ProcessActorCollisionsBLV(Actor& actor, bool isAboveGround, bool isFlying)
 				actor.vVelocity.z = fixpoint_mul(58500, actor.vVelocity.z);
 				continue;
 			}
-			if (actor.pMonsterInfo.uHostilityType != MonsterInfo::Hostility_Friendly)
+			if (actor.pMonsterInfo.uHostilityType != MONSTER_HOSTILITY_RADIUS_FRIENDLY)
 			{
 				if (!isInCrowd)
 				{
@@ -619,7 +619,7 @@ void ProcessActorCollisionsBLV(Actor& actor, bool isAboveGround, bool isFlying)
 			{
 				if (!isInCrowd)
 				{
-					if (pActors[id].pMonsterInfo.uHostilityType == MonsterInfo::Hostility_Friendly)
+					if (pActors[id].pMonsterInfo.uHostilityType == MONSTER_HOSTILITY_RADIUS_FRIENDLY)
 					{
 						Actor::AI_FaceObject(actor.id, collision_state.pid, 0, nullptr);
 						actor.vVelocity.x = fixpoint_mul(58500, actor.vVelocity.x);
@@ -812,7 +812,7 @@ void ProcessActorCollisionsODM(Actor& actor, bool isFlying)
 				{
 					Actor::AI_StandOrBored(actor.id, 4, 0, nullptr);
 				}
-				else if (pActors[v39].pMonsterInfo.uHostilityType == MonsterInfo::Hostility_Friendly)
+				else if (pActors[v39].pMonsterInfo.uHostilityType == MONSTER_HOSTILITY_RADIUS_FRIENDLY)
 				{
 					Actor::AI_Flee(actor.id, collision_state.pid, 0, nullptr);
 				}

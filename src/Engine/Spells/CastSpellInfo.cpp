@@ -2047,7 +2047,7 @@ void CastSpellInfoHelpers::castSpell() {
                         pActors[monster_id].pActorBuffs[ACTOR_BUFF_ENSLAVED].Reset();
                         pActors[monster_id].pActorBuffs[ACTOR_BUFF_BERSERK]
                             .Apply(pParty->GetPlayingTime() + spell_duration, spell_mastery, 0, 0, 0);
-                        pActors[monster_id].pMonsterInfo.uHostilityType = MonsterInfo::Hostility_Long;
+                        pActors[monster_id].pMonsterInfo.uHostilityType = MONSTER_HOSTILITY_RADIUS_LONG;
                     }
                     initSpellSprite(&pSpellSprite, spell_level, spell_mastery, pCastSpell);
                     pSpellSprite.vPosition = Vec3i(pActors[monster_id].vPosition) + Vec3i(0, 0, pActors[monster_id].uActorHeight);
@@ -2679,7 +2679,7 @@ void CastSpellInfoHelpers::castSpell() {
                         break;
                     }
                     Actor::Resurrect(monster_id);
-                    pActors[monster_id].pMonsterInfo.uHostilityType = MonsterInfo::Hostility_Friendly;
+                    pActors[monster_id].pMonsterInfo.uHostilityType = MONSTER_HOSTILITY_RADIUS_FRIENDLY;
                     pActors[monster_id].pMonsterInfo.uTreasureDropChance = 0;
                     pActors[monster_id].pMonsterInfo.uTreasureDiceRolls = 0;
                     pActors[monster_id].pMonsterInfo.uTreasureDiceSides = 0;

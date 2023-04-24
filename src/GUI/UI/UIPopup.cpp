@@ -866,7 +866,7 @@ void MonsterPopup_Draw(unsigned int uActorID, GUIWindow *pWindow) {
     if (expert_level) {
         auto txt3 = fmt::format(
             "{}\f{:05}\t080{}\n", localization->GetString(LSTR_ATTACK), 0,
-            content[pActors[uActorID].pMonsterInfo.uAttack1Type]);
+            content[static_cast<int>(pActors[uActorID].pMonsterInfo.uAttack1Type)]);
         pWindow->DrawText(pFontSmallnum, {150, pTextHeight}, colorTable.Jonquil.c16(), txt3, 0, 0, 0);
 
         pTextHeight = pTextHeight + pFontSmallnum->GetHeight() - 3;

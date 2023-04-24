@@ -910,8 +910,7 @@ void DoPrepareWorld(bool bLoading, int _1_fullscreen_loading_2_box)
 	bDialogueUI_InitializeActor_NPC_ID = 0;
 	OnMapLoad();
 	pGameLoadingUI_ProgressBar->Progress();
-	memset(&render->pBillboardRenderListD3D, 0,
-		sizeof(render->pBillboardRenderListD3D));
+	memset(&render->pBillboardRenderListD3D, 0, sizeof(render->pBillboardRenderListD3D));
 	pGameLoadingUI_ProgressBar->Release();
 }
 

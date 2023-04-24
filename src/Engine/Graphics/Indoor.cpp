@@ -1280,8 +1280,9 @@ void UpdateActors_BLV()
 			if (actor.uAIState == Dead || actor.uAIState == Dying)
 			{
 				if (actor.vPosition.z < floorZ + 30)
-				{ // 30 to provide small error / rounding factor
-					if (pMonsterStats->pInfos[actor.pMonsterInfo.uID].bBloodSplatOnDeath)
+				{
+					// 30 to provide small error / rounding factor
+					if (pMonsterStats->GetMonsterInfo(actor.pMonsterInfo.uID).bBloodSplatOnDeath)
 					{
 						if (engine->config->graphics.BloodSplats.value())
 						{
@@ -1295,7 +1296,8 @@ void UpdateActors_BLV()
 		}
 
 		if (actor.uCurrentActionAnimation == ANIM_Walking)
-		{  // actor is moving
+		{
+			// actor is moving
 			int moveSpeed = actor.uMovementSpeed;
 
 			if (actor.pActorBuffs[ACTOR_BUFF_SLOWED].Active())
@@ -1562,7 +1564,7 @@ void PrepareToLoadBLV(bool bLoading)
 		if (!v28)
 		{
 			pActors[i].PrepareSprites(0);
-			pActors[i].pMonsterInfo.uHostilityType = MonsterInfo::Hostility_Friendly;
+			pActors[i].pMonsterInfo.uHostilityType = MONSTER_HOSTILITY_RADIUS_FRIENDLY;
 			if (pActors[i].pMonsterInfo.field_3E != 11 &&
 				pActors[i].pMonsterInfo.field_3E != 19 &&
 				(!pActors[i].sCurrentHP || !pActors[i].pMonsterInfo.uHP))

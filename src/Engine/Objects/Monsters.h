@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Utility/Memory/Blob.h"
-#include "Utility/IndexedArray.h"
-
 #include "Engine/Spells/SpellEnums.h"
+
+#include "Utility/Exception.h"
+#include "Utility/IndexedArray.h"
+#include "Utility/Memory/Blob.h"
 
 #include "ActorEnums.h"
 #include "ItemEnums.h"
@@ -56,15 +57,23 @@ enum MONSTER_TYPE
 };
 
 /*  335 */
-enum MONSTER_SPECIAL_ABILITY_TYPE
+enum MONSTER_SPECIAL_ABILITY_TYPE : uint8_t
 {
-	MONSTER_SPECIAL_ABILITY_NONE = 0x0,
-	MONSTER_SPECIAL_ABILITY_SHOT = 0x1,
-	MONSTER_SPECIAL_ABILITY_SUMMON = 0x2,
-	MONSTER_SPECIAL_ABILITY_EXPLODE = 0x3,
+	MONSTER_SPECIAL_ABILITY_NONE = 0,
+	MONSTER_SPECIAL_ABILITY_SHOT = 1,
+	MONSTER_SPECIAL_ABILITY_SUMMON = 2,
+	MONSTER_SPECIAL_ABILITY_EXPLODE = 3,
 };
 
-enum MONSTER_MOVEMENT_TYPE
+enum MONSTER_AI_TYPE : uint8_t
+{
+	MONSTER_AI_SUICIDAL = 0,
+	MONSTER_AI_WIMP = 1,
+	MONSTER_AI_NORMAL = 2,
+	MONSTER_AI_AGGRESSIVE = 3,
+};
+
+enum MONSTER_MOVEMENT_TYPE : uint8_t
 {
 	MONSTER_MOVEMENT_TYPE_SHORT = 0x0,
 	MONSTER_MOVEMENT_TYPE_MEDIUM = 0x1,
@@ -115,21 +124,21 @@ enum SPECIAL_ATTACK_TYPE : uint8_t
 	SPECIAL_ATTACK_FEAR = 23,
 };
 
+enum MONSTER_HOSTILITY_RADIUS : uint8_t
+{
+	MONSTER_HOSTILITY_RADIUS_FRIENDLY = 0,
+	MONSTER_HOSTILITY_RADIUS_CLOSE = 1,
+	MONSTER_HOSTILITY_RADIUS_SHORT = 2,
+	MONSTER_HOSTILITY_RADIUS_MEDIUM = 3,
+	MONSTER_HOSTILITY_RADIUS_LONG = 4,
+};
+
 /*  187 */
 #pragma pack(push, 1)
 struct MonsterInfo
 {
-	enum HostilityRadius
-	{
-		Hostility_Friendly = 0,
-		Hostility_Close = 1,
-		Hostility_Short = 2,
-		Hostility_Medium = 3,
-		Hostility_Long = 4
-	};
-
-	char* pName = nullptr;
-	char* pPictureName = nullptr;
+	std::string pName;
+	std::string pPictureName;
 	uint8_t uLevel = 0;
 	uint8_t uTreasureDropChance = 0;
 	uint8_t uTreasureDiceRolls = 0;
@@ -137,19 +146,19 @@ struct MonsterInfo
 	ITEM_TREASURE_LEVEL uTreasureLevel = ITEM_TREASURE_LEVEL_INVALID;
 	uint8_t uTreasureType = 0;
 	uint8_t uFlying = 0;
-	uint8_t uMovementType = 0;
-	uint8_t uAIType = 0;
-	HostilityRadius uHostilityType = Hostility_Friendly;
+	MONSTER_MOVEMENT_TYPE uMovementType = MONSTER_MOVEMENT_TYPE_SHORT;
+	MONSTER_AI_TYPE uAIType = MONSTER_AI_SUICIDAL;
+	MONSTER_HOSTILITY_RADIUS uHostilityType = MONSTER_HOSTILITY_RADIUS_FRIENDLY;
 	char field_12 = 0;
 	SPECIAL_ATTACK_TYPE uSpecialAttackType = SPECIAL_ATTACK_NONE;
 	uint8_t uSpecialAttackLevel = 0;
-	uint8_t uAttack1Type = 0;
+	DAMAGE_TYPE uAttack1Type;
 	uint8_t uAttack1DamageDiceRolls = 0;
 	uint8_t uAttack1DamageDiceSides = 0;
 	uint8_t uAttack1DamageBonus = 0;
 	uint8_t uMissleAttack1Type = 0;
 	uint8_t uAttack2Chance = 0;
-	uint8_t uAttack2Type = 0;
+	DAMAGE_TYPE uAttack2Type;
 	uint8_t uAttack2DamageDiceRolls = 0;
 	uint8_t uAttack2DamageDiceSides = 0;
 	uint8_t uAttack2DamageBonus = 0;
@@ -168,10 +177,7 @@ struct MonsterInfo
 	uint8_t uResLight = 0;
 	uint8_t uResDark = 0;
 	uint8_t uResPhysical = 0;
-	uint8_t uSpecialAbilityType = 0;  // 0 SPECIAL_ABILITY_TYPE_NONE
-	// 1 SPECIAL_ABILITY_TYPE_SHOT
-	// 2 SPECIAL_ABILITY_TYPE_SUMMON
-	// 3 SPECIAL_ABILITY_TYPE_EXPLODE
+	MONSTER_SPECIAL_ABILITY_TYPE uSpecialAbilityType = MONSTER_SPECIAL_ABILITY_NONE;
 	uint8_t uSpecialAbilityDamageDiceRolls = 0;
 	uint8_t uSpecialAbilityDamageDiceSides = 0;
 	uint8_t uSpecialAbilityDamageDiceBonus = 0;
@@ -192,21 +198,37 @@ struct MonsterInfo
 };
 #pragma pack(pop)
 
+struct MonsterPlacementInfo
+{
+	uint16_t uID;
+	std::string pName;
+};
+
 /*  189 */
 #pragma pack(push, 1)
-struct MonsterStats
+class MonsterStats
 {
+public:
 	void Initialize();
 	void InitializePlacements();
 	signed int FindMonsterByTextureName(const char* Str2);
 
 	static bool BelongsToSupertype(unsigned int uMonsterInfoID, enum MONSTER_SUPERTYPE eSupertype);
 
-	MonsterInfo pInfos[265];      // 0 - 5b18h
-	char* pPlaceStrings[31];      // 5B18h placement counts from 1
-	unsigned int uNumMonsters;    // 5B94h
-	unsigned int uNumPlacements;  // 5B98h
-	int field_5B9C;
+	const MonsterInfo& GetMonsterInfo(const unsigned uMonsterInfoID) const
+	{
+		assert(uMonsterInfoID > 0);
+		return pInfos[uMonsterInfoID - 1];
+	}
+
+	const MonsterPlacementInfo& GetMonsterPlacementInfo(const unsigned uMonsterInfoID) const
+	{
+		assert(uMonsterInfoID > 0);
+		return pPlaceStrings[uMonsterInfoID - 1];
+	}
+private:
+	std::vector<MonsterInfo> pInfos; // 0 - 5b18h
+	std::vector<MonsterPlacementInfo> pPlaceStrings; // 5B18h placement counts from 1
 };
 #pragma pack(pop)
 

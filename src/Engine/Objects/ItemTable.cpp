@@ -475,7 +475,8 @@ void ItemTable::GenerateItem(ITEM_TREASURE_LEVEL treasure_level, unsigned int uT
 	memset(out_item, 0, sizeof(*out_item));
 
 	if (uTreasureType)
-	{  // generate known treasure type
+	{
+		// generate known treasure type
 		ITEM_EQUIP_TYPE requested_equip;
 		PLAYER_SKILL_TYPE requested_skill = PLAYER_SKILL_INVALID;
 		switch (uTreasureType)
@@ -571,22 +572,22 @@ void ItemTable::GenerateItem(ITEM_TREASURE_LEVEL treasure_level, unsigned int uT
 		total_chance = 0;
 		j = 0;
 		// a2a = 1;
-		if (requested_skill ==
-			PLAYER_SKILL_INVALID)
-		{  // no skill for this item needed
+		if (requested_skill == PLAYER_SKILL_INVALID)
+		{
+			// no skill for this item needed
 			for (ITEM_TYPE i : SpawnableItems())
 			{
 				if (pItems[i].uEquipType == requested_equip)
 				{
 					val_list[j] = i;
 					++j;
-					total_chance +=
-						pItems[i].uChanceByTreasureLvl[treasure_level];
+					total_chance += pItems[i].uChanceByTreasureLvl[treasure_level];
 				}
 			}
 		}
 		else
-		{  // have needed skill
+		{
+			// have needed skill
 			for (ITEM_TYPE i : SpawnableItems())
 			{
 				if (pItems[i].uSkillType == requested_skill)
