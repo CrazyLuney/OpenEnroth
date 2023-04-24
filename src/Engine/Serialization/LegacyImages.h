@@ -39,6 +39,7 @@ struct ObjectDesc;
 struct ChestDesc;
 struct OverlayDesc;
 class SoundDesc;
+struct SoundHeader;
 
 namespace data
 {
@@ -1218,6 +1219,31 @@ namespace data::mm7
 namespace data::mm8
 {
 	using data::mm7::SoundDesc;
+}
+
+namespace data::mm6
+{
+	struct SoundHeader
+	{
+		std::array<char, 40> pSoundName;
+		uint32_t uFileOffset;
+		uint32_t uCompressedSize;
+		uint32_t uDecompressedSize;
+	};
+
+	static_assert(sizeof(SoundHeader) == 0x34);
+
+	void Deserialize(const SoundHeader& src, ::SoundHeader* dst);
+}
+
+namespace data::mm7
+{
+	using data::mm6::SoundHeader;
+}
+
+namespace data::mm8
+{
+	using data::mm6::SoundHeader;
 }
 
 #pragma pack(pop)

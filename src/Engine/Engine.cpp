@@ -1065,8 +1065,18 @@ bool Engine::MM7_Initialize()
 		pSoundList->FromFile(sounds_mm6, sounds_mm7, sounds_mm8);
 	}
 
-	if (!config->debug.NoSound.value())
-		pAudioPlayer->Initialize();
+	if (config->debug.NoSound.value())
+	{
+		// nothing to do?
+	}
+	else
+	{
+		Blob sound_mm6;
+		Blob sound_mm7 = Blob::fromFile(MakeDataPath("sounds", "audio.snd"));
+		Blob sound_mm8;
+
+		pAudioPlayer->Initialize(sound_mm6, sound_mm7, sound_mm8);
+	}
 
 	pMediaPlayer = new MPlayer();
 	pMediaPlayer->Initialize();

@@ -1850,3 +1850,16 @@ namespace data::mm7
 		data::mm6::Deserialize(src, dst);
 	}
 }
+
+namespace data::mm6
+{
+	void Deserialize(const SoundHeader& src, ::SoundHeader* dst)
+	{
+		detail::Deserialize(src.pSoundName, &dst->sName);
+		Strings::ToLower(dst->sName);
+
+		dst->uFileOffset = src.uFileOffset;
+		dst->uCompressedSize = src.uCompressedSize;
+		dst->uDecompressedSize = src.uDecompressedSize;
+	}
+}

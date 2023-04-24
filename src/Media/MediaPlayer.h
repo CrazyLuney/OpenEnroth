@@ -13,31 +13,32 @@
 class VideoList;
 class MediaLogger;
 
-class MPlayer {
- public:
-    MPlayer();
-    virtual ~MPlayer();
+class MPlayer
+{
+public:
+	MPlayer();
+	virtual ~MPlayer();
 
-    void Initialize();
-    void Unload();
+	void Initialize();
+	void Unload();
 
-    void PlayFullscreenMovie(const std::string &pMovieName);
+	void PlayFullscreenMovie(const std::string& pMovieName);
 
-    void OpenHouseMovie(const std::string &pMovieName, bool bLoop);
-    void HouseMovieLoop();
+	void OpenHouseMovie(const std::string& pMovieName, bool bLoop);
+	void HouseMovieLoop();
 
-    bool IsMoviePlaying() const;
-    bool StopMovie();
+	bool IsMoviePlaying() const;
+	bool StopMovie();
 
- protected:
-    std::unique_ptr<MediaLogger> mediaLogger;
-    VideoList *might_list;
-    VideoList *magic_list;
-    std::string sInHouseMovie;
+protected:
+	std::unique_ptr<MediaLogger> mediaLogger;
+	VideoList* might_list;
+	VideoList* magic_list;
+	std::string sInHouseMovie;
 
-    FILE *LoadMovie(const std::string &video_name, size_t &size,
-                    size_t &offset);
+	FILE* LoadMovie(const std::string& video_name, size_t& size,
+		size_t& offset);
 };
 
-extern MPlayer *pMediaPlayer;
+extern MPlayer* pMediaPlayer;
 extern PMovie pMovie_Track;

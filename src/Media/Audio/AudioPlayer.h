@@ -168,23 +168,28 @@ private:
 	bool _looping;
 };
 
+struct SoundHeader
+{
+	std::string sName;
+	size_t uFileOffset;
+	size_t uCompressedSize;
+	size_t uDecompressedSize;
+};
 
 class AudioPlayer
 {
-protected:
-	typedef struct SoundHeader
-	{
-		size_t uFileOffset;
-		size_t uCompressedSize;
-		size_t uDecompressedSize;
-	} SoundHeader;
-
 public:
-	AudioPlayer() : bPlayerReady(false), currentMusicTrack(MUSIC_Invalid), uMasterVolume(0), uVoiceVolume(0),
-		_voiceSoundPool(false), _regularSoundPool(false), _loopingSoundPool(true)
+	AudioPlayer()
+		: bPlayerReady(false)
+		, currentMusicTrack(MUSIC_Invalid)
+		, uMasterVolume(0)
+		, uVoiceVolume(0)
+		, _voiceSoundPool(false)
+		, _regularSoundPool(false)
+		, _loopingSoundPool(true)
 	{
 	}
-	virtual ~AudioPlayer() {}
+	virtual ~AudioPlayer() = default;
 
 	// Special PID values for additional sound playing semantics
 	static const int SOUND_PID_EXCLUSIVE = PID_INVALID;
@@ -193,10 +198,9 @@ public:
 	static const int SOUND_PID_MUSIC_VOLUME = -4;
 	static const int SOUND_PID_VOICE_VOLUME = -5;
 
-	void Initialize();
+	void Initialize(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8);
 
-	void LoadAudioSnd();
-	bool FindSound(const std::string& pName, struct AudioPlayer::SoundHeader* header);
+	bool FindSound(const std::string& pName, const SoundHeader* (&header)) const;
 	Blob LoadSound(const std::string& pSoundName);
 	Blob LoadSound(int uSoundID);
 
@@ -310,6 +314,10 @@ protected:
 	AudioSamplePool _regularSoundPool;
 	AudioSamplePool _loopingSoundPool;
 	PAudioSample _currentWalkingSample;
+
+private:
+	void FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8);
+	Blob LoadSoundInternal(const SoundHeader& header);
 };
 
 enum SOUND_TYPE

@@ -49,14 +49,16 @@ void SoundList::FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob&
 	Assert(!data_mm6);
 	Assert(!data_mm8);
 
-	std::vector<SoundDesc> sounds;
+	mapSounds.clear();
+
+	std::vector<SoundDesc> sound_descs;
 
 	if (data_mm6)
 	{
 		BlobDeserializer stream(data_mm6);
-		stream.ReadLegacyVector<data::mm6::SoundDesc>(&sounds);
+		stream.ReadLegacyVector<data::mm6::SoundDesc>(&sound_descs);
 
-		for (auto&& sound_desc : sounds)
+		for (auto&& sound_desc : sound_descs)
 		{
 			mapSounds.emplace(sound_desc.uSoundID, std::move(sound_desc));
 		}
@@ -65,9 +67,9 @@ void SoundList::FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob&
 	if (data_mm7)
 	{
 		BlobDeserializer stream(data_mm7);
-		stream.ReadLegacyVector<data::mm7::SoundDesc>(&sounds);
+		stream.ReadLegacyVector<data::mm7::SoundDesc>(&sound_descs);
 
-		for (auto&& sound_desc : sounds)
+		for (auto&& sound_desc : sound_descs)
 		{
 			mapSounds.emplace(sound_desc.uSoundID, std::move(sound_desc));
 		}
@@ -76,9 +78,9 @@ void SoundList::FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob&
 	if (data_mm8)
 	{
 		BlobDeserializer stream(data_mm8);
-		stream.ReadLegacyVector<data::mm8::SoundDesc>(&sounds);
+		stream.ReadLegacyVector<data::mm8::SoundDesc>(&sound_descs);
 
-		for (auto&& sound_desc : sounds)
+		for (auto&& sound_desc : sound_descs)
 		{
 			mapSounds.emplace(sound_desc.uSoundID, std::move(sound_desc));
 		}
@@ -288,9 +290,10 @@ void AudioPlayer::playSound(SoundID eSoundID, int pid, unsigned int uNumRepeats,
 		Blob buffer;
 
 		if (si.sName == "")
-		{  // enable this for bonus sound effects
-//logger->Info("AudioPlayer: trying to load bonus sound {}", eSoundID);
-//buffer = LoadSound(int(eSoundID));
+		{
+			// enable this for bonus sound effects
+			//logger->Info("AudioPlayer: trying to load bonus sound {}", eSoundID);
+			//buffer = LoadSound(int(eSoundID));
 		}
 		else
 		{
@@ -657,38 +660,55 @@ bool AudioSamplePool::hasPlaying()
 	return false;
 }
 
-#pragma pack(push, 1)
-struct SoundHeader_mm7
+void AudioPlayer::FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8)
 {
-	char pSoundName[40];
-	uint32_t uFileOffset;
-	uint32_t uCompressedSize;
-	uint32_t uDecompressedSize;
-};
-#pragma pack(pop)
+	Assert(!data_mm6);
+	Assert(!data_mm8);
 
-void AudioPlayer::LoadAudioSnd()
-{
-	static_assert(sizeof(SoundHeader_mm7) == 52, "Wrong type size");
+	mSoundHeaders.clear();
 
-	std::string file_path = MakeDataPath("sounds", "audio.snd");
-	fAudioSnd.open(MakeDataPath("sounds", "audio.snd"));
+	std::vector<SoundHeader> sound_headers;
 
-	uint32_t uNumSoundHeaders{};
-	fAudioSnd.readOrFail(&uNumSoundHeaders, sizeof(uNumSoundHeaders));
-	for (uint32_t i = 0; i < uNumSoundHeaders; i++)
+	if (data_mm6)
 	{
-		SoundHeader_mm7 header_mm7;
-		fAudioSnd.readOrFail(&header_mm7, sizeof(header_mm7));
-		SoundHeader header;
-		header.uFileOffset = header_mm7.uFileOffset;
-		header.uCompressedSize = header_mm7.uCompressedSize;
-		header.uDecompressedSize = header_mm7.uDecompressedSize;
-		mSoundHeaders[toLower(header_mm7.pSoundName)] = header;
+		BlobDeserializer stream(data_mm6);
+		stream.ReadLegacyVector<data::mm6::SoundHeader>(&sound_headers);
+
+		for (auto&& sound_header: sound_headers)
+		{
+			mSoundHeaders.emplace(std::move(sound_header.sName), std::move(sound_header));
+		}
 	}
+
+	if (data_mm7)
+	{
+		BlobDeserializer stream(data_mm7);
+		stream.ReadLegacyVector<data::mm7::SoundHeader>(&sound_headers);
+
+		for (auto&& sound_header : sound_headers)
+		{
+			mSoundHeaders.emplace(std::move(sound_header.sName), std::move(sound_header));
+		}
+	}
+
+	if (data_mm8)
+	{
+		BlobDeserializer stream(data_mm8);
+		stream.ReadLegacyVector<data::mm8::SoundHeader>(&sound_headers);
+
+		for (auto&& sound_header : sound_headers)
+		{
+			mSoundHeaders.emplace(std::move(sound_header.sName), std::move(sound_header));
+		}
+	}
+
+	Assert(!mSoundHeaders.empty());
+
+	// TODO: retain blobs
+	fAudioSnd.open(MakeDataPath("sounds", "audio.snd"));
 }
 
-void AudioPlayer::Initialize()
+void AudioPlayer::Initialize(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8)
 {
 	currentMusicTrack = MUSIC_Invalid;
 	uMasterVolume = 127;
@@ -699,7 +719,8 @@ void AudioPlayer::Initialize()
 	{
 		SetMusicVolume(engine->config->settings.MusicLevel.value());
 	}
-	LoadAudioSnd();
+
+	FromFile(data_mm6, data_mm7, data_mm8);
 
 	bPlayerReady = true;
 }
@@ -714,45 +735,63 @@ void PlayLevelMusic()
 }
 
 
-bool AudioPlayer::FindSound(const std::string& pName, AudioPlayer::SoundHeader* header)
+bool AudioPlayer::FindSound(const std::string& pName, const SoundHeader* (&header)) const
 {
-	if (header == nullptr)
-	{
-		return false;
-	}
-
-	std::map<std::string, SoundHeader>::iterator it = mSoundHeaders.find(toLower(pName));
+	auto it = mSoundHeaders.find(toLower(pName));
 	if (it == mSoundHeaders.end())
 	{
 		return false;
 	}
 
-	*header = it->second;
+	header = &it->second;
 
 	return true;
 }
 
 
 Blob AudioPlayer::LoadSound(int uSoundID)
-{  // bit of a kludge (load sound by ID index) - plays some interesting files
-	SoundHeader header = { 0 };
+{
+	// bit of a kludge (load sound by ID index) - plays some interesting files
 
-	if (uSoundID < 0 || uSoundID > mSoundHeaders.size())
+	if (uSoundID < 0 || uSoundID >= mSoundHeaders.size())
 		return {};
 
 	// iterate through to get sound by int ID
-	std::map<std::string, SoundHeader>::iterator it = mSoundHeaders.begin();
+	auto it = std::begin(mSoundHeaders);
+
 	std::advance(it, uSoundID);
 
-	if (it == mSoundHeaders.end())
-		return {};
+	Assert(it != std::end(mSoundHeaders));
 
-	header = it->second;
+	return LoadSoundInternal(it->second);
+}
 
-	fAudioSnd.seek(header.uFileOffset);
-	if (header.uCompressedSize >= header.uDecompressedSize)
+
+Blob AudioPlayer::LoadSound(const std::string& pSoundName)
+{
+	const SoundHeader* header = nullptr;
+	if (!FindSound(pSoundName, header))
 	{
-		header.uCompressedSize = header.uDecompressedSize;
+		logger->warning("AudioPlayer: {} can't load sound header!", pSoundName);
+		return Blob();
+	}
+
+	// TODO: handle error
+	// logger->warning("AudioPlayer: {} can't load sound file!", pSoundName);
+	return LoadSoundInternal(*header);
+}
+
+Blob AudioPlayer::LoadSoundInternal(const SoundHeader& header)
+{
+	fAudioSnd.seek(header.uFileOffset);
+	if (header.uCompressedSize < header.uDecompressedSize)
+	{
+		return zlib::Uncompress(Blob::read(fAudioSnd, header.uCompressedSize), header.uDecompressedSize);
+	}
+	else
+	{
+		Assert(header.uCompressedSize == header.uDecompressedSize);
+
 		if (header.uDecompressedSize)
 		{
 			return Blob::read(fAudioSnd, header.uDecompressedSize);
@@ -760,42 +799,8 @@ Blob AudioPlayer::LoadSound(int uSoundID)
 		else
 		{
 			logger->warning("Can't load sound file!");
-			return Blob();
+			return {};
 		}
-	}
-	else
-	{
-		return zlib::Uncompress(Blob::read(fAudioSnd, header.uCompressedSize), header.uDecompressedSize);
-	}
-}
-
-
-Blob AudioPlayer::LoadSound(const std::string& pSoundName)
-{
-	SoundHeader header = { 0 };
-	if (!FindSound(pSoundName, &header))
-	{
-		logger->warning("AudioPlayer: {} can't load sound header!", pSoundName);
-		return Blob();
-	}
-
-	fAudioSnd.seek(header.uFileOffset);
-	if (header.uCompressedSize >= header.uDecompressedSize)
-	{
-		header.uCompressedSize = header.uDecompressedSize;
-		if (header.uDecompressedSize)
-		{
-			return Blob::read(fAudioSnd, header.uDecompressedSize);
-		}
-		else
-		{
-			logger->warning("AudioPlayer: {} can't load sound file!", pSoundName);
-			return Blob();
-		}
-	}
-	else
-	{
-		return zlib::Uncompress(Blob::read(fAudioSnd, header.uCompressedSize), header.uDecompressedSize);
 	}
 }
 
@@ -804,4 +809,3 @@ void AudioPlayer::playSpellSound(SPELL_TYPE spell, unsigned int pid, bool is_imp
 	if (spell != SPELL_NONE)
 		playSound(static_cast<SoundID>(SpellSoundIds[spell] + is_impact), pid, 0, -1, 0, 0);
 }
-
