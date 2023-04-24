@@ -36,6 +36,9 @@ class TextureFrame;
 class TileDesc;
 struct DecorationDesc;
 struct ObjectDesc;
+struct ChestDesc;
+struct OverlayDesc;
+class SoundDesc;
 
 namespace data
 {
@@ -1131,6 +1134,90 @@ namespace data::mm7
 namespace data::mm8
 {
 	using data::mm7::ObjectDesc;
+}
+
+namespace data::mm6
+{
+	struct ChestDesc
+	{
+		std::array<char, 32> pName;
+		uint8_t uWidth;
+		uint8_t uHeight;
+		uint16_t uTextureID;
+	};
+
+	static_assert(sizeof(ChestDesc) == 0x24);
+
+	void Deserialize(const ChestDesc& src, ::ChestDesc* dst);
+}
+
+namespace data::mm7
+{
+	using data::mm6::ChestDesc;
+}
+
+namespace data::mm8
+{
+	using data::mm6::ChestDesc;
+}
+
+namespace data::mm6
+{
+	struct OverlayDesc
+	{
+		uint16_t uOverlayID;
+		uint16_t uOverlayType;
+		uint16_t uSpriteFramesetID;
+		int16_t field_6;
+	};
+
+	static_assert(sizeof(OverlayDesc) == 0x8);
+
+	void Deserialize(const OverlayDesc& src, ::OverlayDesc* dst);
+}
+
+namespace data::mm7
+{
+	using data::mm6::OverlayDesc;
+}
+
+namespace data::mm8
+{
+	using data::mm6::OverlayDesc;
+}
+
+namespace data::mm6
+{
+	struct SoundDesc
+	{
+		std::array<char, 32> pSoundName;
+		uint32_t uSoundID;
+		uint32_t eType;
+		uint32_t uFlags;
+		std::array<uint32_t, 17> pSoundDataID;
+	};
+
+	static_assert(sizeof(SoundDesc) == 0x70);
+
+	void Deserialize(const SoundDesc& src, ::SoundDesc* dst);
+}
+
+namespace data::mm7
+{
+	struct SoundDesc : data::mm6::SoundDesc
+	{
+		uint32_t p3DSoundID;
+		uint32_t bDecompressed;
+	};
+
+	static_assert(sizeof(SoundDesc) == 0x78);
+
+	void Deserialize(const SoundDesc& src, ::SoundDesc* dst);
+}
+
+namespace data::mm8
+{
+	using data::mm7::SoundDesc;
 }
 
 #pragma pack(pop)

@@ -7,6 +7,9 @@
 #include "Engine/Objects/Actor.h"
 #include "Engine/Objects/SpriteObject.h"
 #include "Engine/Party.h"
+#include "Engine/Serialization/Deserializer.h"
+#include "Engine/Serialization/Serializer.h"
+#include "Engine/Serialization/LegacyImages.h"
 
 #include "Media/Audio/OpenALSoundProvider.h"
 
@@ -14,23 +17,18 @@ int sLastTrackLengthMS;
 AudioPlayer* pAudioPlayer;
 SoundList* pSoundList;
 
-std::array<float, 10> pSoundVolumeLevels = {
-	{0.0000000f, 0.1099999f, 0.2199999f, 0.3300000f, 0.4399999f, 0.5500000f,
-	 0.6600000f, 0.7699999f, 0.8799999f, 0.9700000f} };
-
-enum SOUND_TYPE
+std::array<float, 10> pSoundVolumeLevels =
 {
-	SOUND_TYPE_LEVEL = 0,
-	SOUND_TYPE_SYSTEM = 1,
-	SOUND_TYPE_SWAP = 2,
-	SOUND_TYPE_UNKNOWN = 3,
-	SOUND_TYPE_LOCK = 4,
-};
-
-enum SOUND_FLAG
-{
-	SOUND_FLAG_LOCKED = 0x1,
-	SOUND_FLAG_3D = 0x2,
+	0.0000000f,
+	0.1099999f,
+	0.2199999f,
+	0.3300000f,
+	0.4399999f,
+	0.5500000f,
+	0.6600000f,
+	0.7699999f,
+	0.8799999f,
+	0.9700000f,
 };
 
 // Max value used for volume control
@@ -40,77 +38,53 @@ static const float maxVolumeGain = 1.0f;
 // TODO(Nik-RE-dev): investigate importance of applying scaling to position coordinates
 static const float positionScaling = 50.0f;
 
-class SoundInfo
+std::map<uint32_t, SoundDesc> mapSounds;
+
+void SoundList::Initialize()
 {
-public:
-	bool Is3D() { return ((uFlags & SOUND_FLAG_3D) == SOUND_FLAG_3D); }
-
-public:
-	std::string sName;
-	SOUND_TYPE eType;
-	uint32_t uSoundID;
-	uint32_t uFlags;
-	std::shared_ptr<Blob> buffer;
-	PAudioDataSource dataSource;
-};
-
-std::map<uint32_t, SoundInfo> mapSounds;
-
-#pragma pack(push, 1)
-struct SoundDesc_mm6
-{
-	uint8_t pSoundName[32];
-	uint32_t uSoundID;
-	uint32_t eType;
-	uint32_t uFlags;
-	uint32_t pSoundDataID[17];
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-struct SoundDesc : public SoundDesc_mm6
-{
-	uint32_t p3DSoundID;
-	uint32_t bDecompressed;
-};
-#pragma pack(pop)
-
-void SoundList::Initialize() {}
+}
 
 void SoundList::FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8)
 {
-	static_assert(sizeof(SoundDesc_mm6) == 112, "Wrong type size");
-	static_assert(sizeof(SoundDesc) == 120, "Wrong type size");
+	Assert(!data_mm6);
+	Assert(!data_mm8);
 
-	size_t num_mm6_sounds = data_mm6 ? *(uint32_t*)data_mm6.data() : 0;
-	size_t num_mm7_sounds = data_mm7 ? *(uint32_t*)data_mm7.data() : 0;
-	size_t num_mm8_sounds = data_mm8 ? *(uint32_t*)data_mm8.data() : 0;
+	std::vector<SoundDesc> sounds;
 
-	unsigned int sNumSounds = num_mm6_sounds + num_mm7_sounds + num_mm8_sounds;
-	assert(sNumSounds);
-	assert(!num_mm8_sounds);
-
-	SoundDesc* sounds = (SoundDesc*)((char*)data_mm7.data() + 4);
-	for (size_t i = 0; i < num_mm7_sounds; i++)
+	if (data_mm6)
 	{
-		SoundInfo si;
-		si.sName = (char*)sounds[i].pSoundName;
-		si.uSoundID = sounds[i].uSoundID;
-		si.eType = (SOUND_TYPE)sounds[i].eType;
-		si.uFlags = sounds[i].uFlags;
-		mapSounds[si.uSoundID] = si;
+		BlobDeserializer stream(data_mm6);
+		stream.ReadLegacyVector<data::mm6::SoundDesc>(&sounds);
+
+		for (auto&& sound_desc : sounds)
+		{
+			mapSounds.emplace(sound_desc.uSoundID, std::move(sound_desc));
+		}
 	}
 
-	SoundDesc_mm6* sounds_mm6 = (SoundDesc_mm6*)((char*)data_mm6.data() + 4);
-	for (size_t i = 0; i < num_mm6_sounds; i++)
+	if (data_mm7)
 	{
-		SoundInfo si;
-		si.sName = (char*)sounds_mm6[i].pSoundName;
-		si.uSoundID = sounds_mm6[i].uSoundID;
-		si.eType = (SOUND_TYPE)sounds_mm6[i].eType;
-		si.uFlags = sounds_mm6[i].uFlags;
-		mapSounds[si.uSoundID] = si;
+		BlobDeserializer stream(data_mm7);
+		stream.ReadLegacyVector<data::mm7::SoundDesc>(&sounds);
+
+		for (auto&& sound_desc : sounds)
+		{
+			mapSounds.emplace(sound_desc.uSoundID, std::move(sound_desc));
+		}
 	}
+
+	if (data_mm8)
+	{
+		BlobDeserializer stream(data_mm8);
+		stream.ReadLegacyVector<data::mm8::SoundDesc>(&sounds);
+
+		for (auto&& sound_desc : sounds)
+		{
+			mapSounds.emplace(sound_desc.uSoundID, std::move(sound_desc));
+		}
+	}
+
+	Assert(!mapSounds.empty());
 }
 
 extern OpenALSoundProvider* provider;
@@ -306,7 +280,7 @@ void AudioPlayer::playSound(SoundID eSoundID, int pid, unsigned int uNumRepeats,
 		return;
 	}
 
-	SoundInfo& si = mapSounds[eSoundID];
+	SoundDesc& si = mapSounds[eSoundID];
 	//logger->Info("AudioPlayer: sound id {} found as '{}'", eSoundID, si.sName);
 
 	if (!si.dataSource)

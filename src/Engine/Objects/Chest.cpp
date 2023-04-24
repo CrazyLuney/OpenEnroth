@@ -13,6 +13,9 @@
 #include "Engine/Objects/ItemTable.h"
 #include "Engine/Objects/ObjectList.h"
 #include "Engine/Objects/SpriteObject.h"
+#include "Engine/Serialization/Deserializer.h"
+#include "Engine/Serialization/Serializer.h"
+#include "Engine/Serialization/LegacyImages.h"
 #include "Engine/OurMath.h"
 #include "Engine/Party.h"
 
@@ -490,55 +493,32 @@ void Chest::ToggleFlag(int uChestID, CHEST_FLAG uFlag, bool bValue)
 	}
 }
 
-#pragma pack(push, 1)
-struct ChestDesc_mm7
-{
-	char pName[32];
-	char uWidth;
-	char uHeight;
-	int16_t uTextureID;
-};
-#pragma pack(pop)
-
-ChestDesc::ChestDesc(struct ChestDesc_mm7* pChest)
-{
-	sName = pChest->pName;
-	uWidth = pChest->uWidth;
-	uHeight = pChest->uHeight;
-	uTextureID = pChest->uTextureID;
-}
-
 void ChestList::FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8)
 {
-	static_assert(sizeof(ChestDesc_mm7) == 36, "Wrong type size");
+	Assert(!data_mm6);
+	Assert(!data_mm8);
 
-	unsigned int num_mm6_chests = data_mm6 ? *(uint32_t*)data_mm6.data() : 0;
-	unsigned int num_mm7_chests = data_mm7 ? *(uint32_t*)data_mm7.data() : 0;
-	unsigned int num_mm8_chests = data_mm8 ? *(uint32_t*)data_mm8.data() : 0;
+	vChests.clear();
 
-	assert(num_mm7_chests);
-	assert(!num_mm8_chests);
-
-	ChestDesc_mm7* pChests = (ChestDesc_mm7*)((char*)data_mm7.data() + 4);
-	for (int i = 0; i < num_mm7_chests; i++)
+	if (data_mm6)
 	{
-		ChestDesc chest(pChests + i);
-		vChests.push_back(chest);
+		BlobDeserializer stream(data_mm6);
+		stream.ReadLegacyVector<data::mm6::ChestDesc>(&vChests, Deserializer::Append);
 	}
 
-	pChests = (ChestDesc_mm7*)((char*)data_mm6.data() + 4);
-	for (int i = 0; i < num_mm6_chests; i++)
+	if (data_mm7)
 	{
-		ChestDesc chest(pChests + i);
-		vChests.push_back(chest);
+		BlobDeserializer stream(data_mm7);
+		stream.ReadLegacyVector<data::mm7::ChestDesc>(&vChests, Deserializer::Append);
 	}
 
-	pChests = (ChestDesc_mm7*)((char*)data_mm8.data() + 4);
-	for (int i = 0; i < num_mm8_chests; i++)
+	if (data_mm8)
 	{
-		ChestDesc chest(pChests + i);
-		vChests.push_back(chest);
+		BlobDeserializer stream(data_mm8);
+		stream.ReadLegacyVector<data::mm8::ChestDesc>(&vChests, Deserializer::Append);
 	}
+
+	Assert(!vChests.empty());
 }
 
 size_t ChestsSerialize(char* pData)

@@ -227,8 +227,8 @@ public:
 		return pPlaceStrings[uMonsterInfoID - 1];
 	}
 private:
-	std::vector<MonsterInfo> pInfos; // 0 - 5b18h
-	std::vector<MonsterPlacementInfo> pPlaceStrings; // 5B18h placement counts from 1
+	std::vector<MonsterInfo> pInfos;
+	std::vector<MonsterPlacementInfo> pPlaceStrings;
 };
 #pragma pack(pop)
 
@@ -251,7 +251,6 @@ struct MonsterList
 	int16_t GetMonsterIDByName(const char* pMonsterName);
 	void ToFile();
 	void FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8);
-	bool FromFileTxt(const char* Args);
 
 	std::vector<MonsterDesc> pMonsters;
 };

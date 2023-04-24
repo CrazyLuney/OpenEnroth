@@ -312,7 +312,34 @@ protected:
 	PAudioSample _currentWalkingSample;
 };
 
-struct SoundDesc;
+enum SOUND_TYPE
+{
+	SOUND_TYPE_LEVEL = 0,
+	SOUND_TYPE_SYSTEM = 1,
+	SOUND_TYPE_SWAP = 2,
+	SOUND_TYPE_UNKNOWN = 3,
+	SOUND_TYPE_LOCK = 4,
+};
+
+enum SOUND_FLAG
+{
+	SOUND_FLAG_LOCKED = 0x1,
+	SOUND_FLAG_3D = 0x2,
+};
+
+class SoundDesc
+{
+public:
+	bool Is3D() { return ((uFlags & SOUND_FLAG_3D) == SOUND_FLAG_3D); }
+
+public:
+	std::string sName;
+	SOUND_TYPE eType;
+	uint32_t uSoundID;
+	uint32_t uFlags;
+	std::shared_ptr<Blob> buffer;
+	PAudioDataSource dataSource;
+};
 
 class SoundList
 {

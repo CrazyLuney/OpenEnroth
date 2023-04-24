@@ -6,12 +6,15 @@
 #include "Engine/Graphics/Sprites.h"
 #include "Engine/Graphics/DecorationList.h"
 #include "Engine/Objects/Actor.h"
+#include "Engine/Objects/Chest.h"
 #include "Engine/Objects/NPC.h"
 #include "Engine/Objects/ObjectList.h"
 #include "Engine/Party.h"
 #include "Engine/Tables/IconFrameTable.h"
 #include "Engine/Tables/TileTable.h"
 #include "Engine/Time.h"
+
+#include "Media/Audio/AudioPlayer.h"
 
 #include "Utility/Color.h"
 #include "Utility/Memory/MemSet.h"
@@ -1802,5 +1805,48 @@ namespace data::mm7
 		dst->field_35_clr = src.field_35_clr;
 		dst->field_36_clr = src.field_36_clr;
 		dst->field_37_clr = src.field_37_clr;
+	}
+}
+
+namespace data::mm6
+{
+	void Deserialize(const ChestDesc& src, ::ChestDesc* dst)
+	{
+		detail::Deserialize(src.pName, &dst->sName);
+
+		dst->uWidth = src.uWidth;
+		dst->uHeight = src.uHeight;
+		dst->uTextureID = src.uTextureID;
+	}
+}
+
+namespace data::mm6
+{
+	void Deserialize(const OverlayDesc& src, ::OverlayDesc* dst)
+	{
+		dst->uOverlayID = src.uOverlayID;
+		dst->uOverlayType = src.uOverlayType;
+		dst->uSpriteFramesetID = src.uSpriteFramesetID;
+		dst->field_6 = src.field_6;
+	}
+}
+
+namespace data::mm6
+{
+	void Deserialize(const SoundDesc& src, ::SoundDesc* dst)
+	{
+		detail::Deserialize(src.pSoundName, &dst->sName);
+
+		dst->uSoundID = src.uSoundID;
+		dst->eType = static_cast<SOUND_TYPE>(src.eType);
+		dst->uFlags = src.uFlags;
+	}
+}
+
+namespace data::mm7
+{
+	void Deserialize(const SoundDesc& src, ::SoundDesc* dst)
+	{
+		data::mm6::Deserialize(src, dst);
 	}
 }

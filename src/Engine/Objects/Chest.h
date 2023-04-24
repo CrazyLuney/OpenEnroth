@@ -17,8 +17,6 @@ MM_DECLARE_OPERATORS_FOR_FLAGS(CHEST_FLAGS)
 
 struct ChestDesc
 {
-	explicit ChestDesc(struct ChestDesc_mm7* pChest);
-
 	std::string sName;
 	unsigned int uWidth;
 	unsigned int uHeight;
@@ -28,10 +26,7 @@ struct ChestDesc
 class ChestList
 {
 public:
-	ChestList() {}
-
 	void FromFile(const Blob& data_mm6, const Blob& data_mm7, const Blob& data_mm8);
-
 public:
 	std::vector<ChestDesc> vChests;
 };
@@ -39,7 +34,8 @@ public:
 /*   65 */
 #pragma pack(push, 1)
 struct Chest
-{  // 0x14cc
+{
+	// 0x14cc
 	inline bool Initialized() const
 	{
 		return uFlags & CHEST_ITEMS_PLACED;

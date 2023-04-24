@@ -51,8 +51,7 @@ public:
 	unsigned int ObjectIDByItemID(unsigned int uItemID);
 
 public:
-	size_t uNumObjects = 0;
-	std::unique_ptr<ObjectDesc[]> pObjects;
+	std::vector<ObjectDesc> pObjects;
 };
 
 extern ObjectList* pObjectList;
