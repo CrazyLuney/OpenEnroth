@@ -27,27 +27,26 @@ using Io::Mouse;
 void Engine_DeinitializeAndTerminate(int exitCode);
 
 /*  320 */
-enum class GAME_STATE
+enum class GameState
 {
-	GAME_STATE_PLAYING = 0,
-	GAME_FINISHED = 1,
-	GAME_STATE_CHANGE_LOCATION = 2,
-	GAME_STATE_LOADING_GAME = 3,
-	GAME_STATE_NEWGAME_OUT_GAMEMENU = 4,
-	GAME_STATE_5 = 5,
-	GAME_STATE_STARTING_NEW_GAME = 6,
-	GAME_STATE_GAME_QUITTING_TO_MAIN_MENU = 7,
-	GAME_STATE_PARTY_DIED = 8,
-	GAME_STATE_FINAL_WINDOW = 9,
-	GAME_STATE_A = 10
+	Playing = 0,
+	Finished = 1,
+	ChangeLocation = 2,
+	LoadingGame = 3,
+	NewGameOutGameMenu = 4,
+	Five = 5,
+	StartingNewGame = 6,
+	QuittingToMainMenu = 7,
+	PartyDied = 8,
+	FinalWindow = 9,
+	Ten = 10,
 };
-using enum GAME_STATE;
 
-extern GAME_STATE uGameState;
+extern GameState uGameState;
 
 /*  105 */
 #pragma pack(push, 1)
-struct Game__StationaryLight
+struct Game_StationaryLight
 {
 	Vec3f vPosition;
 	Vec3f vRGBColor;
@@ -151,7 +150,7 @@ public:
 
 
 	std::shared_ptr<GameConfig> config;
-	Game__StationaryLight pStationaryLights[25];
+	Game_StationaryLight pStationaryLights[25];
 	char field_2C0[1092];
 	unsigned int uNumStationaryLights;
 	Game_Bloodsplat pBloodsplats[20];

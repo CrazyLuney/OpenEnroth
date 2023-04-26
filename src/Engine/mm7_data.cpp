@@ -21,7 +21,9 @@ std::array<AwardType, 1000> achieved_awards;
 int num_achieved_awards;
 int full_num_items_in_book;
 
-std::array<stru160, 66> array_4EB8B8 = {  // vertices for spheres
+// vertices for spheres
+std::array<stru160, 66> array_4EB8B8 =
+{
 	{stru160(0.0000000f, 0.0000000f, 1.0000000f),
 	 stru160(0.0000000f, 0.3826830f, 0.9238799f),
 	 stru160(0.3826830f, 0.0000000f, 0.9238799f),

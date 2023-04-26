@@ -40,7 +40,7 @@ void Game_StartNewGameWhilePlaying(bool force_start)
 	{
 		pCurrentFrameMessageQueue->Flush();
 		// pGUIWindow_CurrentMenu->Release();
-		uGameState = GAME_STATE_NEWGAME_OUT_GAMEMENU;
+		uGameState = GameState::NewGameOutGameMenu;
 		current_screen_type = CURRENT_SCREEN::SCREEN_GAME;
 	}
 	else
@@ -60,7 +60,7 @@ void Game_QuitGameWhilePlaying(bool force_quit)
 		current_screen_type = CURRENT_SCREEN::SCREEN_GAME;
 		pAudioPlayer->stopSounds();
 		pAudioPlayer->playUISound(SOUND_WoodDoorClosing);
-		uGameState = GAME_STATE_GAME_QUITTING_TO_MAIN_MENU;
+		uGameState = GameState::QuittingToMainMenu;
 	}
 	else
 	{
@@ -151,7 +151,7 @@ void Menu::EventLoop()
 			if (pSavegameUsedSlots[uLoadGameUI_SelectedSlot])
 			{
 				LoadGame(uLoadGameUI_SelectedSlot);
-				uGameState = GAME_STATE_LOADING_GAME;
+				uGameState = GameState::LoadingGame;
 			}
 			continue;
 		case UIMSG_SaveGame:
@@ -511,7 +511,7 @@ void Menu::MenuLoop()
 	render->SaveScreenshot("gamma.pcx", 155, 117);
 	gamma_preview_image = assets->GetImage_PCXFromFile("gamma.pcx");
 
-	while (uGameState == GAME_STATE_PLAYING &&
+	while (uGameState == GameState::Playing &&
 		(current_screen_type == CURRENT_SCREEN::SCREEN_MENU ||
 			current_screen_type == CURRENT_SCREEN::SCREEN_SAVEGAME ||
 			current_screen_type == CURRENT_SCREEN::SCREEN_LOADGAME ||

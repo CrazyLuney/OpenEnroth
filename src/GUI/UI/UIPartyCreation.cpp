@@ -204,7 +204,7 @@ void CreateParty_EventLoop()
 				game_ui_status_bar_event_string_time_left =
 				platform->tickCount() + 4000;
 			else
-				uGameState = GAME_STATE_STARTING_NEW_GAME;
+				uGameState = GameState::StartingNewGame;
 			break;
 		case UIMSG_PlayerCreationClickReset:
 			new OnButtonClick2({ 527, 431 }, { 0, 0 }, pPlayerCreationUI_BtnReset);
@@ -255,7 +255,7 @@ void CreateParty_EventLoop()
 			}
 			break;
 		case UIMSG_ChangeGameState:
-			uGameState = GAME_FINISHED;
+			uGameState = GameState::Finished;
 			break;
 		default:
 			break;
@@ -817,18 +817,16 @@ bool PartyCreationUI_LoopInternal()
 		render->BeginScene2D();
 		GUI_UpdateWindows();
 		render->Present();
-		if (uGameState ==
-			GAME_FINISHED)
+		if (uGameState == GameState::Finished)
 		{  // if click Esc in PlayerCreation Window
 			party_not_creation_flag = true;
 			SetCurrentMenuID(MENU_MAIN);
 			continue;
 		}
-		if (uGameState ==
-			GAME_STATE_STARTING_NEW_GAME)
+		if (uGameState == GameState::StartingNewGame)
 		{  // if click OK in PlayerCreation
 		  // Window
-			uGameState = GAME_STATE_PLAYING;
+			uGameState = GameState::Playing;
 			SetCurrentMenuID(MENU_NEWGAME);
 			continue;
 		}

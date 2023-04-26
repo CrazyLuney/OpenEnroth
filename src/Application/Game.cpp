@@ -226,7 +226,7 @@ int Game::run()
 	while (true)
 	{
 		GUIWindow_MainMenu::Loop();
-		uGameState = GAME_STATE_PLAYING;
+		uGameState = GameState::Playing;
 
 		if (!loop())
 		{
@@ -260,8 +260,7 @@ bool Game::loop()
 {
 	while (true)
 	{
-		if (uGameState == GAME_FINISHED ||
-			GetCurrentMenuID() == MENU_EXIT_GAME)
+		if (uGameState == GameState::Finished || GetCurrentMenuID() == MENU_EXIT_GAME)
 		{
 			return false;
 		}
@@ -270,7 +269,7 @@ bool Game::loop()
 			MainMenuLoad_Loop();
 			if (GetCurrentMenuID() == MENU_LoadingProcInMainMenu)
 			{
-				uGameState = GAME_STATE_PLAYING;
+				uGameState = GameState::Playing;
 				gameLoop();
 			}
 			break;
@@ -295,13 +294,13 @@ bool Game::loop()
 			}
 
 			gameLoop();
-			if (uGameState == GAME_STATE_NEWGAME_OUT_GAMEMENU)
+			if (uGameState == GameState::NewGameOutGameMenu)
 			{
 				SetCurrentMenuID(MENU_NEWGAME);
-				uGameState = GAME_STATE_PLAYING;
+				uGameState = GameState::Playing;
 				continue;
 			}
-			else if (uGameState == GAME_STATE_GAME_QUITTING_TO_MAIN_MENU)
+			else if (uGameState == GameState::QuittingToMainMenu)
 			{
 				break;
 			}
@@ -315,7 +314,7 @@ bool Game::loop()
 		}
 		else if (GetCurrentMenuID() == MENU_5 || GetCurrentMenuID() == MENU_LoadingProcInMainMenu)
 		{
-			uGameState = GAME_STATE_PLAYING;
+			uGameState = GameState::Playing;
 			gameLoop();
 		}
 		else if (GetCurrentMenuID() == MENU_DebugBLVLevel)
@@ -339,21 +338,21 @@ bool Game::loop()
 			_mouse->ChangeActivation(1);
 			gameLoop();
 		}
-		if (uGameState == GAME_STATE_LOADING_GAME)
+		if (uGameState == GameState::LoadingGame)
 		{
 			SetCurrentMenuID(MENU_5);
-			uGameState = GAME_STATE_PLAYING;
+			uGameState = GameState::Playing;
 			continue;
 		}
-		if (uGameState == GAME_STATE_NEWGAME_OUT_GAMEMENU)
+		if (uGameState == GameState::NewGameOutGameMenu)
 		{
 			SetCurrentMenuID(MENU_NEWGAME);
-			uGameState = GAME_STATE_PLAYING;
+			uGameState = GameState::Playing;
 			continue;
 		}
-		if (uGameState == GAME_STATE_GAME_QUITTING_TO_MAIN_MENU)
+		if (uGameState == GameState::QuittingToMainMenu)
 		{  // from the loaded game
-			uGameState = GAME_STATE_PLAYING;
+			uGameState = GameState::Playing;
 			break;
 		}
 	}
@@ -528,7 +527,7 @@ void Game::processQueuedMessages()
 			switch (uMessage)
 			{
 			case UIMSG_ChangeGameState:
-				uGameState = GAME_FINISHED;
+				uGameState = GameState::Finished;
 				continue;
 			case UIMSG_PlayArcomage:
 				BackToHouseMenu();
@@ -887,7 +886,7 @@ void Game::processQueuedMessages()
 								{
 									uDialogueType = DIALOGUE_NULL;
 								}
-								if (uGameState == GAME_STATE_CHANGE_LOCATION)
+								if (uGameState == GameState::ChangeLocation)
 								{
 									while (HouseDialogPressCloseBtn()) {}
 								}
@@ -1256,7 +1255,7 @@ void Game::processQueuedMessages()
 				SaveGame(1, 0);
 				pCurrentMapName = pMapStats->pInfos[uHouse_ExitPic].pFilename;
 				dword_6BE364_game_settings_1 |= GAME_SETTINGS_0001;
-				uGameState = GAME_STATE_CHANGE_LOCATION;
+				uGameState = GameState::ChangeLocation;
 				// v53 = p2DEvents_minus1_::30[26 * (unsigned
 				// int)ptr_507BC0->ptr_1C];
 				v53 = p2DEvents[window_SpeakInHouse->wData.val - 1]._quest_bit;
@@ -1372,7 +1371,7 @@ void Game::processQueuedMessages()
 						OnMapLeave();
 						pCurrentMapName = pGames_LOD->GetSubNodeName(player.vBeacons[uMessageParam].SaveFileID);
 						dword_6BE364_game_settings_1 |= GAME_SETTINGS_0001;
-						uGameState = GAME_STATE_CHANGE_LOCATION;
+						uGameState = GameState::ChangeLocation;
 						Party_Teleport_X_Pos = player.vBeacons[uMessageParam].PartyPos_X;
 						Party_Teleport_Y_Pos = player.vBeacons[uMessageParam].PartyPos_Y;
 						Party_Teleport_Z_Pos = player.vBeacons[uMessageParam].PartyPos_Z;
@@ -1423,7 +1422,7 @@ void Game::processQueuedMessages()
 				{  // if change map
 					OnMapLeave();
 					dword_6BE364_game_settings_1 |= GAME_SETTINGS_0001;
-					uGameState = GAME_STATE_CHANGE_LOCATION;
+					uGameState = GameState::ChangeLocation;
 					pCurrentMapName = pMapStats->pInfos[TownPortalList[uMessageParam].uMapInfoID].pFilename;
 					Start_Party_Teleport_Flag = 1;
 					Party_Teleport_X_Pos = TownPortalList[uMessageParam].pos.x;
@@ -1508,7 +1507,7 @@ void Game::processQueuedMessages()
 			case UIMSG_ShowGameOverWindow:
 			{
 				pGameOverWindow = new GUIWindow_GameOver();
-				uGameState = GAME_STATE_FINAL_WINDOW;
+				uGameState = GameState::FinalWindow;
 				continue;
 			}
 			case UIMSG_OnGameOverWindowClose:
@@ -1536,7 +1535,7 @@ void Game::processQueuedMessages()
 				PrepareWorld(1);
 				Actor::InitializeActors();
 
-				uGameState = GAME_STATE_PLAYING;
+				uGameState = GameState::Playing;
 
 				for (Player& player : pParty->pPlayers)
 				{
@@ -1564,7 +1563,7 @@ void Game::processQueuedMessages()
 					{
 						pCurrentMapName = map_name;
 						dword_6BE364_game_settings_1 |= GAME_SETTINGS_0001;
-						uGameState = GAME_STATE_CHANGE_LOCATION;
+						uGameState = GameState::ChangeLocation;
 						OnMapLeave();
 						continue;
 					}
@@ -2641,7 +2640,7 @@ void Game::gameLoop()
 	SetCurrentMenuID((MENU_STATE)-1);
 	if (bLoading)
 	{
-		uGameState = GAME_STATE_PLAYING;
+		uGameState = GameState::Playing;
 		LoadGame(uLoadGameUI_SelectedSlot);
 	}
 
@@ -2698,7 +2697,7 @@ void Game::gameLoop()
 				pMiscTimer->Resume();
 			if (pEventTimer->bTackGameTime && !pParty->bTurnBasedModeOn)
 				pEventTimer->bTackGameTime = 0;
-			if (!pEventTimer->bPaused && uGameState == GAME_STATE_PLAYING)
+			if (!pEventTimer->bPaused && uGameState == GameState::Playing)
 			{
 				if (!pEventTimer->bTackGameTime)
 					_494035_timed_effects__water_walking_damage__etc();
@@ -2719,50 +2718,50 @@ void Game::gameLoop()
 			{
 				GameUI_StatusBar_Clear();
 			}
-			if (uGameState == GAME_STATE_PLAYING)
+			if (uGameState == GameState::Playing)
 			{
 				_engine->Draw();
 				continue;
 			}
-			if (uGameState == GAME_FINISHED)
+			if (uGameState == GameState::Finished)
 			{
 				game_finished = true;
 				continue;
 			}
 
 
-			if (uGameState == GAME_STATE_CHANGE_LOCATION)
+			if (uGameState == GameState::ChangeLocation)
 			{  // смена локации
 				pAudioPlayer->stopSounds();
 				PrepareWorld(0);
-				uGameState = GAME_STATE_PLAYING;
+				uGameState = GameState::Playing;
 				continue;
 			}
 
 			// if ((signed int)uGameState <= GAME_STATE_5 || uGameState ==
 			// GAME_STATE_GAME_QUITTING_TO_MAIN_MENU)//GAME_STATE_NEWGAME_OUT_GAMEMENU,
 			// GAME_STATE_LOADING_GAME
-			if (uGameState == GAME_STATE_LOADING_GAME ||
-				uGameState == GAME_STATE_NEWGAME_OUT_GAMEMENU ||
-				uGameState == GAME_STATE_5 ||
-				uGameState == GAME_STATE_GAME_QUITTING_TO_MAIN_MENU)
+			if (uGameState == GameState::LoadingGame ||
+				uGameState == GameState::NewGameOutGameMenu ||
+				uGameState == GameState::Five ||
+				uGameState == GameState::QuittingToMainMenu)
 			{
 				game_finished = true;
 				continue;
 			}
-			if (uGameState == GAME_STATE_FINAL_WINDOW)
+			if (uGameState == GameState::FinalWindow)
 			{
 				_render->BeginScene2D();
 				GUI_UpdateWindows();
 				_render->Present();
 				continue;
 			}
-			if (uGameState != GAME_STATE_PARTY_DIED)
+			if (uGameState != GameState::PartyDied)
 			{
 				_engine->Draw();
 				continue;
 			}
-			if (uGameState == GAME_STATE_PARTY_DIED)
+			if (uGameState == GameState::PartyDied)
 			{
 				pAudioPlayer->stopSounds();
 				pParty->pHirelings[0] = NPCData();
@@ -2849,7 +2848,7 @@ void Game::gameLoop()
 				}
 
 				GameUI_SetStatusBar(LSTR_CHEATED_THE_DEATH);
-				uGameState = GAME_STATE_PLAYING;
+				uGameState = GameState::Playing;
 
 				// need to flush messages here??
 			}
@@ -2857,10 +2856,10 @@ void Game::gameLoop()
 
 		pEventTimer->Pause();
 		_engine->ResetCursor_Palettes_LODs_Level_Audio_SFT_Windows();
-		if (uGameState == GAME_STATE_LOADING_GAME)
+		if (uGameState == GameState::LoadingGame)
 		{
 			GameUI_LoadPlayerPortraintsAndVoices();
-			uGameState = GAME_STATE_PLAYING;
+			uGameState = GameState::Playing;
 			bLoading = true;
 			continue;
 		}

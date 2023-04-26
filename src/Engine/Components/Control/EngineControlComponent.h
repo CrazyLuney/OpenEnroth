@@ -23,45 +23,46 @@ class PlatformEvent;
  *
  * @see EngineController
  */
-class EngineControlComponent : private ProxyOpenGLContext, private ProxyEventLoop {
- public:
-    using ControlRoutine = std::function<void(EngineController *)>;
+class EngineControlComponent : private ProxyOpenGLContext, private ProxyEventLoop
+{
+public:
+	using ControlRoutine = std::function<void(EngineController*)>;
 
-    EngineControlComponent();
-    virtual ~EngineControlComponent();
+	EngineControlComponent();
+	virtual ~EngineControlComponent();
 
-    /**
-     * Schedules a control routine for execution. It will be started in a control thread from inside the next
-     * `swapBuffers` call. All spontaneous (OS-generated) events will be blocked while the control routine is running.
-     *
-     * If another control routine is already running, passed routine will be added to the queue.
-     *
-     * Don't call this function from a control thread, just call the control routine directly.
-     *
-     * Note that it's up to the user to set up a notification for when the control routine has finished.
-     *
-     * @param routine                   Control routine to schedule.
-     */
-    void runControlRoutine(ControlRoutine routine);
+	/**
+	 * Schedules a control routine for execution. It will be started in a control thread from inside the next
+	 * `swapBuffers` call. All spontaneous (OS-generated) events will be blocked while the control routine is running.
+	 *
+	 * If another control routine is already running, passed routine will be added to the queue.
+	 *
+	 * Don't call this function from a control thread, just call the control routine directly.
+	 *
+	 * Note that it's up to the user to set up a notification for when the control routine has finished.
+	 *
+	 * @param routine                   Control routine to schedule.
+	 */
+	void runControlRoutine(ControlRoutine routine);
 
-    /**
-     * @return                          Whether there is a control routine running or queued.
-     */
-    bool hasControlRoutine() const;
+	/**
+	 * @return                          Whether there is a control routine running or queued.
+	 */
+	bool hasControlRoutine() const;
 
- private:
-    friend class PlatformIntrospection; // Give access to private bases.
+private:
+	friend class PlatformIntrospection; // Give access to private bases.
 
-    void processSyntheticEvents(PlatformEventHandler *eventHandler, int count = -1);
+	void processSyntheticEvents(PlatformEventHandler* eventHandler, int count = -1);
 
-    virtual void exec(PlatformEventHandler *eventHandler) override;
-    virtual void processMessages(PlatformEventHandler *eventHandler, int count) override;
-    virtual void waitForMessages() override;
-    virtual void swapBuffers() override;
+	virtual void exec(PlatformEventHandler* eventHandler) override;
+	virtual void processMessages(PlatformEventHandler* eventHandler, int count) override;
+	virtual void waitForMessages() override;
+	virtual void swapBuffers() override;
 
- private:
-    std::thread _controlThread;
-    std::unique_ptr<EngineControlState> _unsafeState;
-    EngineControlStateHandle _state;
-    std::unique_ptr<PlatformEventHandler> _emptyHandler;
+private:
+	std::thread _controlThread;
+	std::unique_ptr<EngineControlState> _unsafeState;
+	EngineControlStateHandle _state;
+	std::unique_ptr<PlatformEventHandler> _emptyHandler;
 };

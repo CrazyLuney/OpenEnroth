@@ -129,7 +129,7 @@ void GUIWindow_MainMenu::EventLoop() {
             SetCurrentMenuID(MENU_EXIT_GAME);
             break;
         case UIMSG_ChangeGameState:
-            uGameState = GAME_FINISHED;
+            uGameState = GameState::Finished;
             break;
         default:
             break;

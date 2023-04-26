@@ -1030,7 +1030,7 @@ void EventProcessor(int uEventID, int targetObj, int canShowMessages,
 					v133 = 1;
 					if (current_screen_type == CURRENT_SCREEN::SCREEN_HOUSE)
 					{
-						if (uGameState == GAME_STATE_CHANGE_LOCATION)
+						if (uGameState == GameState::ChangeLocation)
 						{
 							dialog_menu_id = DIALOGUE_NULL;
 							while (HouseDialogPressCloseBtn()) {}

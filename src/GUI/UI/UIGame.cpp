@@ -962,7 +962,7 @@ void GameUI_DrawFoodAndGold()
 {
 	int text_y;  // esi@2
 
-	if (uGameState != GAME_STATE_FINAL_WINDOW)
+	if (uGameState != GameState::FinalWindow)
 	{
 		text_y = _44100D_should_alter_right_panel() != 0 ? 381 : 322;
 

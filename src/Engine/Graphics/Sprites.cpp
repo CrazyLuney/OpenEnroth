@@ -37,7 +37,8 @@ void SpriteFrameTable::InitializeSprite(size_t uSpriteID)
 	int uFlags = pSpriteSFrames[iter_uSpriteID].uFlags;
 
 	if (!(uFlags & 0x0080))
-	{  // not loaded
+	{
+		// not loaded
 		pSpriteSFrames[iter_uSpriteID].uFlags |= 0x80;  // set loaded
 
 		while (1)
@@ -45,7 +46,8 @@ void SpriteFrameTable::InitializeSprite(size_t uSpriteID)
 			pSpriteSFrames[iter_uSpriteID].ResetPaletteIndex(pPaletteManager->LoadPalette(pSpriteSFrames[iter_uSpriteID].uPaletteID));
 
 			if (uFlags & 0x10)
-			{  // single frame per frame sequence
+			{
+				// single frame per frame sequence
 				auto v8 = pSprites_LOD->LoadSprite(pSpriteSFrames[iter_uSpriteID].texture_name.c_str(), pSpriteSFrames[iter_uSpriteID].uPaletteID);
 
 				if (v8 == -1)
@@ -94,7 +96,8 @@ void SpriteFrameTable::InitializeSprite(size_t uSpriteID)
 
 			}
 			else if (uFlags & 0x40)
-			{  // part of monster fidgeting seq
+			{
+				// part of monster fidgeting seq
 				for (uint i = 0; i < 8; ++i)
 				{
 					switch (i)
@@ -133,7 +136,8 @@ void SpriteFrameTable::InitializeSprite(size_t uSpriteID)
 				for (uint i = 0; i < 8; ++i)
 				{
 					if (((0x0100 << i) & pSpriteSFrames[iter_uSpriteID].uFlags))
-					{  // mirrors
+					{
+						// mirrors
 						switch (i)
 						{
 						case 1:
@@ -205,7 +209,7 @@ int SpriteFrameTable::FastFindSprite(std::string_view pSpriteName)
 //----- (0044D83A) --------------------------------------------------------
 int SpriteFrameTable::BinarySearch(std::string_view pSpriteName)
 {
-	SpriteFrame** result = std::lower_bound(this->pSpritePFrames.get(), this->pSpritePFrames.get() + uNumEFrames, pSpriteName,
+	SpriteFrame** result = std::lower_bound(pSpritePFrames.get(), pSpritePFrames.get() + uNumEFrames, pSpriteName,
 		[](SpriteFrame* l, std::string_view r)
 		{
 			return iless(l->icon_name, r);

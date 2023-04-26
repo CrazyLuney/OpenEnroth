@@ -90,7 +90,7 @@ torchB.icon->texture->GetWidth()) / 640.0f, 48 / 480.0f, icon->texture);
 */
 
 std::shared_ptr<Engine> engine;
-GAME_STATE uGameState;
+GameState uGameState;
 
 void Engine_DeinitializeAndTerminate(int exitCode)
 {
@@ -213,8 +213,9 @@ void Engine::DrawGUI()
 	GameUI_StatusBar_Draw();
 
 
-	if (!pMovie_Track && uGameState != GAME_STATE_CHANGE_LOCATION)
-	{  // ! pVideoPlayer->pSmackerMovie)
+	if (!pMovie_Track && uGameState != GameState::ChangeLocation)
+	{
+		// ! pVideoPlayer->pSmackerMovie)
 		GameUI_DrawMinimap(488, 16, 625, 133, viewparams->uMinimapZoom, true);  // redraw = pParty->uFlags & 2);
 	}
 
@@ -283,7 +284,7 @@ void Engine::DrawGUI()
 
 		std::string floor_level_str;
 
-		if (uGameState == GAME_STATE_CHANGE_LOCATION)
+		if (uGameState == GameState::ChangeLocation)
 		{
 			floor_level_str = "Loading Level!";
 		}
@@ -321,7 +322,7 @@ void Engine::DrawParticles()
 //----- (0044F120) --------------------------------------------------------
 void Engine::PushStationaryLights(int a2)
 {
-	Game__StationaryLight* pLight;
+	Game_StationaryLight* pLight;
 
 	for (int i = 0; i < uNumStationaryLights; ++i)
 	{
@@ -1954,7 +1955,7 @@ void _494035_timed_effects__water_walking_damage__etc()
 				}
 			}
 			if (!numPlayersCouldAct || _5C35C0_force_party_death)
-				uGameState = GAME_STATE_PARTY_DIED;
+				uGameState = GameState::PartyDied;
 		}
 	}
 
@@ -2524,7 +2525,7 @@ void Transition_StopSound_Autosave(const char* pMapName,
 		SaveGame(1, 0);
 	}
 
-	uGameState = GAME_STATE_CHANGE_LOCATION;
+	uGameState = GameState::ChangeLocation;
 	pCurrentMapName = pMapName;
 	uLevel_StartingPointType = start_point;
 }

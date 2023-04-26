@@ -1356,7 +1356,7 @@ void TravelByTransport() {
                     Party_Teleport_Cam_Pitch = 0;
                     Party_Teleport_Z_Speed = 0;
                     Party_Teleport_Cam_Yaw = pTravel->arrival_view_yaw;
-                    uGameState = GAME_STATE_CHANGE_LOCATION;
+                    uGameState = GameState::ChangeLocation;
                     Party_Teleport_X_Pos = pTravel->arrival_x;
                     Party_Teleport_Y_Pos = pTravel->arrival_y;
                     Party_Teleport_Z_Pos = pTravel->arrival_z;
