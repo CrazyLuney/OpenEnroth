@@ -41,18 +41,6 @@ bool Localization::Initialize()
 
 		auto [tokens_begin, tokens_end] = MiniParser::Tokenize(data_view);
 
-#if 0
-		auto loc_strings_range = std::ranges::views::iota(std::size_t(0), std::size_t(MM7_LOC_STRINGS));
-		auto it_string = std::begin(loc_strings_range);
-		auto it_string_end = std::end(loc_strings_range);
-		for (auto it = tokens_begin; it != tokens_end && it_string != it_string_end; ++it_string)
-		{
-			std::size_t id;
-
-			MiniParser::ParseToken(it, id);
-			MiniParser::ParseToken(it, localization_strings[id], MiniParser::StripQuotes);
-		}
-#else
 		for (auto it = tokens_begin; it != tokens_end; )
 		{
 			std::size_t id;
@@ -60,7 +48,6 @@ bool Localization::Initialize()
 			MiniParser::ParseToken(it, id);
 			MiniParser::ParseToken(it, localization_strings[id], MiniParser::StripQuotes);
 		}
-#endif
 	}
 
 	// TODO: should be moved to localization files eventually

@@ -201,11 +201,16 @@ namespace MiniParser
 		return result;
 	}
 
+	inline std::tuple<string_view_regex_iterator, string_view_regex_iterator> Tokenize(const std::string_view& view, const std::regex& re)
+	{
+		return { { std::begin(view), std::end(view), re, std::regex_constants::match_not_null }, {} };
+	}
+
 	inline std::tuple<string_view_regex_iterator, string_view_regex_iterator> Tokenize(const std::string_view& view)
 	{
 		static const std::regex re_token_separator(R"(\t|\r\n|\r|\n|$)", std::regex::optimize);
 
-		return { { std::begin(view), std::end(view), re_token_separator, std::regex_constants::match_not_null }, {} };
+		return Tokenize(view, re_token_separator);
 	}
 
 	inline std::string_view SkipLines(const std::string_view& view, std::size_t n)
@@ -214,8 +219,7 @@ namespace MiniParser
 
 		if (n > 0)
 		{
-			string_view_regex_iterator it{ std::begin(view), std::end(view), re_newline };
-			string_view_regex_iterator it_end{};
+			auto [it, it_end] { Tokenize(view, re_newline) };
 
 			while (n > 1 && it != it_end)
 			{
