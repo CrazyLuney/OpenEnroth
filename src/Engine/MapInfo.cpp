@@ -13,6 +13,7 @@
 
 #include "Library/Random/Random.h"
 #include "Utility/Math/TrigLut.h"
+#include "Utility/MiniParser.hpp"
 
 #include "OurMath.h"
 #include "Party.h"
@@ -48,182 +49,97 @@ const char* location_type[] = {
 
 void MapStats::Initialize()
 {
-	std::string pMapStatsTXT = std::string(pEvents_LOD->LoadCompressedTexture("MapStats.txt").string_view());
-	std::stringstream stream(pMapStatsTXT);
-	std::string tmpString;
-	std::getline(stream, tmpString);
-	std::getline(stream, tmpString);
-	std::getline(stream, tmpString);
+	static const std::regex re_monster_encounter_counts { R"(\s*(\d+)(-(\d+))?)", std::regex::optimize };
 
-	char work_str[32];
-	int work_str_pos;
-	int work_str_len;
+	uNumMaps = 0;
 
-	size_t i = 1;
-	while (!stream.eof())
+	const auto blob = pEvents_LOD->LoadCompressedTexture("MapStats.txt");
+	const auto blob_lines = MiniParser::Lines(blob.string_view());
+
+	const auto data_lines = blob_lines | std::views::drop(3);
+
+	for (const auto& data_line : data_lines)
 	{
-		std::getline(stream, tmpString);
-		std::stringstream line(tmpString);
-		size_t decode_step = 0;
-		while (!line.eof())
-		{
-			std::getline(line, tmpString, '\t');
-			char test_string[1024];
-			strncpy(test_string, tmpString.c_str(), sizeof(test_string) - 1);
-			switch (decode_step)
-			{
-			case 1:
-				pInfos[i].pName = removeQuotes(test_string);  // randoms crashes here  // got 1 too
-				break;
-			case 2:
-				pInfos[i].pFilename = toLower(removeQuotes(test_string));
-				break;
-			case 3:
-				pInfos[i].uNumResets = atoi(test_string);
-				break;
-			case 4:
-				pInfos[i].uFirstVisitedAt = atoi(test_string);
-				break;
-			case 5:
-				pInfos[i]._per = atoi(test_string);
-				break;
-			case 6:
-				pInfos[i].uRespawnIntervalDays = atoi(test_string);
-				break;
-			case 7:
-				pInfos[i]._alert_days = atoi(test_string);
-				break;
-			case 8:
-				pInfos[i]._steal_perm = atoi(test_string);
-				break;
-			case 9:
-				pInfos[i].LockX5 = atoi(test_string);
-				break;
-			case 10:
-				pInfos[i].Trap_D20 = atoi(test_string);
-				break;
-			case 11:
-				pInfos[i].Treasure_prob = MAP_TREASURE_LEVEL(atoi(test_string));  // treasure levels 0-6
-				break;
-			case 12:
-				pInfos[i].Encounter_percent = atoi(test_string);
-				break;
-			case 13:
-				pInfos[i].EncM1percent = atoi(test_string);
-				break;
-			case 14:
-				pInfos[i].EncM2percent = atoi(test_string);
-				break;
-			case 15:
-				pInfos[i].EncM3percent = atoi(test_string);
-				break;
-			case 16:
-				pInfos[i].pEncounterMonster1Texture = removeQuotes(test_string);
-				break;
-			case 18:
-				pInfos[i].Dif_M1 = atoi(test_string);
-				break;
-			case 19:
-				pInfos[i].uEncounterMonster1AtLeast = 1;
-				pInfos[i].uEncounterMonster1AtMost = 1;
-				strncpy(work_str, test_string, sizeof(work_str) - 1);
-				work_str_pos = 0;
-				work_str_len = strlen(work_str);
-				if (work_str_len)
-				{
-					while (work_str[work_str_pos] != '-')
-					{
-						++work_str_pos;
-						if (work_str_pos >= work_str_len) break;
-					}
-					work_str[work_str_pos] = 0;
-					pInfos[i].uEncounterMonster1AtLeast = atoi(work_str);
-					if (work_str_pos < work_str_len)
-						pInfos[i].uEncounterMonster1AtMost = atoi(&work_str[work_str_pos + 1]);
-					else
-						pInfos[i].uEncounterMonster1AtMost = pInfos[i].uEncounterMonster1AtLeast;
-				}
-				break;
-			case 20:
-				pInfos[i].pEncounterMonster2Texture = removeQuotes(test_string);
-				break;
-			case 22:
-				pInfos[i].Dif_M2 = atoi(test_string);
-				break;
-			case 23:
-				pInfos[i].uEncounterMonster2AtLeast = 1;
-				pInfos[i].uEncounterMonster2AtMost = 1;
-				strncpy(work_str, test_string, sizeof(work_str) - 1);
-				work_str_pos = 0;
-				work_str_len = strlen(work_str);
-				if (work_str_len)
-				{
-					while (work_str[work_str_pos] != '-')
-					{
-						++work_str_pos;
-						if (work_str_pos >= work_str_len) break;
-					}
-					work_str[work_str_pos] = 0;
-					pInfos[i].uEncounterMonster2AtLeast = atoi(work_str);
-					if (work_str_pos < work_str_len)
-						pInfos[i].uEncounterMonster2AtMost = atoi(&work_str[work_str_pos + 1]);
-					else
-						pInfos[i].uEncounterMonster2AtMost = pInfos[i].uEncounterMonster2AtLeast;
-				}
-				break;
-			case 24:
-				pInfos[i].pEncounterMonster3Texture = removeQuotes(test_string);
-				break;
-			case 26:
-				pInfos[i].Dif_M3 = atoi(test_string);
-				break;
-			case 27:
-				pInfos[i].uEncounterMonster3AtLeast = 1;
-				pInfos[i].uEncounterMonster3AtMost = 1;
-				strncpy(work_str, test_string, sizeof(work_str) - 1);
-				work_str_pos = 0;
-				work_str_len = strlen(work_str);
-				if (work_str_len)
-				{
-					while (work_str[work_str_pos] != '-')
-					{
-						++work_str_pos;
-						if (work_str_pos >= work_str_len) break;
-					}
-					work_str[work_str_pos] = 0;
-					pInfos[i].uEncounterMonster3AtLeast = atoi(work_str);
-					if (work_str_pos < work_str_len)
-						pInfos[i].uEncounterMonster3AtMost = atoi(&work_str[work_str_pos + 1]);
-					else
-						pInfos[i].uEncounterMonster3AtMost = pInfos[i].uEncounterMonster3AtLeast;
-				}
-				break;
-			case 28:
-				pInfos[i].uRedbookTrackID = atoi(test_string);
-				break;
-			case 29:
-			{
-				pInfos[i].uEAXEnv = 0xff;
-				for (int j = 0; j < 25; j++)
-				{
-					if (!strcmp(test_string, location_type[j]))
-					{
-						pInfos[i].uEAXEnv = j;
-						break;
-					}
-				}
-				if (pInfos[i].uEAXEnv == 0xff)
-				{
-					pInfos[i].uEAXEnv = 26;
-				}
-			} break;
-			}
-			decode_step++;
-		}
-		i++;
-	}
+		auto [tokens_begin, tokens_end] { MiniParser::Tokenize(data_line) };
 
-	uNumMaps = i - 1;
+		if (tokens_begin == tokens_end)
+			continue;
+
+		auto it = tokens_begin;
+
+		{
+			std::size_t id;
+			std::string eax_env;
+
+			MiniParser::ParseToken(it, id);
+			MiniParser::ParseToken(it, pInfos[id].pName, MiniParser::StripQuotes);
+			MiniParser::ParseToken(it, pInfos[id].pFilename, MiniParser::StripQuotes, MiniParser::ToLowerInplace);
+			MiniParser::ParseToken(it, pInfos[id].uNumResets);
+			MiniParser::ParseToken(it, pInfos[id].uFirstVisitedAt);
+			MiniParser::ParseToken(it, pInfos[id]._per);
+			MiniParser::ParseToken(it, pInfos[id].uRespawnIntervalDays);
+			MiniParser::ParseToken(it, pInfos[id]._alert_days);
+			MiniParser::ParseToken(it, pInfos[id]._steal_perm);
+			MiniParser::ParseToken(it, pInfos[id].LockX5);
+			MiniParser::ParseToken(it, pInfos[id].Trap_D20);
+			MiniParser::ParseToken(it, pInfos[id].Treasure_prob);
+			MiniParser::ParseToken(it, pInfos[id].Encounter_percent);
+			MiniParser::ParseToken(it, pInfos[id].EncM1percent);
+			MiniParser::ParseToken(it, pInfos[id].EncM2percent);
+			MiniParser::ParseToken(it, pInfos[id].EncM3percent);
+			MiniParser::ParseToken(it, pInfos[id].pEncounterMonster1Texture, MiniParser::StripQuotes);
+			MiniParser::SkipToken(it);
+			MiniParser::ParseToken(it, pInfos[id].Dif_M1);
+			MiniParser::ParseToken(it, re_monster_encounter_counts, [&map_info = pInfos[id]](const MiniParser::string_view_match_results& mr)
+				{
+					MiniParser::Parse(mr[1], map_info.uEncounterMonster1AtLeast);
+					if (mr[3].matched)
+						MiniParser::Parse(mr[3], map_info.uEncounterMonster1AtMost);
+					else
+						map_info.uEncounterMonster1AtMost = map_info.uEncounterMonster1AtLeast;
+					return true;
+				});
+			MiniParser::ParseToken(it, pInfos[id].pEncounterMonster2Texture, MiniParser::StripQuotes);
+			MiniParser::SkipToken(it);
+			MiniParser::ParseToken(it, pInfos[id].Dif_M2);
+			MiniParser::ParseToken(it, re_monster_encounter_counts, [&map_info = pInfos[id]](const MiniParser::string_view_match_results& mr)
+				{
+					MiniParser::Parse(mr[1], map_info.uEncounterMonster2AtLeast);
+					if (mr[3].matched)
+						MiniParser::Parse(mr[3], map_info.uEncounterMonster2AtMost);
+					else
+						map_info.uEncounterMonster2AtMost = map_info.uEncounterMonster2AtLeast;
+					return true;
+				});
+			MiniParser::ParseToken(it, pInfos[id].pEncounterMonster3Texture, MiniParser::StripQuotes);
+			MiniParser::SkipToken(it);
+			MiniParser::ParseToken(it, pInfos[id].Dif_M3);
+			MiniParser::ParseToken(it, re_monster_encounter_counts, [&map_info = pInfos[id]](const MiniParser::string_view_match_results& mr)
+				{
+					MiniParser::Parse(mr[1], map_info.uEncounterMonster3AtLeast);
+					if (mr[3].matched)
+						MiniParser::Parse(mr[3], map_info.uEncounterMonster3AtMost);
+					else
+						map_info.uEncounterMonster3AtMost = map_info.uEncounterMonster3AtLeast;
+					return true;
+				});
+			MiniParser::ParseToken(it, pInfos[id].uRedbookTrackID);
+			MiniParser::ParseToken(it, eax_env);
+
+			{
+				auto it_eax_env = std::find_if(std::begin(location_type), std::end(location_type), [&](const char* const s)
+					{
+						return std::strcmp(s, eax_env.c_str()) == 0;
+					});
+				if (it_eax_env == std::end(location_type))
+					pInfos[id].uEAXEnv = std::size(location_type) + 1;
+				else
+					pInfos[id].uEAXEnv = std::distance(std::begin(location_type), it_eax_env);
+			}
+		}
+
+		++uNumMaps;
+	}
 }
 
 int MapStats::sub_410D99_get_map_index(int a1)

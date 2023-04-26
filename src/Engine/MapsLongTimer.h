@@ -6,8 +6,7 @@
 // Originally packed struct
 struct MapsLongTimer
 {
-	GameTime NextStartTime{};  // timer will either fire event at this time (type
-	// 2, field_C == 0)
+	GameTime NextStartTime{};  // timer will either fire event at this time (type 2, field_C == 0)
 	int16_t timer_evt_ID = 0;
 	int16_t timer_evt_seq_num = 0;
 	int16_t time_left_to_fire = 0;

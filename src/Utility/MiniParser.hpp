@@ -17,13 +17,13 @@ namespace MiniParser
 	template <typename T>
 	concept ViewParserAction = requires (T&& callable, const std::string_view& s)
 	{
-		{ callable(s) } -> std::same_as<std::string_view>;
+		{ callable(s) } -> std::convertible_to<std::string_view>;
 	};
 
 	template <typename T>
 	concept ValueParserActionCopy = requires (T&& callable, const std::string& s)
 	{
-		{ callable(s) } -> std::same_as<std::string>;
+		{ callable(s) } -> std::convertible_to<std::string>;
 	};
 
 	template <typename T>
@@ -37,6 +37,12 @@ namespace MiniParser
 
 	template <typename T>
 	concept AnyParserAction = ViewParserAction<T> || ValueParserAction<T>;
+
+	template <typename T>
+	concept MatchParserAction = requires (T&& callable, const string_view_match_results& mr)
+	{
+		{ callable(mr) } -> std::convertible_to<bool>;
+	};
 
 	constexpr inline std::string_view Trim(const std::string_view& view)
 	{
@@ -77,22 +83,16 @@ namespace MiniParser
 		return temp;
 	}
 
-	template <Number ValueType>
-	constexpr inline bool Parse(const std::string_view& view, ValueType& value)
+	constexpr inline void ToUpperInplace(std::string& s)
 	{
-		return std::from_chars(std::to_address(std::cbegin(view)), std::to_address(std::cend(view)), value).ec == std::errc();
+		std::transform(std::begin(s), std::end(s), std::begin(s), ::toupper);
 	}
 
-	template <Enum ValueType>
-	constexpr inline bool Parse(const std::string_view& view, ValueType& value)
+	constexpr inline std::string ToUpper(const std::string& s)
 	{
-		std::underlying_type_t<ValueType> raw_value;
-		if (Parse(view, raw_value))
-		{
-			value = static_cast<ValueType>(raw_value);
-			return true;
-		}
-		return false;
+		std::string temp{ s };
+		ToUpperInplace(temp);
+		return temp;
 	}
 
 	namespace Detail
@@ -162,10 +162,40 @@ namespace MiniParser
 			}
 		};
 
+		template <Number ValueType>
+		inline bool Parse(const std::string_view& view, ValueType& value)
+		{
+			return std::from_chars(std::to_address(std::cbegin(view)), std::to_address(std::cend(view)), value).ec == std::errc();
+		}
+
+		template <Enum ValueType>
+		inline bool Parse(const std::string_view& view, ValueType& value)
+		{
+			std::underlying_type_t<ValueType> raw_value;
+			if (Parse(view, raw_value))
+			{
+				value = static_cast<ValueType>(raw_value);
+				return true;
+			}
+			return false;
+		}
+
 		inline std::string_view GetTokenStringView(const string_view_regex_iterator& it)
 		{
 			return { it->prefix().first, it->prefix().second };
 		}
+	}
+
+	template <NumberOrEnum ValueType>
+	inline bool Parse(const std::string_view& view, ValueType& value)
+	{
+		return Detail::Parse(view, value);
+	}
+
+	template <NumberOrEnum ValueType>
+	inline bool Parse(const string_view_match_results::value_type& sub_match, ValueType& value)
+	{
+		return Detail::Parse({ sub_match.first, sub_match.second }, value);
 	}
 
 	inline void SkipToken(string_view_regex_iterator& it)
@@ -201,6 +231,18 @@ namespace MiniParser
 		return result;
 	}
 
+	template <MatchParserAction MatchAction, AnyParserAction... Actions>
+	inline bool ParseToken(string_view_regex_iterator& it, const std::regex& re, MatchAction&& match_action, Actions&&... actions)
+	{
+		std::string_view token_view;
+		ParseToken(it, token_view, std::forward<Actions&&>(actions)...);
+		string_view_match_results mr;
+		if (std::regex_match(std::begin(token_view), std::end(token_view), mr, re))
+			return match_action(mr);
+		else
+			return false;
+	}
+
 	inline std::tuple<string_view_regex_iterator, string_view_regex_iterator> Tokenize(const std::string_view& view, const std::regex& re)
 	{
 		return { { std::begin(view), std::end(view), re, std::regex_constants::match_not_null }, {} };
@@ -213,10 +255,43 @@ namespace MiniParser
 		return Tokenize(view, re_token_separator);
 	}
 
-	inline std::string_view SkipLines(const std::string_view& view, std::size_t n)
+	namespace
 	{
 		static const std::regex re_newline(R"(\r\n|\r|\n|$)", std::regex::optimize);
+	}
 
+	inline std::vector<std::string_view> Lines(const std::string_view& view)
+	{
+		auto [lines_begin, lines_end] { Tokenize(view, re_newline) };
+
+		std::vector<std::string_view> lines;
+
+		if (lines_begin == lines_end)
+		{
+			lines.push_back(view);
+		}
+		else
+		{
+			for (auto it = lines_begin; it != lines_end; )
+			{
+				auto prefix = it->prefix();
+				auto suffix = it->suffix();
+
+				lines.emplace_back(prefix.first, prefix.second);
+
+				if (++it == lines_end)
+				{
+					lines.emplace_back(suffix.first, suffix.second);
+					break;
+				}
+			}
+		}
+
+		return lines;
+	}
+
+	inline std::string_view SkipLines(const std::string_view& view, std::size_t n)
+	{
 		if (n > 0)
 		{
 			auto [it, it_end] { Tokenize(view, re_newline) };
