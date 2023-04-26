@@ -37,6 +37,7 @@ macro(target_precompile_headers_stl _TARGET)
         <numeric>
         <queue>
         <random>
+        <ranges>
         <regex>
         <span>
         <sstream>

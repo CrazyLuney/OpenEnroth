@@ -7,10 +7,10 @@
 
 #include "MonsterInfoParser/MonsterInfoParser.hpp"
 
+#include "Utility/MiniParser.hpp"
 
 #include "../LOD.h"
 #include "../Tables/FrameTableInc.h"
-
 
 struct MonsterStats* pMonsterStats;
 struct MonsterList* pMonsterList;
@@ -68,26 +68,21 @@ signed int MonsterStats::FindMonsterByTextureName(const char* monster_textr_name
 //----- (00454F4E) --------------------------------------------------------
 void MonsterStats::InitializePlacements()
 {
-	using MonsterInfoParser::re_token_separator;
+	const auto blob = pEvents_LOD->LoadCompressedTexture("placemon.txt");
+	const auto blob_view = blob.string_view();
 
-	auto blob = pEvents_LOD->LoadCompressedTexture("placemon.txt");
-	auto blob_view = blob.string_view();
-	auto data_view = Strings::SkipLines(blob_view, 1);
+	const auto data_view = MiniParser::SkipLines(blob_view, 1);
 
-	using sv_regex_token_iterator = std::regex_token_iterator<std::string_view::iterator>;
-	using sv_match_results = std::match_results<std::string_view::iterator>;
-
-	auto tokens_begin = sv_regex_token_iterator(std::begin(data_view), std::end(data_view), re_token_separator);
-	auto tokens_end = sv_regex_token_iterator();
+	auto [tokens_begin, tokens_end] { MiniParser::Tokenize(data_view) };
 
 	for (auto it = tokens_begin; it != tokens_end; )
 	{
 		MonsterPlacementInfo info;
 
-		std::from_chars(std::to_address(it->first), std::to_address(it->second), info.uID);
-		++it;
-		info.pName.assign(it->first, it->second);
-		++it;
+		MiniParser::ParseToken(it, info.uID);
+		MiniParser::ParseToken(it, info.pName, MiniParser::TrimAndStripQuotes);
+
+		pPlaceStrings.emplace_back(std::move(info));
 	}
 }
 
@@ -96,6 +91,7 @@ void MonsterStats::Initialize()
 {
 	const auto blob = pEvents_LOD->LoadCompressedTexture("monsters.txt");
 	const auto blob_view = blob.string_view();
+
 	const auto data_view = Strings::SkipLines(blob_view, 4);
 
 	auto OnMonsterInfoReady = [this](MonsterInfo&& monster_info)

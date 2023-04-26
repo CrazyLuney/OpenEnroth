@@ -31,6 +31,7 @@ set(UTILITY_HEADERS
         IndexedArray.h
         Math/Float.h
         Math/TrigLut.h
+        MiniParser.hpp
         Memory/Blob.h
         Memory/FreeDeleter.h
         Memory/MemSet.h

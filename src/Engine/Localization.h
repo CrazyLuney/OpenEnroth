@@ -430,6 +430,38 @@
 
 #define MAX_LOC_STRINGS MM7_LOC_STRINGS + 5
 
+enum TEMP_ATTRIBUTE : unsigned
+{
+	TEMP_ATTRIBUTE_MIGHT,
+	TEMP_ATTRIBUTE_INTELLECT,
+	TEMP_ATTRIBUTE_PERSONALITY,
+	TEMP_ATTRIBUTE_ENDURANCE,
+	TEMP_ATTRIBUTE_ACCURACY,
+	TEMP_ATTRIBUTE_SPEED,
+	TEMP_ATTRIBUTE_LUCK,
+	TEMP_ATTRIBUTE_HIT_POINTS,
+	TEMP_ATTRIBUTE_ARMOR_CLASS,
+	TEMP_ATTRIBUTE_SPELL_POINTS,
+	TEMP_ATTRIBUTE_CONDITION,
+	TEMP_ATTRIBUTE_QUICK_SPELL,
+	TEMP_ATTRIBUTE_AGE,
+	TEMP_ATTRIBUTE_LEVEL,
+	TEMP_ATTRIBUTE_EXPERIENCE,
+	TEMP_ATTRIBUTE_ATTACK_BONUS,
+	TEMP_ATTRIBUTE_ATTACK_DAMAGE,
+	TEMP_ATTRIBUTE_SHOOT_BONUS,
+	TEMP_ATTRIBUTE_SHOOT_DAMAGE,
+	TEMP_ATTRIBUTE_FIRE,
+	TEMP_ATTRIBUTE_AIR,
+	TEMP_ATTRIBUTE_WATER,
+	TEMP_ATTRIBUTE_EARTH,
+	TEMP_ATTRIBUTE_MIND,
+	TEMP_ATTRIBUTE_BODY,
+	TEMP_ATTRIBUTE_SKILL_POINTS,
+
+	TEMP_ATTRIBUTE_COUNT,
+};
+
 class Localization
 {
 public:
@@ -440,62 +472,66 @@ public:
 
 	const char* GetDayName(unsigned int index) const
 	{
-		return this->day_names[index];
+		return day_names[index];
 	}
 
 	const char* GetMonthName(unsigned int index) const
 	{
-		return this->month_names[index];
+		return month_names[index];
 	}
 
 	const char* GetMoonPhaseName(unsigned int index) const
 	{
-		return this->moon_phase_names[index];
+		return moon_phase_names[index];
 	}
 
 	const char* GetSpellSchoolName(unsigned int index) const
 	{
-		return this->spell_school_names[index];
+		return spell_school_names[index];
 	}
 
 	const char* GetSpellName(unsigned int index) const
 	{
-		return this->spell_names[index];
+		return spell_names[index];
 	}
 
 	const char* GetClassName(unsigned int index) const
 	{
-		return this->class_names[index];
+		return class_names[index];
 	}
 
 	const char* GetClassDescription(unsigned int index) const
 	{
-		return this->class_desciptions[index];
+		return class_descriptions[index].c_str();
 	}
 
-	const char* GetAttirubteName(unsigned int index) const
+	const char* GetAttributeName(unsigned int index) const
 	{
-		return this->attribute_names[index];
+		return attribute_names[index];
 	}
 
 	const char* GetAttributeDescription(unsigned int index) const
 	{
-		return this->attribute_descriptions[index];
+		return attribute_descriptions[index].c_str();
 	}
 
 	const char* GetSkillName(PLAYER_SKILL_TYPE index) const
 	{
-		return this->skill_names[index];
+		return skill_names[index].c_str();
 	}
 
 	const char* MasteryName(PLAYER_SKILL_MASTERY mastery) const
 	{
 		switch (mastery)
 		{
-		case PLAYER_SKILL_MASTERY_NOVICE: return GetString(LSTR_NORMAL);
-		case PLAYER_SKILL_MASTERY_EXPERT: return GetString(LSTR_EXPERT);
-		case PLAYER_SKILL_MASTERY_MASTER: return GetString(LSTR_MASTER);
-		case PLAYER_SKILL_MASTERY_GRANDMASTER: return GetString(LSTR_GRAND);
+		case PLAYER_SKILL_MASTERY_NOVICE:
+			return GetString(LSTR_NORMAL);
+		case PLAYER_SKILL_MASTERY_EXPERT:
+			return GetString(LSTR_EXPERT);
+		case PLAYER_SKILL_MASTERY_MASTER:
+			return GetString(LSTR_MASTER);
+		case PLAYER_SKILL_MASTERY_GRANDMASTER:
+			return GetString(LSTR_GRAND);
 		default:
 			assert(false);
 			return nullptr;
@@ -509,17 +545,21 @@ public:
 
 	const char* GetSkillDescription(PLAYER_SKILL_TYPE index) const
 	{
-		return this->skill_descriptions[index];
+		return skill_descriptions[index].c_str();
 	}
 
 	const char* GetSkillDescription(PLAYER_SKILL_TYPE index, PLAYER_SKILL_MASTERY mastery) const
 	{
 		switch (mastery)
 		{
-		case PLAYER_SKILL_MASTERY_NOVICE: return GetSkillDescriptionNormal(index);
-		case PLAYER_SKILL_MASTERY_EXPERT: return GetSkillDescriptionExpert(index);
-		case PLAYER_SKILL_MASTERY_MASTER: return GetSkillDescriptionMaster(index);
-		case PLAYER_SKILL_MASTERY_GRANDMASTER: return GetSkillDescriptionGrand(index);
+		case PLAYER_SKILL_MASTERY_NOVICE:
+			return GetSkillDescriptionNormal(index);
+		case PLAYER_SKILL_MASTERY_EXPERT:
+			return GetSkillDescriptionExpert(index);
+		case PLAYER_SKILL_MASTERY_MASTER:
+			return GetSkillDescriptionMaster(index);
+		case PLAYER_SKILL_MASTERY_GRANDMASTER:
+			return GetSkillDescriptionGrand(index);
 		default:
 			assert(false);
 			return nullptr;
@@ -528,37 +568,37 @@ public:
 
 	const char* GetSkillDescriptionNormal(PLAYER_SKILL_TYPE index) const
 	{
-		return this->skill_descriptions_normal[index];
+		return skill_descriptions_normal[index].c_str();
 	}
 
 	const char* GetSkillDescriptionExpert(PLAYER_SKILL_TYPE index) const
 	{
-		return this->skill_descriptions_expert[index];
+		return skill_descriptions_expert[index].c_str();
 	}
 
 	const char* GetSkillDescriptionMaster(PLAYER_SKILL_TYPE index) const
 	{
-		return this->skill_descriptions_master[index];
+		return skill_descriptions_master[index].c_str();
 	}
 
 	const char* GetSkillDescriptionGrand(PLAYER_SKILL_TYPE index) const
 	{
-		return this->skill_descriptions_grand[index];
+		return skill_descriptions_grand[index].c_str();
 	}
 
 	const char* GetCharacterConditionName(Condition index) const
 	{
-		return this->character_conditions[std::to_underlying(index)];
+		return character_conditions[std::to_underlying(index)];
 	}
 
 	const char* GetAmPm(unsigned int index) const
 	{
-		return this->GetString(472 + index);
+		return GetString(472 + index);
 	}
 
 	const char* GetNpcProfessionName(NPCProf prof) const
 	{
-		return this->npc_profession_names[prof];
+		return npc_profession_names[prof];
 	}
 
 public:
@@ -582,11 +622,7 @@ private:
 	void InitializeNpcProfessionNames();
 
 private:
-	std::string localization_raw;
-	const char** localization_strings = nullptr;
-	std::string class_desc_raw;
-	std::string attribute_desc_raw;
-	std::string skill_desc_raw;
+	std::vector<std::string> localization_strings;
 
 	const char* mm6_item_categories[14]{};
 	const char* month_names[12]{};
@@ -595,15 +631,15 @@ private:
 	const char* spell_school_names[9]{};
 	const char* spell_names[44]{};
 	const char* class_names[36]{};
-	const char* class_desciptions[36]{};
-	const char* attribute_names[7]{};
-	const char* attribute_descriptions[7]{};
-	IndexedArray<const char*, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_names = { {} };
-	IndexedArray<const char*, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions = { {} };
-	IndexedArray<const char*, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_normal = { {} };
-	IndexedArray<const char*, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_expert = { {} };
-	IndexedArray<const char*, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_master = { {} };
-	IndexedArray<const char*, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_grand = { {} };
+	std::array<std::string, 36> class_descriptions;
+	std::array<const char*, TEMP_ATTRIBUTE_COUNT> attribute_names;
+	std::array<std::string, TEMP_ATTRIBUTE_COUNT> attribute_descriptions;
+	IndexedArray<std::string, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_names = { {} };
+	IndexedArray<std::string, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions = { {} };
+	IndexedArray<std::string, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_normal = { {} };
+	IndexedArray<std::string, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_expert = { {} };
+	IndexedArray<std::string, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_master = { {} };
+	IndexedArray<std::string, PLAYER_SKILL_INVALID, PLAYER_SKILL_LAST_VISIBLE> skill_descriptions_grand = { {} };
 	const char* character_conditions[19]{};
 	IndexedArray<const char*, NPC_PROFESSION_FIRST, NPC_PROFESSION_LAST> npc_profession_names = { {} };
 };
