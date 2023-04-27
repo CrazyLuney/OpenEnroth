@@ -8,11 +8,11 @@ namespace MiniParser
 	using string_view_match_results = std::match_results<string_view_iterator>;
 
 	template <typename T>
-	concept Number = std::integral<T> || std::floating_point<T>;
+	concept Number = std::integral<T> or std::floating_point<T>;
 	template <typename T>
 	concept Enum = std::is_enum_v<T>;
 	template <typename T>
-	concept NumberOrEnum = Number<T> || Enum<T>;
+	concept NumberOrEnum = Number<T> or Enum<T>;
 
 	template <typename T>
 	concept ViewParserAction = requires (T&& callable, const std::string_view& s)
@@ -33,16 +33,21 @@ namespace MiniParser
 	};
 
 	template <typename T>
-	concept ValueParserAction = ValueParserActionCopy<T> || ValueParserActionInplace<T>;
+	concept ValueParserAction = ValueParserActionCopy<T> or ValueParserActionInplace<T>;
 
 	template <typename T>
-	concept AnyParserAction = ViewParserAction<T> || ValueParserAction<T>;
+	concept AnyParserAction = ViewParserAction<T> or ValueParserAction<T>;
 
 	template <typename T>
 	concept MatchParserAction = requires (T&& callable, const string_view_match_results& mr)
 	{
 		{ callable(mr) } -> std::convertible_to<bool>;
 	};
+
+	template <typename T, typename ValueType>
+	concept ValueMap =
+		std::is_same_v<T, std::map<std::string, ValueType, typename T::key_compare, typename T::allocator_type>> or
+		std::is_same_v<T, std::unordered_map<std::string, ValueType, typename T::hasher, typename T::key_equal, typename T::allocator_type>>;
 
 	constexpr inline std::string_view Trim(const std::string_view& view)
 	{
@@ -180,9 +185,29 @@ namespace MiniParser
 			return false;
 		}
 
-		inline std::string_view GetTokenStringView(const string_view_regex_iterator& it)
+		template <NumberOrEnum ValueType>
+		inline bool Parse(const std::string_view& view, ValueType& value, const ValueType& default_value)
 		{
-			return { it->prefix().first, it->prefix().second };
+			const bool result = Parse(view, value);
+			if (!result)
+				value = default_value;
+			return result;
+		}
+
+		template <Enum ValueType, class MapType> requires ValueMap<MapType, ValueType>
+		inline bool Parse(const std::string& s, ValueType& value, const MapType& value_map, const ValueType& default_value)
+		{
+			auto it = value_map.find(s);
+			if (it == value_map.end())
+			{
+				value = default_value;
+				return false;
+			}
+			else
+			{
+				value = it->second;
+				return true;
+			}
 		}
 	}
 
@@ -198,7 +223,38 @@ namespace MiniParser
 		return Detail::Parse({ sub_match.first, sub_match.second }, value);
 	}
 
-	inline void SkipToken(string_view_regex_iterator& it)
+	template <NumberOrEnum ValueType>
+	inline bool Parse(const std::string_view& view, ValueType& value, const ValueType& default_value)
+	{
+		return Detail::Parse(view, value, default_value);
+	}
+
+	template <NumberOrEnum ValueType>
+	inline bool Parse(const string_view_match_results::value_type& sub_match, ValueType& value, const ValueType& default_value)
+	{
+		return Detail::Parse({ sub_match.first, sub_match.second }, value, default_value);
+	}
+
+	template <Enum ValueType, class MapType>
+	inline bool Parse(const std::string& s, ValueType& value, const MapType& value_map, const ValueType& default_value)
+	{
+		return Detail::Parse(s, value, value_map, default_value);
+	}
+
+	template <Enum ValueType, class MapType>
+	inline bool Parse(const std::string_view& view, ValueType& value, const MapType& value_map, const ValueType& default_value)
+	{
+		return Detail::Parse({ view }, value, value_map, default_value);
+	}
+
+	template <Enum ValueType, class MapType>
+	inline bool Parse(const string_view_match_results::value_type& sub_match, ValueType& value, const MapType& value_map, const ValueType& default_value)
+	{
+		return Detail::Parse(sub_match.str(), value, value_map, default_value);
+	}
+
+	template <class It> requires std::forward_iterator<It> or std::input_iterator<It>
+	inline void SkipToken(It& it)
 	{
 		++it;
 	}
@@ -206,14 +262,23 @@ namespace MiniParser
 	template <AnyParserAction... Actions>
 	inline bool ParseToken(string_view_regex_iterator& it, std::string_view& value, Actions&&... actions)
 	{
-		value = Detail::GetTokenStringView(it);
+		value = { it->prefix().first, it->prefix().second };
 		++it;
 		Detail::ViewParserActionsInvoker{}(value, std::forward<Actions&&>(actions)...);
 		return true;
 	}
 
-	template <AnyParserAction... Actions>
-	inline bool ParseToken(string_view_regex_iterator& it, std::string& value, Actions&&... actions)
+	template <class It, AnyParserAction... Actions> requires std::forward_iterator<It> or std::input_iterator<It>
+	inline bool ParseToken(It& it, std::string_view& value, Actions&&... actions)
+	{
+		value = { std::ranges::begin(it), std::ranges::end(it) };
+		++it;
+		Detail::ViewParserActionsInvoker{}(value, std::forward<Actions&&>(actions)...);
+		return true;
+	}
+
+	template <class It, AnyParserAction... Actions>
+	inline bool ParseToken(It& it, std::string& value, Actions&&... actions)
 	{
 		std::string_view token_view;
 		ParseToken(it, token_view, std::forward<Actions&&>(actions)...);
@@ -222,8 +287,8 @@ namespace MiniParser
 		return true;
 	}
 
-	template <NumberOrEnum ValueType, AnyParserAction... Actions>
-	inline bool ParseToken(string_view_regex_iterator& it, ValueType& value, Actions&&... actions)
+	template <class It, NumberOrEnum ValueType, AnyParserAction... Actions>
+	inline bool ParseToken(It& it, ValueType& value, Actions&&... actions)
 	{
 		std::string_view token_view;
 		ParseToken(it, token_view, std::forward<Actions&&>(actions)...);
@@ -231,8 +296,8 @@ namespace MiniParser
 		return result;
 	}
 
-	template <MatchParserAction MatchAction, AnyParserAction... Actions>
-	inline bool ParseToken(string_view_regex_iterator& it, const std::regex& re, MatchAction&& match_action, Actions&&... actions)
+	template <class It, MatchParserAction MatchAction, AnyParserAction... Actions>
+	inline bool ParseToken(It& it, const std::regex& re, MatchAction&& match_action, Actions&&... actions)
 	{
 		std::string_view token_view;
 		ParseToken(it, token_view, std::forward<Actions&&>(actions)...);
@@ -243,6 +308,20 @@ namespace MiniParser
 			return false;
 	}
 
+	template <Enum ValueType, class MapType, AnyParserAction... Actions> requires ValueMap<MapType, ValueType>
+	inline bool ParseToken(string_view_regex_iterator& it, ValueType& value, const MapType& value_map, const ValueType& default_value, Actions&&... actions)
+	{
+		std::string token_value;
+		ParseToken(it, token_value, std::forward<Actions&&>(actions)...);
+		return Detail::Parse(token_value, value, value_map, default_value);
+	}
+
+	namespace
+	{
+		inline static const std::regex re_token_separator(R"(\t|\r\n|\r|\n|$)", std::regex::optimize);
+		inline static const std::regex re_newline(R"(\r\n|\r|\n|$)", std::regex::optimize);
+	}
+
 	inline std::tuple<string_view_regex_iterator, string_view_regex_iterator> Tokenize(const std::string_view& view, const std::regex& re)
 	{
 		return { { std::begin(view), std::end(view), re, std::regex_constants::match_not_null }, {} };
@@ -250,14 +329,7 @@ namespace MiniParser
 
 	inline std::tuple<string_view_regex_iterator, string_view_regex_iterator> Tokenize(const std::string_view& view)
 	{
-		static const std::regex re_token_separator(R"(\t|\r\n|\r|\n|$)", std::regex::optimize);
-
 		return Tokenize(view, re_token_separator);
-	}
-
-	namespace
-	{
-		static const std::regex re_newline(R"(\r\n|\r|\n|$)", std::regex::optimize);
 	}
 
 	inline std::vector<std::string_view> Lines(const std::string_view& view)
@@ -277,11 +349,16 @@ namespace MiniParser
 				auto prefix = it->prefix();
 				auto suffix = it->suffix();
 
-				lines.emplace_back(prefix.first, prefix.second);
+				if (prefix.length() > 0)
+					// includes matched newline
+					lines.emplace_back(prefix.first, suffix.first);
+				else
+					lines.emplace_back();
 
 				if (++it == lines_end)
 				{
-					lines.emplace_back(suffix.first, suffix.second);
+					if (suffix.length() > 0)
+						lines.emplace_back(suffix.first, suffix.second);
 					break;
 				}
 			}

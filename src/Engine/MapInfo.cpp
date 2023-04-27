@@ -49,18 +49,20 @@ const char* location_type[] = {
 
 void MapStats::Initialize()
 {
+	using namespace MiniParser;
+
 	static const std::regex re_monster_encounter_counts { R"(\s*(\d+)(-(\d+))?)", std::regex::optimize };
 
 	uNumMaps = 0;
 
 	const auto blob = pEvents_LOD->LoadCompressedTexture("MapStats.txt");
-	const auto blob_lines = MiniParser::Lines(blob.string_view());
+	const auto blob_lines = Lines(blob.string_view());
 
 	const auto data_lines = blob_lines | std::views::drop(3);
 
 	for (const auto& data_line : data_lines)
 	{
-		auto [tokens_begin, tokens_end] { MiniParser::Tokenize(data_line) };
+		auto [tokens_begin, tokens_end] { Tokenize(data_line) };
 
 		if (tokens_begin == tokens_end)
 			continue;
@@ -71,60 +73,63 @@ void MapStats::Initialize()
 			std::size_t id;
 			std::string eax_env;
 
-			MiniParser::ParseToken(it, id);
-			MiniParser::ParseToken(it, pInfos[id].pName, MiniParser::StripQuotes);
-			MiniParser::ParseToken(it, pInfos[id].pFilename, MiniParser::StripQuotes, MiniParser::ToLowerInplace);
-			MiniParser::ParseToken(it, pInfos[id].uNumResets);
-			MiniParser::ParseToken(it, pInfos[id].uFirstVisitedAt);
-			MiniParser::ParseToken(it, pInfos[id]._per);
-			MiniParser::ParseToken(it, pInfos[id].uRespawnIntervalDays);
-			MiniParser::ParseToken(it, pInfos[id]._alert_days);
-			MiniParser::ParseToken(it, pInfos[id]._steal_perm);
-			MiniParser::ParseToken(it, pInfos[id].LockX5);
-			MiniParser::ParseToken(it, pInfos[id].Trap_D20);
-			MiniParser::ParseToken(it, pInfos[id].Treasure_prob);
-			MiniParser::ParseToken(it, pInfos[id].Encounter_percent);
-			MiniParser::ParseToken(it, pInfos[id].EncM1percent);
-			MiniParser::ParseToken(it, pInfos[id].EncM2percent);
-			MiniParser::ParseToken(it, pInfos[id].EncM3percent);
-			MiniParser::ParseToken(it, pInfos[id].pEncounterMonster1Texture, MiniParser::StripQuotes);
-			MiniParser::SkipToken(it);
-			MiniParser::ParseToken(it, pInfos[id].Dif_M1);
-			MiniParser::ParseToken(it, re_monster_encounter_counts, [&map_info = pInfos[id]](const MiniParser::string_view_match_results& mr)
+			ParseToken(it, id);
+
+			auto& map_info = pInfos[id];
+
+			ParseToken(it, map_info.pName, StripQuotes);
+			ParseToken(it, map_info.pFilename, StripQuotes, ToLowerInplace);
+			ParseToken(it, map_info.uNumResets);
+			ParseToken(it, map_info.uFirstVisitedAt);
+			ParseToken(it, map_info._per);
+			ParseToken(it, map_info.uRespawnIntervalDays);
+			ParseToken(it, map_info._alert_days);
+			ParseToken(it, map_info._steal_perm);
+			ParseToken(it, map_info.LockX5);
+			ParseToken(it, map_info.Trap_D20);
+			ParseToken(it, map_info.Treasure_prob);
+			ParseToken(it, map_info.Encounter_percent);
+			ParseToken(it, map_info.EncM1percent);
+			ParseToken(it, map_info.EncM2percent);
+			ParseToken(it, map_info.EncM3percent);
+			ParseToken(it, map_info.pEncounterMonster1Texture, StripQuotes);
+			SkipToken(it);
+			ParseToken(it, map_info.Dif_M1);
+			ParseToken(it, re_monster_encounter_counts, [&](const auto& mr)
 				{
-					MiniParser::Parse(mr[1], map_info.uEncounterMonster1AtLeast);
+					Parse(mr[1], map_info.uEncounterMonster1AtLeast);
 					if (mr[3].matched)
-						MiniParser::Parse(mr[3], map_info.uEncounterMonster1AtMost);
+						Parse(mr[3], map_info.uEncounterMonster1AtMost);
 					else
 						map_info.uEncounterMonster1AtMost = map_info.uEncounterMonster1AtLeast;
 					return true;
 				});
-			MiniParser::ParseToken(it, pInfos[id].pEncounterMonster2Texture, MiniParser::StripQuotes);
-			MiniParser::SkipToken(it);
-			MiniParser::ParseToken(it, pInfos[id].Dif_M2);
-			MiniParser::ParseToken(it, re_monster_encounter_counts, [&map_info = pInfos[id]](const MiniParser::string_view_match_results& mr)
+			ParseToken(it, map_info.pEncounterMonster2Texture, StripQuotes);
+			SkipToken(it);
+			ParseToken(it, map_info.Dif_M2);
+			ParseToken(it, re_monster_encounter_counts, [&](const auto& mr)
 				{
-					MiniParser::Parse(mr[1], map_info.uEncounterMonster2AtLeast);
+					Parse(mr[1], map_info.uEncounterMonster2AtLeast);
 					if (mr[3].matched)
-						MiniParser::Parse(mr[3], map_info.uEncounterMonster2AtMost);
+						Parse(mr[3], map_info.uEncounterMonster2AtMost);
 					else
 						map_info.uEncounterMonster2AtMost = map_info.uEncounterMonster2AtLeast;
 					return true;
 				});
-			MiniParser::ParseToken(it, pInfos[id].pEncounterMonster3Texture, MiniParser::StripQuotes);
-			MiniParser::SkipToken(it);
-			MiniParser::ParseToken(it, pInfos[id].Dif_M3);
-			MiniParser::ParseToken(it, re_monster_encounter_counts, [&map_info = pInfos[id]](const MiniParser::string_view_match_results& mr)
+			ParseToken(it, map_info.pEncounterMonster3Texture, StripQuotes);
+			SkipToken(it);
+			ParseToken(it, map_info.Dif_M3);
+			ParseToken(it, re_monster_encounter_counts, [&](const auto& mr)
 				{
-					MiniParser::Parse(mr[1], map_info.uEncounterMonster3AtLeast);
+					Parse(mr[1], map_info.uEncounterMonster3AtLeast);
 					if (mr[3].matched)
-						MiniParser::Parse(mr[3], map_info.uEncounterMonster3AtMost);
+						Parse(mr[3], map_info.uEncounterMonster3AtMost);
 					else
 						map_info.uEncounterMonster3AtMost = map_info.uEncounterMonster3AtLeast;
 					return true;
 				});
-			MiniParser::ParseToken(it, pInfos[id].uRedbookTrackID);
-			MiniParser::ParseToken(it, eax_env);
+			ParseToken(it, map_info.uRedbookTrackID);
+			ParseToken(it, eax_env);
 
 			{
 				auto it_eax_env = std::find_if(std::begin(location_type), std::end(location_type), [&](const char* const s)
@@ -132,9 +137,9 @@ void MapStats::Initialize()
 						return std::strcmp(s, eax_env.c_str()) == 0;
 					});
 				if (it_eax_env == std::end(location_type))
-					pInfos[id].uEAXEnv = std::size(location_type) + 1;
+					map_info.uEAXEnv = std::size(location_type) + 1;
 				else
-					pInfos[id].uEAXEnv = std::distance(std::begin(location_type), it_eax_env);
+					map_info.uEAXEnv = std::distance(std::begin(location_type), it_eax_env);
 			}
 		}
 

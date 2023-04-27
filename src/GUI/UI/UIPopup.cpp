@@ -369,7 +369,7 @@ void GameUI_DrawItemInfo(struct ItemGen* inspect_item)
 
 	std::string str = localization->FormatString(
 		LSTR_FMT_TYPE_S,
-		pItemTable->pItems[inspect_item->uItemID].pUnidentifiedName);
+		pItemTable->pItems[inspect_item->uItemID].pUnidentifiedName.c_str());
 
 	strcpy(out_text, str.c_str());
 	out_text[100] = 0;
@@ -452,14 +452,14 @@ void GameUI_DrawItemInfo(struct ItemGen* inspect_item)
 		{
 			sprintf(
 				out_text + 200, "%s: %s +%d", localization->GetString(LSTR_SPECIAL_2),
-				pItemTable->pEnchantments[inspect_item->uEnchantmentType - 1].pBonusStat,
+				pItemTable->pEnchantments[inspect_item->uEnchantmentType - 1].pBonusStat.c_str(),
 				inspect_item->m_enchantmentStrength);
 		}
 		else if (inspect_item->special_enchantment)
 		{
 			sprintf(
 				out_text + 200, "%s: %s", localization->GetString(LSTR_SPECIAL_2),
-				pItemTable->pSpecialEnchantments[inspect_item->special_enchantment].pBonusStatement);
+				pItemTable->pSpecialEnchantments[inspect_item->special_enchantment].pBonusStatement.c_str());
 		}
 		else if (inspect_item->isWand())
 		{
@@ -484,8 +484,7 @@ void GameUI_DrawItemInfo(struct ItemGen* inspect_item)
 			3;
 		v84 += 100;
 	}
-	v28 = pItemTable->pItems[inspect_item->uItemID].pDescription;
-	if (*v28)
+	if (!pItemTable->pItems[inspect_item->uItemID].pDescription.empty())
 		Str_int += pFontSmallnum->CalcTextHeight(
 			pItemTable->pItems[inspect_item->uItemID].pDescription,
 			iteminfo_window.uFrameWidth, 100);
@@ -541,9 +540,8 @@ void GameUI_DrawItemInfo(struct ItemGen* inspect_item)
 		}
 		Str += 100;
 	}
-	v28 = pItemTable->pItems[inspect_item->uItemID].pDescription;
-	if (*v28)
-		iteminfo_window.DrawText(pFontSmallnum, { 100, v34 }, colorTable.Black.c16(), v28, 0, 0, 0);
+	if (!pItemTable->pItems[inspect_item->uItemID].pDescription.empty())
+		iteminfo_window.DrawText(pFontSmallnum, { 100, v34 }, colorTable.Black.c16(), pItemTable->pItems[inspect_item->uItemID].pDescription, 0, 0, 0);
 	iteminfo_window.uFrameX += 12;
 	iteminfo_window.uFrameWidth -= 24;
 	iteminfo_window.DrawTitleText(pFontArrus, 0, 0xCu, colorTable.PaleCanary.c16(),

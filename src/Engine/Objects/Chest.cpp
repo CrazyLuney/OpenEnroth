@@ -649,18 +649,18 @@ void Chest::GrabItem(bool all)
 			goldcount++;
 		}
 		else
-		{  // this should add item to invetory of active char - if that fails set as holding item and break
+		{
+			// this should add item to invetory of active char - if that fails set as holding item and break
 			if (pParty->hasActiveCharacter() && (InventSlot = pPlayers[pParty->getActiveCharacter()]->AddItem(-1, chestitem.uItemID)) != 0)
-			{  // can place
+			{
+				// can place
 				memcpy(&pPlayers[pParty->getActiveCharacter()]->pInventoryItemList[InventSlot - 1], &chestitem, 0x24u);
 				grabcount++;
-				GameUI_SetStatusBar(
-					LSTR_FMT_YOU_FOUND_ITEM,
-					pItemTable->pItems[chestitem.uItemID].pUnidentifiedName
-				);
+				GameUI_SetStatusBar(LSTR_FMT_YOU_FOUND_ITEM, pItemTable->pItems[chestitem.uItemID].pUnidentifiedName.c_str());
 			}
 			else
-			{  // no room so set as holding item
+			{
+				// no room so set as holding item
 				pParty->SetHoldingItem(&chestitem);
 				RemoveItemAtChestIndex(loop);
 				pPlayers[pParty->getActiveCharacter()]->playReaction(SPEECH_NoRoom);
@@ -673,7 +673,8 @@ void Chest::GrabItem(bool all)
 	}
 
 	if (grabcount > 1 || goldcount > 1)
-	{  // found items
+	{
+		// found items
 		GameUI_SetStatusBar(fmt::format("You found {} item(s) and {} Gold!", grabcount, goldamount));
 	}
 	if (grabcount == 0 && goldcount == 0)

@@ -6,11 +6,13 @@
 
 struct Player;
 
-struct CEnchantment
+struct Enchantment
 {
-	CEnchantment() {}
-	explicit CEnchantment(int bonus, uint16_t Player::* skillPtr = nullptr)
-		: statPtr(skillPtr), statBonus(bonus)
+	Enchantment() {}
+
+	explicit Enchantment(int bonus, uint16_t Player::* skillPtr = nullptr)
+		: statPtr(skillPtr)
+		, statBonus(bonus)
 	{
 	}
 
@@ -18,42 +20,25 @@ struct CEnchantment
 	int statBonus = 0;
 };
 
-/*  177 */
-#pragma pack(push, 1)
 struct ItemEnchantment
-{  // Bonus|Sta|Of
-  // Name|Arm|Shld|Helm|Belt|Cape|Gaunt|Boot|Ring|Amul
-	char* pBonusStat;
-	char* pOfName;
-	/*	union{
-					struct {
-							unsigned char to_arm;
-							unsigned char to_shld;
-							unsigned char to_helm;
-							unsigned char to_belt;
-							unsigned char to_cape;
-							unsigned char to_gaunt;
-							unsigned char to_boot;
-							unsigned char to_ring;
-							unsigned char to_amul;
-							}; */
-	IndexedArray<unsigned char, EQUIP_FIRST_NORMAL_ENCHANTABLE, EQUIP_LAST_NORMAL_ENCHANTABLE> to_item;
-	// };
-};
-#pragma pack(pop)
+{
+	// Bonus|Sta|Of
+	// Name|Arm|Shld|Helm|Belt|Cape|Gaunt|Boot|Ring|Amul
 
-/*  178 */
-#pragma pack(push, 1)
+	std::string pBonusStat;
+	std::string pOfName;
+	IndexedArray<uint8_t, EQUIP_FIRST_NORMAL_ENCHANTABLE, EQUIP_LAST_NORMAL_ENCHANTABLE> to_item;
+};
+
 struct ItemSpecialEnchantment
-{  // 1Ch
-  // Bonus Stat|Name
-// Add|W1|W2|Miss|Arm|Shld|Helm|Belt|Cape|Gaunt|Boot|Ring|Amul|Value|Lvl|Description
-// fo special Bonuses and values
+{
+	// Bonus Stat|Name
+	// Add|W1|W2|Miss|Arm|Shld|Helm|Belt|Cape|Gaunt|Boot|Ring|Amul|Value|Lvl|Description
+	// fo special Bonuses and values
 
-	char* pBonusStatement;   // 0
-	char* pNameAdd;          // 4
-	IndexedArray<char, EQUIP_FIRST_SPECIAL_ENCHANTABLE, EQUIP_LAST_SPECIAL_ENCHANTABLE> to_item_apply;  // 8
-	int iValue;              // 14
-	int iTreasureLevel;      // 18
+	std::string pBonusStatement;
+	std::string pNameAdd;
+	IndexedArray<char, EQUIP_FIRST_SPECIAL_ENCHANTABLE, EQUIP_LAST_SPECIAL_ENCHANTABLE> to_item;
+	int iValue;
+	int iTreasureLevel;
 };
-#pragma pack(pop)

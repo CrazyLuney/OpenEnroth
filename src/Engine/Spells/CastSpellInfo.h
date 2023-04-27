@@ -6,42 +6,44 @@
 
 #include "Spells.h"
 
-namespace CastSpellInfoHelpers {
-    /**
-     * Cast spell processing.
-     *
-     * @offset 0x00427E01
-     */
-    void castSpell();
+namespace CastSpellInfoHelpers
+{
+	/**
+	 * Cast spell processing.
+	 *
+	 * @offset 0x00427E01
+	 */
+	void castSpell();
 
-    /**
-     * Remove all targeted spells from spell queue.
-     *
-     * @offset 0x00427D48
-     */
-    void cancelSpellCastInProgress();
+	/**
+	 * Remove all targeted spells from spell queue.
+	 *
+	 * @offset 0x00427D48
+	 */
+	void cancelSpellCastInProgress();
 };  // namespace CastSpellInfoHelpers
 
 class GUIWindow;
 
 // flags
-enum class SpellCastFlag : uint16_t {
-    ON_CAST_CastViaScroll = 0x0001,            // Spell is cast via scroll
-    ON_CAST_TargetedCharacter = 0x0002,        // Targeted spell, target is character
-    // 0x0004 unused
-    ON_CAST_TargetedActor = 0x0008,            // Targeted spell, target is actor
-    ON_CAST_TargetIsParty = 0x0010,            // Spell target is whole party
-    ON_CAST_NoRecoverySpell = 0x0020,          // No recovery time after spell cast
-    ON_CAST_TargetedTelekinesis = 0x0040,      // Targeted spell, telekinesis
-    ON_CAST_TargetedEnchantment = 0x0080,      // Targeted spell, target is item in inventory
-    ON_CAST_TargetedActorOrCharacter = 0x0100, // Targeted spell, target either actor or character
-    ON_CAST_TargetedHireling = 0x0200,         // Targeted spell, target is hireling
+enum class SpellCastFlag : uint16_t
+{
+	ON_CAST_CastViaScroll = 0x0001,            // Spell is cast via scroll
+	ON_CAST_TargetedCharacter = 0x0002,        // Targeted spell, target is character
+	// 0x0004 unused
+	ON_CAST_TargetedActor = 0x0008,            // Targeted spell, target is actor
+	ON_CAST_TargetIsParty = 0x0010,            // Spell target is whole party
+	ON_CAST_NoRecoverySpell = 0x0020,          // No recovery time after spell cast
+	ON_CAST_TargetedTelekinesis = 0x0040,      // Targeted spell, telekinesis
+	ON_CAST_TargetedEnchantment = 0x0080,      // Targeted spell, target is item in inventory
+	ON_CAST_TargetedActorOrCharacter = 0x0100, // Targeted spell, target either actor or character
+	ON_CAST_TargetedHireling = 0x0200,         // Targeted spell, target is hireling
 
-    // Cumulative flags indicating that spell is targeted
-    ON_CAST_CastingInProgress =
-        ON_CAST_TargetedCharacter | ON_CAST_TargetedActor |
-        ON_CAST_TargetedTelekinesis | ON_CAST_TargetedEnchantment |
-        ON_CAST_TargetedActorOrCharacter | ON_CAST_TargetedHireling
+	// Cumulative flags indicating that spell is targeted
+	ON_CAST_CastingInProgress =
+	ON_CAST_TargetedCharacter | ON_CAST_TargetedActor |
+	ON_CAST_TargetedTelekinesis | ON_CAST_TargetedEnchantment |
+	ON_CAST_TargetedActorOrCharacter | ON_CAST_TargetedHireling
 };
 using enum SpellCastFlag;
 MM_DECLARE_FLAGS(SpellCastFlags, SpellCastFlag)
@@ -54,21 +56,23 @@ static const PLAYER_SKILL SCROLL_OR_NPC_SPELL_SKILL_VALUE = ConstructSkillValue(
 static const uint16_t SPELL_FAILURE_RECOVERY_TIME_ON_CURSE = 100;
 
 /*  271 */
-struct CastSpellInfo {
-    inline CastSpellInfo() {
-        memset(this, 0, sizeof(*this));
-    }
+struct CastSpellInfo
+{
+	inline CastSpellInfo()
+	{
+		memset(this, 0, sizeof(*this));
+	}
 
-    GUIWindow *GetCastSpellInInventoryWindow();
+	GUIWindow* GetCastSpellInInventoryWindow();
 
-    SPELL_TYPE uSpellID;
-    uint16_t uPlayerID;
-    uint16_t uPlayerID_2;
-    int16_t field_6; // ITEM_EQUIP_TYPE when enchanting.
-    SpellCastFlags uFlags;
-    int16_t forced_spell_skill_level;
-    int spell_target_pid;
-    int sound_id;
+	SPELL_TYPE uSpellID;
+	uint16_t uPlayerID;
+	uint16_t uPlayerID_2;
+	int16_t field_6; // ITEM_EQUIP_TYPE when enchanting.
+	SpellCastFlags uFlags;
+	int16_t forced_spell_skill_level;
+	int spell_target_pid;
+	int sound_id;
 };
 
 /**
@@ -92,10 +96,10 @@ struct CastSpellInfo {
  * @param a6             ???
  */
 void pushSpellOrRangedAttack(SPELL_TYPE spell,
-                             unsigned int uPlayerID,
-                             PLAYER_SKILL skill_value,
-                             SpellCastFlags flags,
-                             int a6);
+	unsigned int uPlayerID,
+	PLAYER_SKILL skill_value,
+	SpellCastFlags flags,
+	int a6);
 
 /**
  * Register spell cast on party with temple donation.

@@ -1098,7 +1098,7 @@ void CreateScrollWindow()
 	a1.uFrameZ = a1.uFrameWidth + a1.uFrameX - 1;
 	a1.uFrameW = a1.uFrameHeight + a1.uFrameY - 1;
 
-	char* v1 = pItemTable->pItems[pGUIWindow_ScrollWindow->scroll_type].pName;
+	auto v1 = pItemTable->pItems[pGUIWindow_ScrollWindow->scroll_type].pName.c_str();
 
 	a1.DrawTitleText(pFontCreate, 0, 0, 0, fmt::format("\f{:05}{}\f00000\n", colorTable.PaleCanary.c16(), v1), 3);
 	a1.DrawText(pFontSmallnum, { 1, pFontCreate->GetHeight() - 3 }, 0, pScrolls[pGUIWindow_ScrollWindow->scroll_type], 0, 0, 0);
@@ -1739,9 +1739,8 @@ void OracleDialogue()
 	{
 		pParty->pPlayers[0].AddVariable(VAR_PlayerItemInHands, std::to_underlying(item_id));
 		// TODO(captainurist): what if fmt throws?
-		current_npc_text = fmt::sprintf(pNPCTopics[666].pText, // "Here's %s that you lost. Be careful"
-			fmt::format("\f{:05}{}\f00000", colorTable.Jonquil.c16(),
-				pItemTable->pItems[item_id].pUnidentifiedName).c_str());
+		// "Here's %s that you lost. Be careful"
+		current_npc_text = fmt::sprintf(pNPCTopics[666].pText, fmt::format("\f{:05}{}\f00000", colorTable.Jonquil.c16(), pItemTable->pItems[item_id].pUnidentifiedName));
 	}
 
 	// missing item is lich jar and we need to bind soul vessel to lich class character

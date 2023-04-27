@@ -4304,10 +4304,7 @@ void Actor::LootActor()
 		Dst.Reset();
 		Dst.uItemID = this->uCarriedItemID;
 
-		StatusBarItemFound(
-			v14,
-			pItemTable->pItems[Dst.uItemID].pUnidentifiedName
-		);
+		StatusBarItemFound(v14, pItemTable->pItems[Dst.uItemID].pUnidentifiedName.c_str());
 
 		if (Dst.isWand())
 		{
@@ -4349,10 +4346,7 @@ void Actor::LootActor()
 			Dst = this->ActorHasItems[3];
 			this->ActorHasItems[3].Reset();
 
-			StatusBarItemFound(
-				v14,
-				pItemTable->pItems[Dst.uItemID].pUnidentifiedName
-			);
+			StatusBarItemFound(v14, pItemTable->pItems[Dst.uItemID].pUnidentifiedName.c_str());
 
 			if (!pParty->AddItemToParty(&Dst)) pParty->SetHoldingItem(&Dst);
 			itemFound = true;
@@ -4364,7 +4358,7 @@ void Actor::LootActor()
 		{
 			pItemTable->GenerateItem(this->pMonsterInfo.uTreasureLevel, this->pMonsterInfo.uTreasureType, &Dst);
 
-			StatusBarItemFound(v14, pItemTable->pItems[Dst.uItemID].pUnidentifiedName);
+			StatusBarItemFound(v14, pItemTable->pItems[Dst.uItemID].pUnidentifiedName.c_str());
 
 			if (!pParty->AddItemToParty(&Dst))
 				pParty->SetHoldingItem(&Dst);

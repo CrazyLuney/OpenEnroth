@@ -12,7 +12,62 @@
 
 #include "Utility/Strings.h"
 #include "Utility/MapAccess.h"
+#include "Utility/MiniParser.hpp"
 #include "Library/Random/Random.h"
+
+namespace
+{
+	static const std::map<std::string, ITEM_EQUIP_TYPE, ILess> equipStatMap
+	{
+		{ "weapon", EQUIP_SINGLE_HANDED },
+		{ "weapon2", EQUIP_TWO_HANDED },
+		{ "weapon1or2", EQUIP_SINGLE_HANDED },
+		{ "missile", EQUIP_BOW },
+		{ "bow", EQUIP_BOW },
+		{ "armor", EQUIP_ARMOUR },
+		{ "shield", EQUIP_SHIELD },
+		{ "helm", EQUIP_HELMET },
+		{ "belt", EQUIP_BELT },
+		{ "cloak", EQUIP_CLOAK },
+		{ "gauntlets", EQUIP_GAUNTLETS },
+		{ "boots", EQUIP_BOOTS },
+		{ "ring", EQUIP_RING },
+		{ "amulet", EQUIP_AMULET },
+		{ "weaponw", EQUIP_WAND },
+		{ "herb", EQUIP_REAGENT },
+		{ "reagent", EQUIP_REAGENT },
+		{ "bottle", EQUIP_POTION },
+		{ "sscroll", EQUIP_SPELL_SCROLL },
+		{ "book", EQUIP_BOOK },
+		{ "mscroll", EQUIP_MESSAGE_SCROLL },
+		{ "gold", EQUIP_GOLD },
+		{ "gem", EQUIP_GEM },
+	};
+
+	static const std::map<std::string, PLAYER_SKILL_TYPE, ILess> equipSkillMap
+	{
+		{ "staff", PLAYER_SKILL_STAFF },
+		{ "sword", PLAYER_SKILL_SWORD },
+		{ "dagger", PLAYER_SKILL_DAGGER },
+		{ "axe", PLAYER_SKILL_AXE },
+		{ "spear", PLAYER_SKILL_SPEAR },
+		{ "bow", PLAYER_SKILL_BOW },
+		{ "mace", PLAYER_SKILL_MACE },
+		{ "blaster", PLAYER_SKILL_BLASTER },
+		{ "shield", PLAYER_SKILL_SHIELD },
+		{ "leather", PLAYER_SKILL_LEATHER },
+		{ "chain", PLAYER_SKILL_CHAIN },
+		{ "plate", PLAYER_SKILL_PLATE },
+		{ "club", PLAYER_SKILL_CLUB },
+	};
+
+	static const std::map<std::string, ITEM_MATERIAL, ILess> materialMap
+	{
+		{ "artifact", MATERIAL_ARTIFACT },
+		{ "relic", MATERIAL_RELIC },
+		{ "special", MATERIAL_SPECIAL },
+	};
+}
 
 //----- (0045814E) --------------------------------------------------------
 void ItemTable::Release()
@@ -34,51 +89,6 @@ void ItemTable::Release()
 //----- (00456D84) --------------------------------------------------------
 void ItemTable::Initialize()
 {
-	std::map<std::string, ITEM_EQUIP_TYPE, ILess> equipStatMap;
-	equipStatMap["weapon"] = EQUIP_SINGLE_HANDED;
-	equipStatMap["weapon2"] = EQUIP_TWO_HANDED;
-	equipStatMap["weapon1or2"] = EQUIP_SINGLE_HANDED;
-	equipStatMap["missile"] = EQUIP_BOW;
-	equipStatMap["bow"] = EQUIP_BOW;
-	equipStatMap["armor"] = EQUIP_ARMOUR;
-	equipStatMap["shield"] = EQUIP_SHIELD;
-	equipStatMap["helm"] = EQUIP_HELMET;
-	equipStatMap["belt"] = EQUIP_BELT;
-	equipStatMap["cloak"] = EQUIP_CLOAK;
-	equipStatMap["gauntlets"] = EQUIP_GAUNTLETS;
-	equipStatMap["boots"] = EQUIP_BOOTS;
-	equipStatMap["ring"] = EQUIP_RING;
-	equipStatMap["amulet"] = EQUIP_AMULET;
-	equipStatMap["weaponw"] = EQUIP_WAND;
-	equipStatMap["herb"] = EQUIP_REAGENT;
-	equipStatMap["reagent"] = EQUIP_REAGENT;
-	equipStatMap["bottle"] = EQUIP_POTION;
-	equipStatMap["sscroll"] = EQUIP_SPELL_SCROLL;
-	equipStatMap["book"] = EQUIP_BOOK;
-	equipStatMap["mscroll"] = EQUIP_MESSAGE_SCROLL;
-	equipStatMap["gold"] = EQUIP_GOLD;
-	equipStatMap["gem"] = EQUIP_GEM;
-
-	std::map<std::string, PLAYER_SKILL_TYPE, ILess> equipSkillMap;
-	equipSkillMap["staff"] = PLAYER_SKILL_STAFF;
-	equipSkillMap["sword"] = PLAYER_SKILL_SWORD;
-	equipSkillMap["dagger"] = PLAYER_SKILL_DAGGER;
-	equipSkillMap["axe"] = PLAYER_SKILL_AXE;
-	equipSkillMap["spear"] = PLAYER_SKILL_SPEAR;
-	equipSkillMap["bow"] = PLAYER_SKILL_BOW;
-	equipSkillMap["mace"] = PLAYER_SKILL_MACE;
-	equipSkillMap["blaster"] = PLAYER_SKILL_BLASTER;
-	equipSkillMap["shield"] = PLAYER_SKILL_SHIELD;
-	equipSkillMap["leather"] = PLAYER_SKILL_LEATHER;
-	equipSkillMap["chain"] = PLAYER_SKILL_CHAIN;
-	equipSkillMap["plate"] = PLAYER_SKILL_PLATE;
-	equipSkillMap["club"] = PLAYER_SKILL_CLUB;
-
-	std::map<std::string, ITEM_MATERIAL, ILess> materialMap;
-	materialMap["artifact"] = MATERIAL_ARTIFACT;
-	materialMap["relic"] = MATERIAL_RELIC;
-	materialMap["special"] = MATERIAL_SPECIAL;
-
 	char* test_string;
 
 	pMapStats = new MapStats;
@@ -100,223 +110,14 @@ void ItemTable::Initialize()
 	pStorylineText = new StorylineText;
 	pStorylineText->Initialize();
 
-	pStdItemsTXT_Raw = pEvents_LOD->LoadCompressedTexture("stditems.txt").string_view();
-	strtok(pStdItemsTXT_Raw.data(), "\r");
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	// Standard Bonuses by Group
-	for (int i = 0; i < 24; ++i)
-	{
-		test_string = strtok(NULL, "\r") + 1;
-		auto tokens = tokenize(test_string, '\t');
-		pEnchantments[i].pBonusStat = removeQuotes(tokens[0]);
-		pEnchantments[i].pOfName = removeQuotes(tokens[1]);
-
-		int k = 2;
-		for (ITEM_EQUIP_TYPE j : pEnchantments[i].to_item.indices())
-			pEnchantments[i].to_item[j] = atoi(tokens[k++]);
-	}
-
-	pEnchantmentsSumm.fill(0);
-	for (int j = 0; j < 24; ++j)
-		for (ITEM_EQUIP_TYPE i : pEnchantments[j].to_item.indices())
-			pEnchantmentsSumm[i] += pEnchantments[j].to_item[i];
-
-	// Bonus range for Standard by Level
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	for (ITEM_TREASURE_LEVEL i : bonus_ranges.indices())
-	{  // counted from 1
-		test_string = strtok(NULL, "\r") + 1;
-		auto tokens = tokenize(test_string, '\t');
-		Assert(tokens.size() == 4, "Invalid number of tokens");
-		bonus_ranges[i].minR = atoi(tokens[2]);
-		bonus_ranges[i].maxR = atoi(tokens[3]);
-	}
-
-	pSpcItemsTXT_Raw = pEvents_LOD->LoadCompressedTexture("spcitems.txt").string_view();
-	strtok(pSpcItemsTXT_Raw.data(), "\r");
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	for (ITEM_ENCHANTMENT i : pSpecialEnchantments.indices())
-	{
-		test_string = strtok(NULL, "\r") + 1;
-		auto tokens = tokenize(test_string, '\t');
-		Assert(tokens.size() >= 17, "Invalid number of tokens");
-		pSpecialEnchantments[i].pBonusStatement = removeQuotes(tokens[0]);
-		pSpecialEnchantments[i].pNameAdd = removeQuotes(tokens[1]);
-
-		int k = 2;
-		for (ITEM_EQUIP_TYPE j : pSpecialEnchantments[i].to_item_apply.indices())
-			pSpecialEnchantments[i].to_item_apply[j] = atoi(tokens[k++]);
-
-		int res;
-		res = atoi(tokens[14]);
-		int mask = 0;
-		if (!res)
-		{
-			++tokens[14];
-			while (*tokens[14] == ' ')  // fix X 2 case
-				++tokens[14];
-			res = atoi(tokens[14]);
-			mask = 4;  // bit encode for when we need to multuply value
-		}
-		pSpecialEnchantments[i].iValue = res;
-		pSpecialEnchantments[i].iTreasureLevel = (tolower(tokens[15][0]) - 97) | mask;
-	}
-
-	pSpecialEnchantments_count = 72;
+	InitializeStandardEnchantments();
+	InitializeSpecialEnchantments();
 
 	InitializeBuildingResidents();
 
-	pItemsTXT_Raw = pEvents_LOD->LoadCompressedTexture("items.txt").string_view();
-	strtok(pItemsTXT_Raw.data(), "\r");
-	strtok(NULL, "\r");
-	for (size_t line = 0; line < 799; line++)
-	{
-		test_string = strtok(NULL, "\r") + 1;
-		auto tokens = tokenize(test_string, '\t');
+	InitializeItems();
 
-		ITEM_TYPE item_counter = ITEM_TYPE(atoi(tokens[0]));
-		pItems[item_counter].pIconName = removeQuotes(tokens[1]);
-		pItems[item_counter].pName = removeQuotes(tokens[2]);
-		pItems[item_counter].uValue = atoi(tokens[3]);
-		pItems[item_counter].uEquipType = valueOr(equipStatMap, tokens[4], EQUIP_NONE);
-		pItems[item_counter].uSkillType = valueOr(equipSkillMap, tokens[5], PLAYER_SKILL_MISC);
-		auto tokens2 = tokenize(tokens[6], 'd');
-		if (tokens2.size() == 2)
-		{
-			pItems[item_counter].uDamageDice = atoi(tokens2[0]);
-			pItems[item_counter].uDamageRoll = atoi(tokens2[1]);
-		}
-		else if (tolower(tokens2[0][0]) != 's')
-		{
-			pItems[item_counter].uDamageDice = atoi(tokens2[0]);
-			pItems[item_counter].uDamageRoll = 1;
-		}
-		else
-		{
-			pItems[item_counter].uDamageDice = 0;
-			pItems[item_counter].uDamageRoll = 0;
-		}
-		pItems[item_counter].uDamageMod = atoi(tokens[7]);
-		pItems[item_counter].uMaterial = valueOr(materialMap, tokens[8], MATERIAL_COMMON);
-		pItems[item_counter].uItemID_Rep_St = atoi(tokens[9]);
-		pItems[item_counter].pUnidentifiedName = removeQuotes(tokens[10]);
-		pItems[item_counter].uSpriteID = atoi(tokens[11]);
-
-		pItems[item_counter]._additional_value = 0;
-		pItems[item_counter]._bonus_type = 0;
-		if (pItems[item_counter].uMaterial == MATERIAL_SPECIAL)
-		{
-			for (int ii = 0; ii < 24; ++ii)
-			{
-				if (iequals(tokens[12], pEnchantments[ii].pOfName))
-				{
-					pItems[item_counter]._bonus_type = ii + 1;
-					break;
-				}
-			}
-			if (!pItems[item_counter]._bonus_type)
-			{
-				for (ITEM_ENCHANTMENT ii : pSpecialEnchantments.indices())
-				{
-					if (iequals(tokens[12], pSpecialEnchantments[ii].pNameAdd))
-					{
-						pItems[item_counter]._additional_value = ii;
-					}
-				}
-			}
-		}
-
-		if ((pItems[item_counter].uMaterial == MATERIAL_SPECIAL) &&
-			(pItems[item_counter]._bonus_type))
-		{
-			char b_s = atoi(tokens[13]);
-			if (b_s)
-				pItems[item_counter]._bonus_strength = b_s;
-			else
-				pItems[item_counter]._bonus_strength = 1;
-		}
-		else
-		{
-			pItems[item_counter]._bonus_strength = 0;
-		}
-		pItems[item_counter].uEquipX = atoi(tokens[14]);
-		pItems[item_counter].uEquipY = atoi(tokens[15]);
-		pItems[item_counter].pDescription = removeQuotes(tokens[16]);
-	}
-
-	pRndItemsTXT_Raw = pEvents_LOD->LoadCompressedTexture("rnditems.txt").string_view();
-	strtok(pRndItemsTXT_Raw.data(), "\r");
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	for (size_t line = 0; line < 618; line++)
-	{
-		test_string = strtok(NULL, "\r") + 1;
-		auto tokens = tokenize(test_string, '\t');
-		Assert(tokens.size() > 7, "Invalid number of tokens");
-
-		ITEM_TYPE item_counter = ITEM_TYPE(atoi(tokens[0]));
-		pItems[item_counter].uChanceByTreasureLvl[ITEM_TREASURE_LEVEL_1] = atoi(tokens[2]);
-		pItems[item_counter].uChanceByTreasureLvl[ITEM_TREASURE_LEVEL_2] = atoi(tokens[3]);
-		pItems[item_counter].uChanceByTreasureLvl[ITEM_TREASURE_LEVEL_3] = atoi(tokens[4]);
-		pItems[item_counter].uChanceByTreasureLvl[ITEM_TREASURE_LEVEL_4] = atoi(tokens[5]);
-		pItems[item_counter].uChanceByTreasureLvl[ITEM_TREASURE_LEVEL_5] = atoi(tokens[6]);
-		pItems[item_counter].uChanceByTreasureLvl[ITEM_TREASURE_LEVEL_6] = atoi(tokens[7]);
-	}
-
-	// ChanceByTreasureLvl Summ - to calculate chance
-	memset(&uChanceByTreasureLvlSumm, 0, 24);
-	for (ITEM_TREASURE_LEVEL i : uChanceByTreasureLvlSumm.indices())
-		for (ITEM_TYPE j : pItems.indices())
-			uChanceByTreasureLvlSumm[i] += pItems[j].uChanceByTreasureLvl[i];
-
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	for (int i = 0; i < 3; ++i)
-	{
-		test_string = strtok(NULL, "\r") + 1;
-		auto tokens = tokenize(test_string, '\t');
-		Assert(tokens.size() > 7, "Invalid number of tokens");
-		switch (i)
-		{
-		case 0:
-			uBonusChanceStandart[ITEM_TREASURE_LEVEL_1] = atoi(tokens[2]);
-			uBonusChanceStandart[ITEM_TREASURE_LEVEL_2] = atoi(tokens[3]);
-			uBonusChanceStandart[ITEM_TREASURE_LEVEL_3] = atoi(tokens[4]);
-			uBonusChanceStandart[ITEM_TREASURE_LEVEL_4] = atoi(tokens[5]);
-			uBonusChanceStandart[ITEM_TREASURE_LEVEL_5] = atoi(tokens[6]);
-			uBonusChanceStandart[ITEM_TREASURE_LEVEL_6] = atoi(tokens[7]);
-			break;
-		case 1:
-			uBonusChanceSpecial[ITEM_TREASURE_LEVEL_1] = atoi(tokens[2]);
-			uBonusChanceSpecial[ITEM_TREASURE_LEVEL_2] = atoi(tokens[3]);
-			uBonusChanceSpecial[ITEM_TREASURE_LEVEL_3] = atoi(tokens[4]);
-			uBonusChanceSpecial[ITEM_TREASURE_LEVEL_4] = atoi(tokens[5]);
-			uBonusChanceSpecial[ITEM_TREASURE_LEVEL_5] = atoi(tokens[6]);
-			uBonusChanceSpecial[ITEM_TREASURE_LEVEL_6] = atoi(tokens[7]);
-			break;
-		case 2:
-			uBonusChanceWpSpecial[ITEM_TREASURE_LEVEL_1] = atoi(tokens[2]);
-			uBonusChanceWpSpecial[ITEM_TREASURE_LEVEL_2] = atoi(tokens[3]);
-			uBonusChanceWpSpecial[ITEM_TREASURE_LEVEL_3] = atoi(tokens[4]);
-			uBonusChanceWpSpecial[ITEM_TREASURE_LEVEL_4] = atoi(tokens[5]);
-			uBonusChanceWpSpecial[ITEM_TREASURE_LEVEL_5] = atoi(tokens[6]);
-			uBonusChanceWpSpecial[ITEM_TREASURE_LEVEL_6] = atoi(tokens[7]);
-			break;
-		}
-	}
-	pRndItemsTXT_Raw.clear();
+	InitializeRandomItems();
 
 	ItemGen::PopulateSpecialBonusMap();
 	ItemGen::PopulateArtifactBonusMap();
@@ -352,100 +153,106 @@ bool ItemTable::IsMaterialNonCommon(ItemGen* pItem)
 //----- (00453B3C) --------------------------------------------------------
 void ItemTable::LoadPotions()
 {
-	//    char Text[90];
-	char* test_string;
-	uint8_t potion_value;
+	using namespace std::literals::string_view_literals;
+	using namespace MiniParser;
 
-	free(pPotionNotesTXT_Raw);
-	std::vector<char*> tokens;
-	std::string pPotionsTXT_Raw = std::string(pEvents_LOD->LoadCompressedTexture("potion.txt").string_view());
-	test_string = strtok(pPotionsTXT_Raw.data(), "\r") + 1;
-	while (test_string)
-	{
-		tokens = tokenize(test_string, '\t');
-		if (!strcmp(tokens[0], "222")) break;
-		test_string = strtok(NULL, "\r") + 1;
-	}
-	if (!test_string)
+	static constexpr auto FirstPotionLinePrefix = "222\t"sv;
+	static constexpr auto InvalidMixturePrefix = "E"sv;
+
+	//static const std::regex re_mix_result { R"((e)?(\d+))", std::regex::optimize | std::regex::icase };
+
+	const auto blob = pEvents_LOD->LoadCompressedTexture("potion.txt");
+	const auto blob_lines = Lines(blob.string_view());
+
+	auto data_lines = blob_lines | std::views::drop_while([](const auto& data_line)
+		{
+			return !data_line.starts_with(FirstPotionLinePrefix);
+		});
+
+	if (data_lines.empty())
 	{
 		logger->warning("Error Pre-Parsing Potion Table");
 		return;
 	}
 
-	for (ITEM_TYPE row : Segment<ITEM_TYPE>(ITEM_FIRST_REAL_POTION, ITEM_LAST_REAL_POTION))
+	for (const auto& data_line : data_lines)
 	{
-		if (tokens.size() < 50)
-		{
-			logger->warning("Error Parsing Potion Table at Row: {} Column: {}", std::to_underlying(row) - std::to_underlying(ITEM_FIRST_REAL_POTION), tokens.size());
-			return;
-		}
-		for (ITEM_TYPE column : Segment<ITEM_TYPE>(ITEM_FIRST_REAL_POTION, ITEM_LAST_REAL_POTION))
-		{
-			int flatPotionId = std::to_underlying(column) - std::to_underlying(ITEM_FIRST_REAL_POTION);
-			char* currValue = tokens[flatPotionId + 7];
-			potion_value = atoi(currValue);
-			if (!potion_value && currValue[0] == 'E')
-			{
-				// values like "E{x}" represent damage level {x} when using invalid potion combination
-				potion_value = atoi(currValue + 1);
-			}
-			this->potionCombination[row][column] = (ITEM_TYPE)potion_value;
-		}
+		auto [it, it_end] = Tokenize(data_line);
 
-		test_string = strtok(NULL, "\r") + 1;
-		if (!test_string)
+		ITEM_TYPE row;
+
+		ParseToken(it, row);
+
+		SkipToken(it); // name
+		SkipToken(it); // desc
+		SkipToken(it); // effect
+		SkipToken(it); // R
+		SkipToken(it); // B
+		SkipToken(it); // Y
+
+		for (auto col : Segment<ITEM_TYPE>(ITEM_FIRST_REAL_POTION, ITEM_LAST_REAL_POTION))
 		{
-			logger->warning("Error Parsing Potion Table at Row: {} Column: {}", std::to_underlying(row), 0);
-			return;
+			std::string_view token;
+
+			ParseToken(it, token);
+
+			// values like "E{x}" represent damage level {x} when using invalid potion combination
+			// plain numbers denote mixture item ID
+			if (token.starts_with(InvalidMixturePrefix))
+			{
+				Parse(token.substr(InvalidMixturePrefix.length()), potionCombination[row][col]);
+			}
+			else
+			{
+				Parse(token, potionCombination[row][col], ITEM_NULL);
+			}
 		}
-		tokens = tokenize(test_string, '\t');
 	}
 }
 
 //----- (00453CE5) --------------------------------------------------------
 void ItemTable::LoadPotionNotes()
 {
-	//  char Text[90];
-	char* test_string;
-	uint8_t potion_note;
+	using namespace std::literals::string_view_literals;
+	using namespace MiniParser;
 
-	free(pPotionNotesTXT_Raw);
-	std::vector<char*> tokens;
-	std::string pPotionNotesTXT_Raw = std::string(pEvents_LOD->LoadCompressedTexture("potnotes.txt").string_view());
-	test_string = strtok(pPotionNotesTXT_Raw.data(), "\r") + 1;
-	while (test_string)
-	{
-		tokens = tokenize(test_string, '\t');
-		if (!strcmp(tokens[0], "222")) break;
-		test_string = strtok(NULL, "\r") + 1;
-	}
-	if (!test_string)
+	static constexpr auto FirstPotionLinePrefix = "222\t"sv;
+
+	const auto blob = pEvents_LOD->LoadCompressedTexture("potion.txt");
+	const auto blob_lines = Lines(blob.string_view());
+
+	auto data_lines = blob_lines | std::views::drop_while([](const auto& data_line)
+		{
+			return !data_line.starts_with(FirstPotionLinePrefix);
+		});
+
+	if (data_lines.empty())
 	{
 		logger->warning("Error Pre-Parsing Potion Table");
 		return;
 	}
 
-	for (ITEM_TYPE row : Segment<ITEM_TYPE>(ITEM_FIRST_REAL_POTION, ITEM_LAST_REAL_POTION))
+	for (const auto& data_line : data_lines)
 	{
-		if (tokens.size() < 50)
-		{
-			logger->warning("Error Parsing Potion Table at Row: {} Column: {}", std::to_underlying(row), tokens.size());
-			return;
-		}
-		for (ITEM_TYPE column : Segment<ITEM_TYPE>(ITEM_FIRST_REAL_POTION, ITEM_LAST_REAL_POTION))
-		{
-			int flatPotionId = std::to_underlying(column) - std::to_underlying(ITEM_FIRST_REAL_POTION);
-			char* currValue = tokens[flatPotionId + 7];
-			this->potionNotes[row][column] = atoi(currValue);
-		}
+		auto [it, it_end] = Tokenize(data_line);
 
-		test_string = strtok(NULL, "\r") + 1;
-		if (!test_string)
+		ITEM_TYPE row;
+
+		ParseToken(it, row);
+
+		SkipToken(it); // name
+		SkipToken(it); // desc
+		SkipToken(it); // effect
+		SkipToken(it); // R
+		SkipToken(it); // B
+		SkipToken(it); // Y
+
+		for (auto col : Segment<ITEM_TYPE>(ITEM_FIRST_REAL_POTION, ITEM_LAST_REAL_POTION))
 		{
-			logger->warning("Error Parsing Potion Table at Row: {} Column: {}", std::to_underlying(row) - std::to_underlying(ITEM_FIRST_REAL_POTION), 0);
-			return;
+			std::string_view token;
+
+			ParseToken(it, potionNotes[row][col]);
 		}
-		tokens = tokenize(test_string, '\t');
 	}
 }
 
@@ -746,7 +553,7 @@ void ItemTable::GenerateItem(ITEM_TREASURE_LEVEL treasure_level, unsigned int uT
 			(treasure_level == ITEM_TREASURE_LEVEL_5) && (tr_lv == 3 || tr_lv == 2 || tr_lv == 1) ||
 			(treasure_level == ITEM_TREASURE_LEVEL_6) && (tr_lv == 3))
 		{
-			spc = pSpecialEnchantments[i].to_item_apply[out_item->GetItemEquipType()];
+			spc = pSpecialEnchantments[i].to_item[out_item->GetItemEquipType()];
 			spc_sum += spc;
 			if (spc)
 			{
@@ -758,7 +565,7 @@ void ItemTable::GenerateItem(ITEM_TREASURE_LEVEL treasure_level, unsigned int uT
 	int target = grng->random(spc_sum);
 	for (int currentSum = 0, k = 0; k < j; k++)
 	{
-		currentSum += pSpecialEnchantments[val_list2[k]].to_item_apply[out_item->GetItemEquipType()];
+		currentSum += pSpecialEnchantments[val_list2[k]].to_item[out_item->GetItemEquipType()];
 		if (currentSum > target)
 		{
 			out_item->special_enchantment = val_list2[k];
@@ -950,4 +757,305 @@ void ItemTable::PrintItemTypesEnum()
 		}
 	}
 	printf("};\n");
+}
+
+void ItemTable::InitializeStandardEnchantments()
+{
+	pEnchantmentsSumm.fill(0);
+
+	using namespace MiniParser;
+
+	const auto blob = pEvents_LOD->LoadCompressedTexture("stditems.txt");
+	const auto blob_lines = Lines(blob.string_view());
+
+	{
+		const auto data_lines = blob_lines | std::views::drop(4) | std::views::take(pEnchantments.size());
+
+		std::size_t i = 0;
+
+		for (const auto& data_line : data_lines)
+		{
+			auto [it, it_end] { Tokenize(data_line) };
+
+			auto& enchantment = pEnchantments[i++];
+
+			ParseToken(it, enchantment.pBonusStat, StripQuotes);
+			ParseToken(it, enchantment.pOfName, StripQuotes);
+
+			for (auto item_equip_type : enchantment.to_item.indices())
+			{
+				ParseToken(it, enchantment.to_item[item_equip_type]);
+
+				pEnchantmentsSumm[item_equip_type] += enchantment.to_item[item_equip_type];
+			}
+		}
+	}
+
+	{
+		const auto data_lines = blob_lines | std::views::drop(4) | std::views::drop(pEnchantments.size()) | std::views::drop(5) | std::views::take(bonus_ranges.size());
+
+		for (const auto& data_line : data_lines)
+		{
+			auto [it, it_end] { Tokenize(data_line) };
+
+			ITEM_TREASURE_LEVEL level;
+
+			SkipToken(it);
+			ParseToken(it, level);
+
+			auto& bonus_range = bonus_ranges[level];
+
+			ParseToken(it, bonus_range.minR);
+			ParseToken(it, bonus_range.maxR);
+		}
+	}
+}
+
+void ItemTable::InitializeSpecialEnchantments()
+{
+	static const std::regex re_value_or_multiplier{ R"((\s*x\s*(\d+))|(\d+))", std::regex::optimize | std::regex::icase };
+
+	using namespace MiniParser;
+
+	const auto blob = pEvents_LOD->LoadCompressedTexture("spcitems.txt");
+	const auto blob_lines = Lines(blob.string_view());
+
+	const auto data_lines = blob_lines | std::views::drop(4) | std::views::take(pSpecialEnchantments.size());
+
+	auto i = std::begin(pSpecialEnchantments.indices());
+
+	for (const auto& data_line : data_lines)
+	{
+		auto [it, it_end] { Tokenize(data_line) };
+
+		auto& enchantment = pSpecialEnchantments[*i];
+		++i;
+
+		ParseToken(it, enchantment.pBonusStatement, StripQuotes);
+		ParseToken(it, enchantment.pNameAdd, StripQuotes);
+
+		for (auto item_equip_type : enchantment.to_item.indices())
+		{
+			ParseToken(it, enchantment.to_item[item_equip_type]);
+		}
+
+		enchantment.iTreasureLevel = 0;
+
+		ParseToken(it, re_value_or_multiplier, [&](const auto& mr)
+			{
+				if (mr[1].matched)
+				{
+					Parse(mr[2], enchantment.iValue);
+					enchantment.iTreasureLevel |= 0x04;
+				}
+				else
+				{
+					Parse(mr[3], enchantment.iValue);
+				}
+				return true;
+			});
+
+		std::string treasure_level;
+
+		ParseToken(it, treasure_level, ToUpperInplace);
+
+		enchantment.iTreasureLevel |= treasure_level[0] - 'A';
+	}
+
+	pSpecialEnchantments_count = pSpecialEnchantments.size();
+}
+
+void ItemTable::InitializeItems()
+{
+	static const std::regex re_number_or_dice_or_spell_or_message{ R"((\d+)|((\d+)d(\d+))|(([SM])(\d+)))", std::regex::optimize | std::regex::icase };
+
+	using namespace MiniParser;
+
+	const auto blob = pEvents_LOD->LoadCompressedTexture("items.txt");
+	const auto blob_lines = Lines(blob.string_view());
+
+	const auto data_lines = blob_lines | std::views::drop(2) | std::views::take(pItems.size());
+
+	for (const auto& data_line : data_lines)
+	{
+		auto [it, it_end] { Tokenize(data_line) };
+
+		ITEM_TYPE id;
+
+		ParseToken(it, id);
+
+		auto& item = pItems[id];
+
+		ParseToken(it, item.pIconName);
+		ParseToken(it, item.pName);
+		ParseToken(it, item.uValue);
+		ParseToken(it, item.uEquipType, equipStatMap, EQUIP_NONE);
+		ParseToken(it, item.uSkillType, equipSkillMap, PLAYER_SKILL_MISC);
+		ParseToken(it, re_number_or_dice_or_spell_or_message, [&](const auto& mr)
+			{
+				// either none or item-specific
+				if (mr[1].matched)
+				{
+					Parse(mr[1], item.uDamageDice);
+					item.uDamageRoll = std::min(uint8_t(1), item.uDamageDice);
+					return true;
+				}
+
+				// damage
+				if (mr[2].matched)
+				{
+					Parse(mr[3], item.uDamageDice);
+					Parse(mr[4], item.uDamageRoll);
+					return true;
+				}
+
+				// spell or message
+				if (mr[5].matched)
+				{
+					switch (*mr[6].first)
+					{
+					case 'M':
+					case 'S':
+					case 'm':
+					case 's':
+						Parse(mr[7], item.uDamageDice);
+						item.uDamageRoll = 2;
+						break;
+					}
+					return true;
+				}
+
+				__debugbreak();
+				return false;
+			});
+		ParseToken(it, item.uDamageMod);
+		ParseToken(it, item.uMaterial, materialMap, MATERIAL_COMMON);
+		ParseToken(it, item.uItemID_Rep_St);
+		ParseToken(it, item.pUnidentifiedName, StripQuotes);
+		ParseToken(it, item.uSpriteID);
+
+		item._additional_value = 0;
+		item._bonus_type = 0;
+
+		std::string item_suffix;
+
+		ParseToken(it, item_suffix);
+
+		if (item.uMaterial == MATERIAL_SPECIAL)
+		{
+			for (int ii = 0; ii < 24; ++ii)
+			{
+				if (iequals(item_suffix, pEnchantments[ii].pOfName))
+				{
+					item._bonus_type = ii + 1;
+					break;
+				}
+			}
+			if (!item._bonus_type)
+			{
+				for (ITEM_ENCHANTMENT ii : pSpecialEnchantments.indices())
+				{
+					if (iequals(item_suffix, pSpecialEnchantments[ii].pNameAdd))
+					{
+						item._additional_value = ii;
+						break;
+					}
+				}
+			}
+		}
+
+		int item_bonus_strength;
+
+		ParseToken(it, item_bonus_strength);
+
+		if (item.uMaterial == MATERIAL_SPECIAL && item._bonus_type)
+		{
+			item._bonus_strength = std::max(item_bonus_strength, 1);
+		}
+
+		ParseToken(it, item.uEquipX);
+		ParseToken(it, item.uEquipY);
+		ParseToken(it, item.pDescription, StripQuotes);
+	}
+}
+
+void ItemTable::InitializeRandomItems()
+{
+	static constexpr auto TreasureLevels = { ITEM_TREASURE_LEVEL_1, ITEM_TREASURE_LEVEL_2, ITEM_TREASURE_LEVEL_3, ITEM_TREASURE_LEVEL_4, ITEM_TREASURE_LEVEL_5, ITEM_TREASURE_LEVEL_6 };
+
+	using namespace MiniParser;
+
+	uChanceByTreasureLvlSumm.fill(0);
+
+	const auto blob = pEvents_LOD->LoadCompressedTexture("rnditems.txt");
+	const auto blob_lines = Lines(blob.string_view());
+
+	std::size_t lines_parsed = 0;
+
+	{
+		const auto data_lines = blob_lines | std::views::drop(4);
+
+		for (const auto& data_line : data_lines)
+		{
+			auto [it, it_end] { Tokenize(data_line) };
+
+			if (it == it_end)
+				break;
+
+			ITEM_TYPE id;
+
+			ParseToken(it, id);
+
+			auto& item = pItems[id];
+
+			SkipToken(it);
+
+			for (auto treasure_level : TreasureLevels)
+			{
+				ParseToken(it, item.uChanceByTreasureLvl[treasure_level]);
+
+				uChanceByTreasureLvlSumm[treasure_level] += item.uChanceByTreasureLvl[treasure_level];
+			}
+
+			++lines_parsed;
+		}
+	}
+
+	{
+		const auto data_lines = blob_lines | std::views::drop(4) | std::views::drop(lines_parsed) | std::views::drop(5) | std::views::take(3);
+
+		std::size_t line = 0;
+
+		for (const auto& data_line : data_lines)
+		{
+			auto [it, it_end] { Tokenize(data_line) };
+
+			SkipToken(it);
+			SkipToken(it);
+
+			switch (line)
+			{
+			case 0:
+				for (auto treasure_level : TreasureLevels)
+				{
+					ParseToken(it, uBonusChanceStandart[treasure_level]);
+				}
+				break;
+			case 1:
+				for (auto treasure_level : TreasureLevels)
+				{
+					ParseToken(it, uBonusChanceSpecial[treasure_level]);
+				}
+				break;
+			case 2:
+				for (auto treasure_level : TreasureLevels)
+				{
+					ParseToken(it, uBonusChanceWpSpecial[treasure_level]);
+				}
+				break;
+			}
+
+			++line;
+		}
+	}
 }

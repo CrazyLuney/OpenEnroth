@@ -1322,10 +1322,9 @@ bool Party::AddItemToParty(ItemGen* pItem)
 		pItem->SetIdentified();
 	}
 
-	char* iconName = pItemTable->pItems[pItem->uItemID].pIconName;
-	if (iconName)
+	if (!pItemTable->pItems[pItem->uItemID].pIconName.empty())
 	{
-		auto texture = assets->GetImage_ColorKey(iconName);
+		auto texture = assets->GetImage_ColorKey(pItemTable->pItems[pItem->uItemID].pIconName);
 		int current_player = pParty->_activeCharacter - 1;
 		for (int i = 0; i < pPlayers.size(); i++, current_player++)
 		{

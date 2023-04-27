@@ -18,9 +18,9 @@ ItemGen* ptr_50C9A4_ItemToEnchant;
 
 struct ItemTable* pItemTable;  // 005D29E0
 
-static std::map<int, std::map<CHARACTER_ATTRIBUTE_TYPE, CEnchantment>> regularBonusMap;
-static std::map<int, std::map<CHARACTER_ATTRIBUTE_TYPE, CEnchantment>> specialBonusMap;
-static std::map<ITEM_TYPE, std::map<CHARACTER_ATTRIBUTE_TYPE, CEnchantment>> artifactBonusMap;
+static std::map<int, std::map<CHARACTER_ATTRIBUTE_TYPE, Enchantment>> regularBonusMap;
+static std::map<int, std::map<CHARACTER_ATTRIBUTE_TYPE, Enchantment>> specialBonusMap;
+static std::map<ITEM_TYPE, std::map<CHARACTER_ATTRIBUTE_TYPE, Enchantment>> artifactBonusMap;
 
 static std::unordered_map<ITEM_TYPE, ITEM_TYPE> itemTextureIdByItemId = {
 	{ ITEM_RELIC_HARECKS_LEATHER,       ITEM_POTION_STONESKIN },
@@ -200,25 +200,24 @@ std::string ItemGen::GetDisplayName()
 std::string ItemGen::GetIdentifiedName()
 {
 	ITEM_EQUIP_TYPE equip_type = GetItemEquipType();
-	if ((equip_type == EQUIP_REAGENT) || (equip_type == EQUIP_POTION) ||
+
+	if ((equip_type == EQUIP_REAGENT) ||
+		(equip_type == EQUIP_POTION) ||
 		(equip_type == EQUIP_GOLD))
 	{
 		return pItemTable->pItems[uItemID].pName;
 	}
 
+	// Lich Jar
 	if (uItemID == ITEM_QUEST_LICH_JAR_FULL)
-	{  // Lich Jar
+	{
 		if (uHolderPlayer >= 0 && uHolderPlayer < 4)
 		{
 			const std::string& player_name = pPlayers[uHolderPlayer]->pName;
 			if (player_name.back() == 's')
-				return localization->FormatString(
-					LSTR_FMT_JAR,
-					player_name.c_str());
+				return localization->FormatString(LSTR_FMT_JAR, player_name.c_str());
 			else
-				return localization->FormatString(
-					LSTR_FMT_JAR_2,
-					player_name.c_str());
+				return localization->FormatString(LSTR_FMT_JAR_2, player_name.c_str());
 		}
 	}
 
@@ -226,8 +225,7 @@ std::string ItemGen::GetIdentifiedName()
 	{
 		if (uEnchantmentType)
 		{
-			return std::string(pItemTable->pItems[uItemID].pName) + " " +
-				pItemTable->pEnchantments[uEnchantmentType - 1].pOfName;
+			return std::string(pItemTable->pItems[uItemID].pName) + " " + pItemTable->pEnchantments[uEnchantmentType - 1].pOfName;
 		}
 		else if (special_enchantment == ITEM_ENCHANTMENT_NULL)
 		{
@@ -250,7 +248,8 @@ std::string ItemGen::GetIdentifiedName()
 				|| special_enchantment == ITEM_ENCHANTMENT_ASSASINS
 				|| special_enchantment == ITEM_ENCHANTMENT_BARBARIANS
 				)
-			{            // enchantment and name positions inverted!
+			{
+				// enchantment and name positions inverted!
 				return fmt::format(
 					"{} {}",
 					pItemTable->pSpecialEnchantments[special_enchantment].pNameAdd,
@@ -259,8 +258,7 @@ std::string ItemGen::GetIdentifiedName()
 			}
 			else
 			{
-				return std::string(pItemTable->pItems[uItemID].pName) + " " +
-					pItemTable->pSpecialEnchantments[special_enchantment].pNameAdd;
+				return std::string(pItemTable->pItems[uItemID].pName) + " " + pItemTable->pSpecialEnchantments[special_enchantment].pNameAdd;
 			}
 		}
 	}
@@ -295,14 +293,14 @@ bool ItemGen::GenerateArtifact()
 }
 
 template<class Key, class ActualKey>
-static void AddToMap(std::map<Key, std::map<CHARACTER_ATTRIBUTE_TYPE, CEnchantment>>& map,
+static void AddToMap(std::map<Key, std::map<CHARACTER_ATTRIBUTE_TYPE, Enchantment>>& map,
 	ActualKey key, CHARACTER_ATTRIBUTE_TYPE subkey, int bonusValue = 0, uint16_t Player::* skillPtr = NULL)
 {
 	auto& submap = map[key];
 
 	Assert(!submap.contains(subkey));
 
-	submap[subkey] = CEnchantment(bonusValue, skillPtr);
+	submap[subkey] = Enchantment(bonusValue, skillPtr);
 }
 
 void ItemGen::PopulateSpecialBonusMap()
@@ -680,7 +678,7 @@ void ItemGen::GetItemBonusSpecialEnchantment(Player* owner,
 	if (subpos == pos->second.end())
 		return;
 
-	const CEnchantment& currBonus = subpos->second;
+	const Enchantment& currBonus = subpos->second;
 	if (currBonus.statPtr != NULL)
 	{
 		if (currBonus.statBonus == 0)
@@ -713,7 +711,7 @@ void ItemGen::GetItemBonusArtifact(Player* owner,
 	if (subpos == pos->second.end())
 		return;
 
-	const CEnchantment& currBonus = subpos->second;
+	const Enchantment& currBonus = subpos->second;
 	if (currBonus.statPtr != NULL)
 	{
 		*bonusSum = GetSkillLevel(owner->*currBonus.statPtr) / 2;
@@ -753,22 +751,22 @@ PLAYER_SKILL_TYPE ItemGen::GetPlayerSkillType()
 	return skl;
 }
 
-char* ItemGen::GetIconName()
+const std::string& ItemGen::GetIconName() const
 {
 	return pItemTable->pItems[this->uItemID].pIconName;
 }
 
-uint8_t ItemGen::GetDamageDice()
+uint8_t ItemGen::GetDamageDice() const
 {
 	return pItemTable->pItems[this->uItemID].uDamageDice;
 }
 
-uint8_t ItemGen::GetDamageRoll()
+uint8_t ItemGen::GetDamageRoll() const
 {
 	return pItemTable->pItems[this->uItemID].uDamageRoll;
 }
 
-uint8_t ItemGen::GetDamageMod()
+uint8_t ItemGen::GetDamageMod() const
 {
 	return pItemTable->pItems[this->uItemID].uDamageMod;
 }

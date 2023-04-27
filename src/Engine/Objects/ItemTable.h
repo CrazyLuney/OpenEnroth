@@ -19,16 +19,20 @@ struct ItemTable
 	void Initialize();
 	void LoadPotions();
 	void LoadPotionNotes();
-	void GenerateItem(ITEM_TREASURE_LEVEL treasure_level, unsigned int uTreasureType,
-		ItemGen* pItem);
+	void GenerateItem(ITEM_TREASURE_LEVEL treasure_level, unsigned int uTreasureType, ItemGen* pItem);
 	void SetSpecialBonus(ItemGen* pItem);
 	bool IsMaterialSpecial(ItemGen* pItem);
 	bool IsMaterialNonCommon(ItemGen* pItem);
 	void Release();
 	void PrintItemTypesEnum();
 
+	void InitializeStandardEnchantments();
+	void InitializeSpecialEnchantments();
+	void InitializeItems();
+	void InitializeRandomItems();
+
 	IndexedArray<ItemDesc, ITEM_FIRST_VALID, ITEM_LAST_VALID> pItems;                   // 4-9604h
-	ItemEnchantment pEnchantments[24];                // 9604h
+	std::array<ItemEnchantment, 24> pEnchantments;                // 9604h
 	IndexedArray<ItemSpecialEnchantment, ITEM_ENCHANTMENT_FIRST_VALID, ITEM_ENCHANTMENT_LAST_VALID> pSpecialEnchantments;  // 97E4h -9FC4h
 	char field_9FC4[5000];
 	char field_B348[5000];

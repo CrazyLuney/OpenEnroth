@@ -1963,21 +1963,14 @@ int Player::StealFromActor(
 
 				if (carriedItemId != ITEM_NULL)
 				{
-					GameUI_SetStatusBar(
-						LSTR_FMT_S_STOLE_D_ITEM,
-						this->pName.c_str(),
-						pItemTable->pItems[carriedItemId].pUnidentifiedName
-					);
+					GameUI_SetStatusBar(LSTR_FMT_S_STOLE_D_ITEM, this->pName.c_str(), pItemTable->pItems[carriedItemId].pUnidentifiedName.c_str());
 					pParty->SetHoldingItem(&tempItem);
 					return STEAL_SUCCESS;
 				}
 			}
 		}
 
-		GameUI_SetStatusBar(
-			LSTR_FMT_S_FAILED_TO_STEAL,
-			this->pName.c_str()
-		);
+		GameUI_SetStatusBar(LSTR_FMT_S_FAILED_TO_STEAL, this->pName.c_str());
 		return STEAL_NOTHING;
 	}
 }
