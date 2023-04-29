@@ -1,5 +1,7 @@
 #pragma once
 
+class Blob;
+
 namespace MiniParser
 {
 	using string_view_iterator = std::string_view::const_iterator;
@@ -102,6 +104,152 @@ namespace MiniParser
 
 	namespace Detail
 	{
+		template <class S>
+		concept StringOrStringView = std::same_as<S, std::string> or std::same_as<S, std::string_view>;
+
+		enum class SplitStringIteratorPolicy
+		{
+			Default,
+			CombineNewLine,
+			CombineConsecutive,
+		};
+
+		template <StringOrStringView S, SplitStringIteratorPolicy Policy = SplitStringIteratorPolicy::Default>
+		class SplitStringIterator final
+		{
+			using this_type = SplitStringIterator<S, Policy>;
+			using string_type = S;
+			using size_type = typename string_type::size_type;
+
+			template <StringOrStringView OtherS, SplitStringIteratorPolicy OtherPolicy>
+			friend class SplitStringIterator;
+		public:
+			// for ranges support
+			using value_type = std::string_view;
+			using difference_type = std::ptrdiff_t;
+
+			SplitStringIterator() = default;
+			SplitStringIterator(const string_type& s, const string_type& delim, size_type first = 0, size_type last = string_type::npos)
+				: _string{ &s }
+				, _delim{ &delim }
+				, _first{ std::min(first, s.length()) }
+				, _last{ std::min(last, s.length()) }
+				, _delim_first{ _first }
+				, _delim_last{ _first }
+				, _valid{ _first < _last }
+			{
+				if constexpr (Policy == SplitStringIteratorPolicy::CombineNewLine)
+				{
+					assert(delim.find('\r') != string_type::npos);
+					assert(delim.find('\n') != string_type::npos);
+				}
+
+				if (_valid)
+					Advance();
+			}
+
+			constexpr std::string_view operator*() const noexcept
+			{
+				assert(!!_string);
+
+				if constexpr (std::is_same_v<string_type, std::string_view>)
+				{
+					return _string->substr(_first, _delim_first - _first);
+				}
+
+				if constexpr (std::is_same_v<string_type, std::string>)
+				{
+					return { _string->data() + _first, _delim_first - _first };
+				}
+			}
+
+			constexpr this_type& operator++() noexcept
+			{
+				if (_valid)
+					Advance();
+				return *this;
+			}
+			constexpr this_type operator++(int) noexcept
+			{
+				const this_type prev{ *this };
+				if (_valid)
+					Advance();
+				return prev;
+			}
+
+			template <SplitStringIteratorPolicy OtherPolicy>
+			constexpr bool operator==(const SplitStringIterator<S, OtherPolicy>& other) const noexcept
+			{
+				if (_valid != other._valid)
+					return false;
+				if (!_valid)
+					return true;
+				assert(_string == other._string);
+				assert(_delim == other._delim);
+				return
+					_first == other._first &&
+					_last == other._last &&
+					_delim_first == other._delim_first &&
+					_delim_last == other._delim_last;
+			}
+
+			template <SplitStringIteratorPolicy OtherPolicy>
+			constexpr bool operator!=(const SplitStringIterator<S, OtherPolicy>& other) const noexcept
+			{
+				return !this->operator==(other);
+			}
+		private:
+			SplitStringIterator(const string_type&, const string_type&&, size_type, size_type) = delete;
+			SplitStringIterator(const string_type&&, const string_type&, size_type, size_type) = delete;
+			SplitStringIterator(const string_type&&, const string_type&&, size_type, size_type) = delete;
+
+			void Advance()
+			{
+				_first = _delim_last;
+
+				if (_first >= _last)
+				{
+					_valid = false;
+					return;
+				}
+
+				_delim_first = _string->find_first_of(*_delim, _delim_last);
+
+				if (_delim_first >= _last)
+				{
+					_delim_first = _last;
+					_delim_last = _last;
+					return;
+				}
+
+				_delim_last = _delim_first + 1;
+
+				if constexpr (Policy == SplitStringIteratorPolicy::CombineNewLine)
+				{
+					if (const auto& s = *_string; s[_delim_first] == '\r' && _delim_last < _last && s[_delim_last] == '\n')
+					{
+						++_delim_last;
+					}
+				}
+
+				if constexpr (Policy == SplitStringIteratorPolicy::CombineConsecutive)
+				{
+					_delim_last = _string->find_first_not_of(*_delim, _delim_first + 1);
+				}
+
+				if (_delim_last > _last)
+					_delim_last = _last;
+			}
+
+			const string_type* _string = nullptr;
+			const string_type* _delim = nullptr;
+			size_type _first = std::string_view::npos;
+			size_type _last = std::string_view::npos;
+			size_type _delim_first = string_type::npos;
+			size_type _delim_last = string_type::npos;
+			bool _valid = false;
+		};
+
 		struct ViewParserActionsInvoker
 		{
 			template <AnyParserAction... Actions>
@@ -209,6 +357,17 @@ namespace MiniParser
 				return true;
 			}
 		}
+
+		template <std::forward_iterator It>
+		inline void GetTokenStringView(const It& it, std::string_view& view)
+		{
+			view = *it;
+		}
+
+		inline void GetTokenStringView(const string_view_regex_iterator& it, std::string_view& view)
+		{
+			view = { it->prefix().first, it->prefix().second };
+		}
 	}
 
 	template <NumberOrEnum ValueType>
@@ -259,25 +418,16 @@ namespace MiniParser
 		++it;
 	}
 
-	template <AnyParserAction... Actions>
-	inline bool ParseToken(string_view_regex_iterator& it, std::string_view& value, Actions&&... actions)
-	{
-		value = { it->prefix().first, it->prefix().second };
-		++it;
-		Detail::ViewParserActionsInvoker{}(value, std::forward<Actions&&>(actions)...);
-		return true;
-	}
-
-	template <class It, AnyParserAction... Actions> requires std::forward_iterator<It> or std::input_iterator<It>
+	template <std::forward_iterator It, AnyParserAction... Actions>
 	inline bool ParseToken(It& it, std::string_view& value, Actions&&... actions)
 	{
-		value = { std::ranges::begin(it), std::ranges::end(it) };
+		Detail::GetTokenStringView(it, value);
 		++it;
 		Detail::ViewParserActionsInvoker{}(value, std::forward<Actions&&>(actions)...);
 		return true;
 	}
 
-	template <class It, AnyParserAction... Actions>
+	template <std::forward_iterator It, AnyParserAction... Actions>
 	inline bool ParseToken(It& it, std::string& value, Actions&&... actions)
 	{
 		std::string_view token_view;
@@ -287,7 +437,7 @@ namespace MiniParser
 		return true;
 	}
 
-	template <class It, NumberOrEnum ValueType, AnyParserAction... Actions>
+	template <std::forward_iterator It, NumberOrEnum ValueType, AnyParserAction... Actions>
 	inline bool ParseToken(It& it, ValueType& value, Actions&&... actions)
 	{
 		std::string_view token_view;
@@ -296,7 +446,7 @@ namespace MiniParser
 		return result;
 	}
 
-	template <class It, MatchParserAction MatchAction, AnyParserAction... Actions>
+	template <std::forward_iterator It, MatchParserAction MatchAction, AnyParserAction... Actions>
 	inline bool ParseToken(It& it, const std::regex& re, MatchAction&& match_action, Actions&&... actions)
 	{
 		std::string_view token_view;
@@ -308,8 +458,8 @@ namespace MiniParser
 			return false;
 	}
 
-	template <Enum ValueType, class MapType, AnyParserAction... Actions> requires ValueMap<MapType, ValueType>
-	inline bool ParseToken(string_view_regex_iterator& it, ValueType& value, const MapType& value_map, const ValueType& default_value, Actions&&... actions)
+	template <std::forward_iterator It, Enum ValueType, class MapType, AnyParserAction... Actions> requires ValueMap<MapType, ValueType>
+	inline bool ParseToken(It& it, ValueType& value, const MapType& value_map, const ValueType& default_value, Actions&&... actions)
 	{
 		std::string token_value;
 		ParseToken(it, token_value, std::forward<Actions&&>(actions)...);
@@ -384,5 +534,34 @@ namespace MiniParser
 		}
 
 		return view;
+	}
+
+	inline auto GetLines(const auto& s)
+	{
+		using string_type = std::remove_cvref_t<decltype(s)>;
+		using iterator = Detail::SplitStringIterator<string_type, Detail::SplitStringIteratorPolicy::CombineNewLine>;
+
+		static const string_type delimiter{ "\r\n" };
+
+		iterator it{ s, delimiter };
+		iterator it_end{};
+
+		return std::ranges::subrange(it, it_end);
+	}
+
+	// NOTE: Blob::string_view() returns a temporary which will die inside this function
+	inline auto GetLines(const Blob& blob) = delete;
+
+	inline auto GetTokens(const auto& s)
+	{
+		using string_type = std::remove_cvref_t<decltype(s)>;
+		using iterator = Detail::SplitStringIterator<string_type, Detail::SplitStringIteratorPolicy::Default>;
+
+		static const string_type delimiter{ "\t" };
+
+		iterator it{ s, delimiter };
+		iterator it_end{};
+
+		return std::ranges::subrange(it, it_end);
 	}
 }

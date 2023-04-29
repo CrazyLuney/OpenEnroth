@@ -162,9 +162,8 @@ void ItemTable::LoadPotions()
 	//static const std::regex re_mix_result { R"((e)?(\d+))", std::regex::optimize | std::regex::icase };
 
 	const auto blob = pEvents_LOD->LoadCompressedTexture("potion.txt");
-	const auto blob_lines = Lines(blob.string_view());
 
-	auto data_lines = blob_lines | std::views::drop_while([](const auto& data_line)
+	auto data_lines = GetLines(blob.string_view()) | std::views::drop_while([](const auto& data_line)
 		{
 			return !data_line.starts_with(FirstPotionLinePrefix);
 		});
@@ -177,7 +176,8 @@ void ItemTable::LoadPotions()
 
 	for (const auto& data_line : data_lines)
 	{
-		auto [it, it_end] = Tokenize(data_line);
+		auto tokens = GetTokens(data_line);
+		auto it = std::begin(tokens);
 
 		ITEM_TYPE row;
 
@@ -218,10 +218,9 @@ void ItemTable::LoadPotionNotes()
 
 	static constexpr auto FirstPotionLinePrefix = "222\t"sv;
 
-	const auto blob = pEvents_LOD->LoadCompressedTexture("potion.txt");
-	const auto blob_lines = Lines(blob.string_view());
-
-	auto data_lines = blob_lines | std::views::drop_while([](const auto& data_line)
+	const auto blob = pEvents_LOD->LoadCompressedTexture("potnotes.txt");
+	
+	auto data_lines = GetLines(blob.string_view()) | std::views::drop_while([](const auto& data_line)
 		{
 			return !data_line.starts_with(FirstPotionLinePrefix);
 		});
@@ -234,7 +233,8 @@ void ItemTable::LoadPotionNotes()
 
 	for (const auto& data_line : data_lines)
 	{
-		auto [it, it_end] = Tokenize(data_line);
+		auto tokens = GetTokens(data_line);
+		auto it = std::begin(tokens);
 
 		ITEM_TYPE row;
 
@@ -766,16 +766,17 @@ void ItemTable::InitializeStandardEnchantments()
 	using namespace MiniParser;
 
 	const auto blob = pEvents_LOD->LoadCompressedTexture("stditems.txt");
-	const auto blob_lines = Lines(blob.string_view());
+	const auto blob_lines = GetLines(blob.string_view());
 
 	{
-		const auto data_lines = blob_lines | std::views::drop(4) | std::views::take(pEnchantments.size());
+		auto data_lines = blob_lines | std::views::drop(4) | std::views::take(pEnchantments.size());
 
 		std::size_t i = 0;
 
 		for (const auto& data_line : data_lines)
 		{
-			auto [it, it_end] { Tokenize(data_line) };
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
 
 			auto& enchantment = pEnchantments[i++];
 
@@ -792,11 +793,12 @@ void ItemTable::InitializeStandardEnchantments()
 	}
 
 	{
-		const auto data_lines = blob_lines | std::views::drop(4) | std::views::drop(pEnchantments.size()) | std::views::drop(5) | std::views::take(bonus_ranges.size());
+		auto data_lines = blob_lines | std::views::drop(4) | std::views::drop(pEnchantments.size()) | std::views::drop(5) | std::views::take(bonus_ranges.size());
 
 		for (const auto& data_line : data_lines)
 		{
-			auto [it, it_end] { Tokenize(data_line) };
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
 
 			ITEM_TREASURE_LEVEL level;
 
@@ -818,15 +820,15 @@ void ItemTable::InitializeSpecialEnchantments()
 	using namespace MiniParser;
 
 	const auto blob = pEvents_LOD->LoadCompressedTexture("spcitems.txt");
-	const auto blob_lines = Lines(blob.string_view());
 
-	const auto data_lines = blob_lines | std::views::drop(4) | std::views::take(pSpecialEnchantments.size());
+	auto data_lines = GetLines(blob.string_view()) | std::views::drop(4) | std::views::take(pSpecialEnchantments.size());
 
 	auto i = std::begin(pSpecialEnchantments.indices());
 
 	for (const auto& data_line : data_lines)
 	{
-		auto [it, it_end] { Tokenize(data_line) };
+		auto tokens = GetTokens(data_line);
+		auto it = std::begin(tokens);
 
 		auto& enchantment = pSpecialEnchantments[*i];
 		++i;
@@ -872,13 +874,13 @@ void ItemTable::InitializeItems()
 	using namespace MiniParser;
 
 	const auto blob = pEvents_LOD->LoadCompressedTexture("items.txt");
-	const auto blob_lines = Lines(blob.string_view());
 
-	const auto data_lines = blob_lines | std::views::drop(2) | std::views::take(pItems.size());
+	auto data_lines = GetLines(blob.string_view()) | std::views::drop(2) | std::views::take(pItems.size());
 
 	for (const auto& data_line : data_lines)
 	{
-		auto [it, it_end] { Tokenize(data_line) };
+		auto tokens = GetTokens(data_line);
+		auto it = std::begin(tokens);
 
 		ITEM_TYPE id;
 
@@ -988,19 +990,21 @@ void ItemTable::InitializeRandomItems()
 	uChanceByTreasureLvlSumm.fill(0);
 
 	const auto blob = pEvents_LOD->LoadCompressedTexture("rnditems.txt");
-	const auto blob_lines = Lines(blob.string_view());
+	const auto blob_lines = GetLines(blob.string_view());
 
 	std::size_t lines_parsed = 0;
 
 	{
-		const auto data_lines = blob_lines | std::views::drop(4);
+		auto data_lines = blob_lines | std::views::drop(4);
 
 		for (const auto& data_line : data_lines)
 		{
-			auto [it, it_end] { Tokenize(data_line) };
+			auto tokens = GetTokens(data_line);
 
-			if (it == it_end)
+			if (tokens.empty())
 				break;
+
+			auto it = std::begin(tokens);
 
 			ITEM_TYPE id;
 
@@ -1022,13 +1026,14 @@ void ItemTable::InitializeRandomItems()
 	}
 
 	{
-		const auto data_lines = blob_lines | std::views::drop(4) | std::views::drop(lines_parsed) | std::views::drop(5) | std::views::take(3);
+		auto data_lines = blob_lines | std::views::drop(4) | std::views::drop(lines_parsed) | std::views::drop(5) | std::views::take(3);
 
 		std::size_t line = 0;
 
 		for (const auto& data_line : data_lines)
 		{
-			auto [it, it_end] { Tokenize(data_line) };
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
 
 			SkipToken(it);
 			SkipToken(it);
