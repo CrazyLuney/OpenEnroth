@@ -34,15 +34,15 @@ bool Localization::Initialize()
 	localization_strings.resize(MAX_LOC_STRINGS);
 
 	{
-		auto blob = pEvents_LOD->LoadCompressedTexture("global.txt");
-		auto blob_view = blob.string_view();
+		using namespace MiniParser;
 
-		auto data_view = MiniParser::SkipLines(blob_view, 2);
-
-		auto [tokens_begin, tokens_end] = MiniParser::Tokenize(data_view);
-
-		for (auto it = tokens_begin; it != tokens_end; )
+		const auto blob = pEvents_LOD->LoadCompressedTexture("global.txt");
+		
+		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(2) | std::views::take(MM7_LOC_STRINGS))
 		{
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
+
 			std::size_t id;
 
 			MiniParser::ParseToken(it, id);
@@ -263,23 +263,29 @@ void Localization::InitializeSkillNames()
 	//    "So don't expect to become thwonking killer and devastating anyone beyond weaklings.";
 
 	{
-		auto blob = pEvents_LOD->LoadCompressedTexture("skilldes.txt");
-		auto blob_view = blob.string_view();
+		using namespace MiniParser;
 
-		auto data_view = MiniParser::SkipLines(blob_view, 1);
-
-		auto [tokens_begin, tokens_end] { MiniParser::Tokenize(data_view) };
+		const auto blob = pEvents_LOD->LoadCompressedTexture("skilldes.txt");
 
 		auto it_skill = std::begin(VisibleSkills());
 		auto it_skill_end = std::end(VisibleSkills());
-		for (auto it = tokens_begin; it != tokens_end && it_skill != it_skill_end; ++it_skill)
+
+		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1))
 		{
-			MiniParser::SkipToken(it);
-			MiniParser::ParseToken(it, skill_descriptions[*it_skill], MiniParser::StripQuotes);
-			MiniParser::ParseToken(it, skill_descriptions_normal[*it_skill], MiniParser::StripQuotes);
-			MiniParser::ParseToken(it, skill_descriptions_expert[*it_skill], MiniParser::StripQuotes);
-			MiniParser::ParseToken(it, skill_descriptions_master[*it_skill], MiniParser::StripQuotes);
-			MiniParser::ParseToken(it, skill_descriptions_grand[*it_skill], MiniParser::StripQuotes);
+			if (it_skill == it_skill_end)
+				break;
+
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
+
+			SkipToken(it);
+			ParseToken(it, skill_descriptions[*it_skill], StripQuotes);
+			ParseToken(it, skill_descriptions_normal[*it_skill], StripQuotes);
+			ParseToken(it, skill_descriptions_expert[*it_skill], StripQuotes);
+			ParseToken(it, skill_descriptions_master[*it_skill], StripQuotes);
+			ParseToken(it, skill_descriptions_grand[*it_skill], StripQuotes);
+
+			++it_skill;
 		}
 	}
 }
@@ -332,21 +338,27 @@ void Localization::InitializeClassNames()
 	class_names[35] = GetString(49);   // Lich
 
 	{
-		auto blob = pEvents_LOD->LoadCompressedTexture("class.txt");
-		auto blob_view = blob.string_view();
+		using namespace MiniParser;
 
-		auto data_view = MiniParser::SkipLines(blob_view, 1);
-
-		auto [tokens_begin, tokens_end] { MiniParser::Tokenize(data_view) };
+		const auto blob = pEvents_LOD->LoadCompressedTexture("class.txt");
 
 		const auto classes_range = std::ranges::views::iota(std::size_t(0), class_descriptions.size());
 		auto it_class = std::begin(classes_range);
 		auto it_class_end = std::end(classes_range);
-		for (auto it = tokens_begin; it != tokens_end && it_class != it_class_end; ++it_class)
+
+		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1))
 		{
-			MiniParser::SkipToken(it);
-			MiniParser::ParseToken(it, class_descriptions[*it_class], MiniParser::StripQuotes);
-			MiniParser::SkipToken(it);
+			if (it_class == it_class_end)
+				break;
+
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
+
+			SkipToken(it);
+			ParseToken(it, class_descriptions[*it_class], StripQuotes);
+			SkipToken(it);
+
+			++it_class;
 		}
 	}
 }
@@ -444,20 +456,26 @@ void Localization::InitializeAttributeNames()
 	attribute_names[TEMP_ATTRIBUTE_SKILL_POINTS] = GetString(LSTR_SKILL_POINTS);
 
 	{
-		auto blob = pEvents_LOD->LoadCompressedTexture("stats.txt");
-		auto blob_view = blob.string_view();
+		using namespace MiniParser;
 
-		auto data_view = MiniParser::SkipLines(blob_view, 1);
-
-		auto [tokens_begin, tokens_end] { MiniParser::Tokenize(data_view) };
+		const auto blob = pEvents_LOD->LoadCompressedTexture("stats.txt");
 
 		const auto attributes_range = std::ranges::views::iota(std::size_t(0), attribute_descriptions.size());
 		auto it_attribute = std::begin(attributes_range);
 		auto it_attribute_end = std::end(attributes_range);
-		for (auto it = tokens_begin; it != tokens_end && it_attribute != it_attribute_end; ++it_attribute)
+
+		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1))
 		{
-			MiniParser::SkipToken(it);
-			MiniParser::ParseToken(it, attribute_descriptions[*it_attribute], MiniParser::StripQuotes);
+			if (it_attribute == it_attribute_end)
+				break;
+
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
+
+			SkipToken(it);
+			ParseToken(it, attribute_descriptions[*it_attribute], StripQuotes);
+
+			++it_attribute;
 		}
 	}
 }

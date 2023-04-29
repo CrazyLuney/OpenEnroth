@@ -1307,7 +1307,9 @@ void CharacterUI_StatsTab_ShowHint()
 
 		str2 = std::string(localization->GetAttributeDescription(TEMP_ATTRIBUTE_EXPERIENCE)) + "\n \n" + str1;
 
-		CharacterUI_DrawTooltip(localization->GetAttributeName(LSTR_EXPERIENCE), str2);
+		CharacterUI_DrawTooltip(
+			localization->GetAttributeName(TEMP_ATTRIBUTE_EXPERIENCE),
+			str2);
 		break;
 	}
 
