@@ -60,28 +60,4 @@ namespace Strings
 	{
 		std::transform(std::begin(s), std::end(s), std::begin(s), ::tolower);
 	}
-
-	inline std::string_view SkipLines(const std::string_view& view, std::size_t n)
-	{
-		static const std::regex re_newline(R"(\r\n|\r|\n)", std::regex::optimize);
-
-		if (n > 0)
-		{
-			using sv_regex_iterator = std::regex_iterator<std::string_view::iterator>;
-			using sv_match_results = std::match_results<std::string_view::iterator>;
-
-			auto it = sv_regex_iterator(std::begin(view), std::end(view), re_newline);
-
-			if (n > 1)
-			{
-				std::advance(it, n - 1);
-			}
-
-			const auto& suffix = it->suffix();
-
-			return { suffix.first, suffix.second };
-		}
-
-		return view;
-	}
 }

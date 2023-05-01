@@ -12,60 +12,63 @@
 
 #include "Utility/Strings.h"
 #include "Utility/MapAccess.h"
-#include "Utility/MiniParser.hpp"
 #include "Library/Random/Random.h"
+
+#include "Engine/TextParsers/SymbolMatcher/SymbolMatcherMiniParser.hpp"
 
 namespace
 {
-	static const std::map<std::string, ITEM_EQUIP_TYPE, ILess> equipStatMap
+	using SymbolMatcher::Symbol;
+
+	static const std::map<Symbol, ITEM_EQUIP_TYPE> EquipTypeMap
 	{
-		{ "weapon", EQUIP_SINGLE_HANDED },
-		{ "weapon2", EQUIP_TWO_HANDED },
-		{ "weapon1or2", EQUIP_SINGLE_HANDED },
-		{ "missile", EQUIP_BOW },
-		{ "bow", EQUIP_BOW },
-		{ "armor", EQUIP_ARMOUR },
-		{ "shield", EQUIP_SHIELD },
-		{ "helm", EQUIP_HELMET },
-		{ "belt", EQUIP_BELT },
-		{ "cloak", EQUIP_CLOAK },
-		{ "gauntlets", EQUIP_GAUNTLETS },
-		{ "boots", EQUIP_BOOTS },
-		{ "ring", EQUIP_RING },
-		{ "amulet", EQUIP_AMULET },
-		{ "weaponw", EQUIP_WAND },
-		{ "herb", EQUIP_REAGENT },
-		{ "reagent", EQUIP_REAGENT },
-		{ "bottle", EQUIP_POTION },
-		{ "sscroll", EQUIP_SPELL_SCROLL },
-		{ "book", EQUIP_BOOK },
-		{ "mscroll", EQUIP_MESSAGE_SCROLL },
-		{ "gold", EQUIP_GOLD },
-		{ "gem", EQUIP_GEM },
+		{ Symbol::WEAPON, EQUIP_SINGLE_HANDED },
+		{ Symbol::WEAPON2, EQUIP_TWO_HANDED },
+		{ Symbol::WEAPON1OR2, EQUIP_SINGLE_HANDED }, // TODO: ???
+		{ Symbol::MISSILE, EQUIP_BOW },
+		{ Symbol::BOW, EQUIP_BOW },
+		{ Symbol::ARMOR, EQUIP_ARMOUR },
+		{ Symbol::SHIELD, EQUIP_SHIELD },
+		{ Symbol::HELM, EQUIP_HELMET },
+		{ Symbol::BELT, EQUIP_BELT },
+		{ Symbol::CLOAK, EQUIP_CLOAK },
+		{ Symbol::GAUNTLETS, EQUIP_GAUNTLETS },
+		{ Symbol::BOOTS, EQUIP_BOOTS },
+		{ Symbol::RING, EQUIP_RING },
+		{ Symbol::AMULET, EQUIP_AMULET },
+		{ Symbol::WEAPONW, EQUIP_WAND },
+		{ Symbol::HERB, EQUIP_REAGENT },
+		{ Symbol::REAGENT, EQUIP_REAGENT },
+		{ Symbol::BOTTLE, EQUIP_POTION },
+		{ Symbol::SSCROLL, EQUIP_SPELL_SCROLL },
+		{ Symbol::BOOK, EQUIP_BOOK },
+		{ Symbol::MSCROLL, EQUIP_MESSAGE_SCROLL },
+		{ Symbol::GOLD, EQUIP_GOLD },
+		{ Symbol::GEM, EQUIP_GEM },
 	};
 
-	static const std::map<std::string, PLAYER_SKILL_TYPE, ILess> equipSkillMap
+	static const std::map<Symbol, PLAYER_SKILL_TYPE> PlayerSkillTypeMap
 	{
-		{ "staff", PLAYER_SKILL_STAFF },
-		{ "sword", PLAYER_SKILL_SWORD },
-		{ "dagger", PLAYER_SKILL_DAGGER },
-		{ "axe", PLAYER_SKILL_AXE },
-		{ "spear", PLAYER_SKILL_SPEAR },
-		{ "bow", PLAYER_SKILL_BOW },
-		{ "mace", PLAYER_SKILL_MACE },
-		{ "blaster", PLAYER_SKILL_BLASTER },
-		{ "shield", PLAYER_SKILL_SHIELD },
-		{ "leather", PLAYER_SKILL_LEATHER },
-		{ "chain", PLAYER_SKILL_CHAIN },
-		{ "plate", PLAYER_SKILL_PLATE },
-		{ "club", PLAYER_SKILL_CLUB },
+		{ Symbol::STAFF, PLAYER_SKILL_STAFF },
+		{ Symbol::SWORD, PLAYER_SKILL_SWORD },
+		{ Symbol::DAGGER, PLAYER_SKILL_DAGGER },
+		{ Symbol::AXE, PLAYER_SKILL_AXE },
+		{ Symbol::SPEAR, PLAYER_SKILL_SPEAR },
+		{ Symbol::BOW, PLAYER_SKILL_BOW },
+		{ Symbol::MACE, PLAYER_SKILL_MACE },
+		{ Symbol::BLASTER, PLAYER_SKILL_BLASTER },
+		{ Symbol::SHIELD, PLAYER_SKILL_SHIELD },
+		{ Symbol::LEATHER, PLAYER_SKILL_LEATHER },
+		{ Symbol::CHAIN, PLAYER_SKILL_CHAIN },
+		{ Symbol::PLATE, PLAYER_SKILL_PLATE },
+		{ Symbol::CLUB, PLAYER_SKILL_CLUB },
 	};
 
-	static const std::map<std::string, ITEM_MATERIAL, ILess> materialMap
+	static const std::map<Symbol, ITEM_MATERIAL> MaterialTypeMap
 	{
-		{ "artifact", MATERIAL_ARTIFACT },
-		{ "relic", MATERIAL_RELIC },
-		{ "special", MATERIAL_SPECIAL },
+		{ Symbol::ARTIFACT, MATERIAL_ARTIFACT },
+		{ Symbol::RELIC, MATERIAL_RELIC },
+		{ Symbol::SPECIAL, MATERIAL_SPECIAL },
 	};
 }
 
@@ -157,16 +160,15 @@ void ItemTable::LoadPotions()
 	using namespace MiniParser;
 
 	static constexpr auto FirstPotionLinePrefix = "222\t"sv;
-	static constexpr auto InvalidMixturePrefix = "E"sv;
-
-	//static const std::regex re_mix_result { R"((e)?(\d+))", std::regex::optimize | std::regex::icase };
 
 	const auto blob = pEvents_LOD->LoadCompressedTexture("potion.txt");
 
-	auto data_lines = GetLines(blob.string_view()) | std::views::drop_while([](const auto& data_line)
+	auto data_lines = GetLines(blob.string_view())
+		| std::views::drop_while([](const auto& data_line)
 		{
 			return !data_line.starts_with(FirstPotionLinePrefix);
-		});
+		})
+		| std::views::take(std::to_underlying(ITEM_LAST_REAL_POTION) - std::to_underlying(ITEM_FIRST_REAL_POTION) + 1);
 
 	if (data_lines.empty())
 	{
@@ -182,30 +184,31 @@ void ItemTable::LoadPotions()
 		ITEM_TYPE row;
 
 		ParseToken(it, row);
-
-		SkipToken(it); // name
-		SkipToken(it); // desc
-		SkipToken(it); // effect
-		SkipToken(it); // R
-		SkipToken(it); // B
-		SkipToken(it); // Y
+		DropTokens(it, 6);
 
 		for (auto col : Segment<ITEM_TYPE>(ITEM_FIRST_REAL_POTION, ITEM_LAST_REAL_POTION))
 		{
-			std::string_view token;
-
-			ParseToken(it, token);
-
-			// values like "E{x}" represent damage level {x} when using invalid potion combination
-			// plain numbers denote mixture item ID
-			if (token.starts_with(InvalidMixturePrefix))
-			{
-				Parse(token.substr(InvalidMixturePrefix.length()), potionCombination[row][col]);
-			}
-			else
-			{
-				Parse(token, potionCombination[row][col], ITEM_NULL);
-			}
+			ParseTokenSymbol(it, [&](const auto& match)
+				{
+					switch (match.symbol)
+					{
+					case Symbol::EN:
+						// values like "E{x}" represent damage level {x} when using invalid potion combination
+						Parse(match.value.substr(1), potionCombination[row][col]);
+						break;
+					case Symbol::INTEGER:
+						// plain numbers denote mixture item ID
+						Parse(match.value, potionCombination[row][col]);
+						break;
+					case Symbol::NO:
+						// no mix
+						break;
+					default:
+						__debugbreak();
+						return false;
+					}
+					return true;
+				});
 		}
 	}
 }
@@ -220,10 +223,12 @@ void ItemTable::LoadPotionNotes()
 
 	const auto blob = pEvents_LOD->LoadCompressedTexture("potnotes.txt");
 	
-	auto data_lines = GetLines(blob.string_view()) | std::views::drop_while([](const auto& data_line)
-		{
-			return !data_line.starts_with(FirstPotionLinePrefix);
-		});
+	auto data_lines = GetLines(blob.string_view())
+		| std::views::drop_while([](const auto& data_line)
+			{
+				return !data_line.starts_with(FirstPotionLinePrefix);
+			})
+		| std::views::take(std::to_underlying(ITEM_LAST_REAL_POTION) - std::to_underlying(ITEM_FIRST_REAL_POTION) + 1);
 
 	if (data_lines.empty())
 	{
@@ -239,13 +244,7 @@ void ItemTable::LoadPotionNotes()
 		ITEM_TYPE row;
 
 		ParseToken(it, row);
-
-		SkipToken(it); // name
-		SkipToken(it); // desc
-		SkipToken(it); // effect
-		SkipToken(it); // R
-		SkipToken(it); // B
-		SkipToken(it); // Y
+		DropTokens(it, 6);
 
 		for (auto col : Segment<ITEM_TYPE>(ITEM_FIRST_REAL_POTION, ITEM_LAST_REAL_POTION))
 		{
@@ -401,8 +400,7 @@ void ItemTable::GenerateItem(ITEM_TREASURE_LEVEL treasure_level, unsigned int uT
 				{
 					val_list[j] = i;
 					++j;
-					total_chance +=
-						pItems[i].uChanceByTreasureLvl[treasure_level];
+					total_chance += pItems[i].uChanceByTreasureLvl[treasure_level];
 				}
 			}
 		}
@@ -769,7 +767,7 @@ void ItemTable::InitializeStandardEnchantments()
 	const auto blob_lines = GetLines(blob.string_view());
 
 	{
-		auto data_lines = blob_lines | std::views::drop(4) | std::views::take(pEnchantments.size());
+		auto data_lines = blob_lines | std::views::drop(4) | std::views::take(std::size(pEnchantments));
 
 		std::size_t i = 0;
 
@@ -793,7 +791,7 @@ void ItemTable::InitializeStandardEnchantments()
 	}
 
 	{
-		auto data_lines = blob_lines | std::views::drop(4) | std::views::drop(pEnchantments.size()) | std::views::drop(5) | std::views::take(bonus_ranges.size());
+		auto data_lines = blob_lines | std::views::drop(4) | std::views::drop(std::size(pEnchantments)) | std::views::drop(5) | std::views::take(std::size(bonus_ranges));
 
 		for (const auto& data_line : data_lines)
 		{
@@ -802,7 +800,7 @@ void ItemTable::InitializeStandardEnchantments()
 
 			ITEM_TREASURE_LEVEL level;
 
-			SkipToken(it);
+			DropToken(it);
 			ParseToken(it, level);
 
 			auto& bonus_range = bonus_ranges[level];
@@ -815,13 +813,11 @@ void ItemTable::InitializeStandardEnchantments()
 
 void ItemTable::InitializeSpecialEnchantments()
 {
-	static const std::regex re_value_or_multiplier{ R"((\s*x\s*(\d+))|(\d+))", std::regex::optimize | std::regex::icase };
-
 	using namespace MiniParser;
 
 	const auto blob = pEvents_LOD->LoadCompressedTexture("spcitems.txt");
 
-	auto data_lines = GetLines(blob.string_view()) | std::views::drop(4) | std::views::take(pSpecialEnchantments.size());
+	auto data_lines = GetLines(blob.string_view()) | std::views::drop(4) | std::views::take(std::size(pSpecialEnchantments));
 
 	auto i = std::begin(pSpecialEnchantments.indices());
 
@@ -843,39 +839,58 @@ void ItemTable::InitializeSpecialEnchantments()
 
 		enchantment.iTreasureLevel = 0;
 
-		ParseToken(it, re_value_or_multiplier, [&](const auto& mr)
+		ParseTokenSymbol(it, [&](const auto& match)
 			{
-				if (mr[1].matched)
+				switch (match.symbol)
 				{
-					Parse(mr[2], enchantment.iValue);
+				case Symbol::INTEGER:
+					Parse(match.value, enchantment.iValue);
+					break;
+				case Symbol::XN:
+					Parse(LStripNonDigit(match.value), enchantment.iValue);
 					enchantment.iTreasureLevel |= 0x04;
-				}
-				else
-				{
-					Parse(mr[3], enchantment.iValue);
+					break;
+				default:
+					__debugbreak();
+					return false;
 				}
 				return true;
 			});
 
-		std::string treasure_level;
-
-		ParseToken(it, treasure_level, ToUpperInplace);
-
-		enchantment.iTreasureLevel |= treasure_level[0] - 'A';
+		ParseTokenSymbol(it, [&](const auto& match)
+			{
+				switch (match.symbol)
+				{
+				case Symbol::A:
+					enchantment.iTreasureLevel |= 0;
+					break;
+				case Symbol::B:
+					enchantment.iTreasureLevel |= 1;
+					break;
+				case Symbol::C:
+					enchantment.iTreasureLevel |= 2;
+					break;
+				case Symbol::D:
+					enchantment.iTreasureLevel |= 3;
+					break;
+				default:
+					__debugbreak();
+					return false;
+				}
+				return true;
+			});
 	}
 
-	pSpecialEnchantments_count = pSpecialEnchantments.size();
+	pSpecialEnchantments_count = std::size(pSpecialEnchantments);
 }
 
 void ItemTable::InitializeItems()
 {
-	static const std::regex re_number_or_dice_or_spell_or_message{ R"((\d+)|((\d+)d(\d+))|(([SM])(\d+)))", std::regex::optimize | std::regex::icase };
-
 	using namespace MiniParser;
 
 	const auto blob = pEvents_LOD->LoadCompressedTexture("items.txt");
 
-	auto data_lines = GetLines(blob.string_view()) | std::views::drop(2) | std::views::take(pItems.size());
+	auto data_lines = GetLines(blob.string_view()) | std::views::drop(2) | std::views::take(std::size(pItems));
 
 	for (const auto& data_line : data_lines)
 	{
@@ -891,47 +906,47 @@ void ItemTable::InitializeItems()
 		ParseToken(it, item.pIconName);
 		ParseToken(it, item.pName);
 		ParseToken(it, item.uValue);
-		ParseToken(it, item.uEquipType, equipStatMap, EQUIP_NONE);
-		ParseToken(it, item.uSkillType, equipSkillMap, PLAYER_SKILL_MISC);
-		ParseToken(it, re_number_or_dice_or_spell_or_message, [&](const auto& mr)
+		ParseTokenSymbol(it, item.uEquipType, EquipTypeMap, EQUIP_NONE);
+		ParseTokenSymbol(it, item.uSkillType, PlayerSkillTypeMap, PLAYER_SKILL_MISC);
+		ParseTokenSymbol(it, [&](const auto& match)
 			{
-				// either none or item-specific
-				if (mr[1].matched)
+				switch (match.symbol)
 				{
-					Parse(mr[1], item.uDamageDice);
+				case Symbol::DICE:
+				case Symbol::DICEWITHBONUS:
+					SymbolParsers::ParseDice(match.value, item.uDamageDice, item.uDamageRoll);
+					break;
+				case Symbol::INTEGER:
+					// either none or item-specific	
+					Parse(match.value, item.uDamageDice);
 					item.uDamageRoll = std::min(uint8_t(1), item.uDamageDice);
-					return true;
+					break;
+				case Symbol::MN:
+				case Symbol::SN:
+					Parse(LStripNonDigit(match.value), item.uDamageDice);
+					item.uDamageRoll = 2;
+					break;
+				default:
+					__debugbreak();
+					return false;
 				}
-
-				// damage
-				if (mr[2].matched)
-				{
-					Parse(mr[3], item.uDamageDice);
-					Parse(mr[4], item.uDamageRoll);
-					return true;
-				}
-
-				// spell or message
-				if (mr[5].matched)
-				{
-					switch (*mr[6].first)
-					{
-					case 'M':
-					case 'S':
-					case 'm':
-					case 's':
-						Parse(mr[7], item.uDamageDice);
-						item.uDamageRoll = 2;
-						break;
-					}
-					return true;
-				}
-
-				__debugbreak();
-				return false;
+				return true;
 			});
 		ParseToken(it, item.uDamageMod);
-		ParseToken(it, item.uMaterial, materialMap, MATERIAL_COMMON);
+
+		{
+			SymbolMatch symbol_match;
+
+			if (ParseTokenSymbol(it, symbol_match, item.uMaterial, MaterialTypeMap, MATERIAL_COMMON))
+			{
+			}
+			else
+			{
+				// TODO: toughness
+				assert(symbol_match.symbol == Symbol::INTEGER);
+			}
+		}
+
 		ParseToken(it, item.uItemID_Rep_St);
 		ParseToken(it, item.pUnidentifiedName, StripQuotes);
 		ParseToken(it, item.uSpriteID);
@@ -1012,7 +1027,7 @@ void ItemTable::InitializeRandomItems()
 
 			auto& item = pItems[id];
 
-			SkipToken(it);
+			DropToken(it);
 
 			for (auto treasure_level : TreasureLevels)
 			{
@@ -1035,8 +1050,8 @@ void ItemTable::InitializeRandomItems()
 			auto tokens = GetTokens(data_line);
 			auto it = std::begin(tokens);
 
-			SkipToken(it);
-			SkipToken(it);
+			DropToken(it);
+			DropToken(it);
 
 			switch (line)
 			{

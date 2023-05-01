@@ -544,15 +544,14 @@ void GameUI_DrawItemInfo(struct ItemGen* inspect_item)
 		iteminfo_window.DrawText(pFontSmallnum, { 100, v34 }, colorTable.Black.c16(), pItemTable->pItems[inspect_item->uItemID].pDescription, 0, 0, 0);
 	iteminfo_window.uFrameX += 12;
 	iteminfo_window.uFrameWidth -= 24;
-	iteminfo_window.DrawTitleText(pFontArrus, 0, 0xCu, colorTable.PaleCanary.c16(),
-		inspect_item->GetIdentifiedName(), 3);
+	iteminfo_window.DrawTitleText(pFontArrus, 0, 0xCu, colorTable.PaleCanary.c16(), inspect_item->GetIdentifiedName(), 3);
 	iteminfo_window.uFrameWidth += 24;
 	iteminfo_window.uFrameX -= 12;
 
 	if (GoldAmount)
 	{
-		auto txt = fmt::format("{}: {}", localization->GetString(LSTR_VALUE), GoldAmount);
-		iteminfo_window.DrawText(pFontComic, { 100, iteminfo_window.uFrameHeight - pFontComic->GetHeight() }, colorTable.Black.c16(), txt, 0, 0, 0);
+		auto text = fmt::format("{}: {}", localization->GetString(LSTR_VALUE), GoldAmount);
+		iteminfo_window.DrawText(pFontComic, { 100, iteminfo_window.uFrameHeight - pFontComic->GetHeight() }, colorTable.Black.c16(), text, 0, 0, 0);
 		render->ResetUIClipRect();
 	}
 	else

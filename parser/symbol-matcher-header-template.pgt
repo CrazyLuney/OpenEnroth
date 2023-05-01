@@ -1,0 +1,95 @@
+##LANGUAGE 'C++'
+##TEMPLATE-NAME 'SymbolMatcher.cpp'
+##ENGINE-NAME 'OpenEnroth'
+##FILE-EXTENSION 'cpp'
+##NOTES
+##END-NOTES
+##ID-CASE 'UpperCase'
+##DELIMITER ','
+//
+// THIS FILE IS GENERATED
+//
+#pragma once
+
+namespace SymbolMatcher
+{
+    enum class Symbol : int
+    {
+##SYMBOLS
+        %ID% = %Value%%Delimiter% // %Description% $$%Kind%
+##END-SYMBOLS
+    };
+
+    namespace DFA
+    {
+##DFA-TABLE
+        static constexpr inline int InitialState = %InitialState%;
+##END-DFA-TABLE
+
+        int Match(int& state, const char* (&it), const char* const (&it_end));
+    }
+
+    struct SymbolMatch
+    {
+        Symbol symbol;
+        std::string_view value;
+    };
+
+    static inline SymbolMatch MatchSingleSymbol(const std::string_view& s) noexcept
+    {
+        const char* const it_begin = std::to_address(std::begin(s));
+        const char* const it_end = std::to_address(std::end(s));
+
+        const char* it = it_begin;
+
+        int state = DFA::InitialState;
+        int symbol = DFA::Match(state, it, it_end);
+        if (symbol < 0)
+            return { Symbol::ERROR, s };
+
+        return { static_cast<Symbol>(symbol), s.substr(0, std::distance(it_begin, it)) };
+    }
+
+    static inline std::vector<SymbolMatch> MatchAllSymbols(const std::string_view& s) noexcept
+    {
+        const char* const it_begin = std::to_address(std::begin(s));
+        const char* const it_end = std::to_address(std::end(s));
+
+        const char* it_match_start = it_begin;
+        const char* it = it_begin;
+
+        std::vector<SymbolMatch> matches;
+
+        for (;;)
+        {
+            int state = DFA::InitialState;
+            int symbol = DFA::Match(state, it, it_end);
+            if (symbol < 0)
+            {
+                matches.emplace_back(Symbol::ERROR, s.substr(std::distance(it_begin, it_match_start)));
+                break;
+            }
+            else
+            {
+                matches.emplace_back(static_cast<Symbol>(symbol), s.substr(std::distance(it_begin, it_match_start), it - it_match_start));
+                it_match_start = it;
+            }
+        }
+
+        return matches;
+    }
+
+    static inline Symbol MatchSymbol(const std::string_view& s) noexcept
+    {
+        auto match = MatchSingleSymbol(s);
+        return match.symbol;
+    }
+
+    static inline Symbol MatchSymbolAndConsume(std::string_view& s) noexcept
+    {
+        auto match = MatchSingleSymbol(s);
+        if (match.symbol != Symbol::ERROR)
+            s.remove_prefix(match.value.length());
+        return match.symbol;
+    }
+}

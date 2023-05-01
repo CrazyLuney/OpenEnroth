@@ -45,8 +45,8 @@ bool Localization::Initialize()
 
 			std::size_t id;
 
-			MiniParser::ParseToken(it, id);
-			MiniParser::ParseToken(it, localization_strings[id], MiniParser::StripQuotes);
+			ParseToken(it, id);
+			ParseToken(it, localization_strings[id], StripQuotes);
 		}
 	}
 
@@ -278,7 +278,7 @@ void Localization::InitializeSkillNames()
 			auto tokens = GetTokens(data_line);
 			auto it = std::begin(tokens);
 
-			SkipToken(it);
+			DropToken(it);
 			ParseToken(it, skill_descriptions[*it_skill], StripQuotes);
 			ParseToken(it, skill_descriptions_normal[*it_skill], StripQuotes);
 			ParseToken(it, skill_descriptions_expert[*it_skill], StripQuotes);
@@ -354,9 +354,9 @@ void Localization::InitializeClassNames()
 			auto tokens = GetTokens(data_line);
 			auto it = std::begin(tokens);
 
-			SkipToken(it);
+			DropToken(it);
 			ParseToken(it, class_descriptions[*it_class], StripQuotes);
-			SkipToken(it);
+			DropToken(it);
 
 			++it_class;
 		}
@@ -472,7 +472,7 @@ void Localization::InitializeAttributeNames()
 			auto tokens = GetTokens(data_line);
 			auto it = std::begin(tokens);
 
-			SkipToken(it);
+			DropToken(it);
 			ParseToken(it, attribute_descriptions[*it_attribute], StripQuotes);
 
 			++it_attribute;

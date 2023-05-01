@@ -13,65 +13,62 @@
 
 #include "Library/Random/Random.h"
 #include "Utility/Math/TrigLut.h"
-#include "Utility/MiniParser.hpp"
 
 #include "OurMath.h"
 #include "Party.h"
 
-const char* location_type[] = {
-	"GENERIC",
-	"PADDEDCELL",
-	"ROOM",
-	"BATHROOM",
-	"LIVINGROOM",
-	"STONEROOM",
-	"AUDITORIUM",
-	"CONCERTHALL",
-	"CAVE",
-	"ARENA",
-	"HANGAR",
-	"CARPETEDHALLWAY",
-	"HALLWAY",
-	"STONECORRIDOR",
-	"ALLEY",
-	"FOREST",
-	"CITY",
-	"MOUNTAIN",
-	"QUARRY",
-	"PLAINS",
-	"PARKINGLOT",
-	"SEWERPIPE",
-	"UNDERWATER",
-	"DRUGGED",
-	"DIZZY",
-	"PSYCHOTIC"
-};
+#include "Engine/TextParsers/SymbolMatcher/SymbolMatcherMiniParser.hpp"
+
+namespace
+{
+	using SymbolMatcher::Symbol;
+
+	static const std::map<Symbol, uint8_t> EAXEnvMap
+	{
+		{ Symbol::GENERIC, 0 },
+		{ Symbol::PADDEDCELL, 1 },
+		{ Symbol::ROOM, 2 },
+		{ Symbol::BATHROOM, 3 },
+		{ Symbol::LIVINGROOM, 4 },
+		{ Symbol::STONEROOM, 5 },
+		{ Symbol::AUDITORIUM, 6 },
+		{ Symbol::CONCERTHALL, 7 },
+		{ Symbol::CAVE, 8 },
+		{ Symbol::ARENA, 9 },
+		{ Symbol::HANGAR, 10 },
+		{ Symbol::CARPETEDHALLWAY, 11 },
+		{ Symbol::HALLWAY, 12 },
+		{ Symbol::STONECORRIDOR, 13 },
+		{ Symbol::ALLEY, 14 },
+		{ Symbol::FOREST, 15 },
+		{ Symbol::CITY, 16 },
+		{ Symbol::MOUNTAIN, 17 },
+		{ Symbol::QUARRY, 18 },
+		{ Symbol::PLAINS, 19 },
+		{ Symbol::PARKINGLOT, 20 },
+		{ Symbol::SEWERPIPE, 21 },
+		{ Symbol::UNDERWATER, 22 },
+		{ Symbol::DRUGGED, 23 },
+		{ Symbol::DIZZY, 24 },
+		{ Symbol::PSYCHOTIC, 25 },
+	};
+}
 
 void MapStats::Initialize()
 {
 	using namespace MiniParser;
 
-	static const std::regex re_monster_encounter_counts { R"(\s*(\d+)(-(\d+))?)", std::regex::optimize };
-
 	uNumMaps = 0;
 
 	const auto blob = pEvents_LOD->LoadCompressedTexture("MapStats.txt");
-	const auto blob_lines = Lines(blob.string_view());
 
-	const auto data_lines = blob_lines | std::views::drop(3);
-
-	for (const auto& data_line : data_lines)
+	for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(3) | std::views::take(std::size(pInfos)))
 	{
-		auto [tokens_begin, tokens_end] { Tokenize(data_line) };
-
-		if (tokens_begin == tokens_end)
-			continue;
-
-		auto it = tokens_begin;
+		auto tokens = GetTokens(data_line);
+		auto it = std::begin(tokens);
 
 		{
 			std::size_t id;
-			std::string eax_env;
 
 			ParseToken(it, id);
 
@@ -93,54 +90,67 @@ void MapStats::Initialize()
 			ParseToken(it, map_info.EncM2percent);
 			ParseToken(it, map_info.EncM3percent);
 			ParseToken(it, map_info.pEncounterMonster1Texture, StripQuotes);
-			SkipToken(it);
+			DropToken(it);
 			ParseToken(it, map_info.Dif_M1);
-			ParseToken(it, re_monster_encounter_counts, [&](const auto& mr)
+			ParseTokenSymbol(it, [&minimum = map_info.uEncounterMonster1AtLeast, &maximum = map_info.uEncounterMonster1AtMost](const auto& match)
 				{
-					Parse(mr[1], map_info.uEncounterMonster1AtLeast);
-					if (mr[3].matched)
-						Parse(mr[3], map_info.uEncounterMonster1AtMost);
-					else
-						map_info.uEncounterMonster1AtMost = map_info.uEncounterMonster1AtLeast;
-					return true;
-				});
-			ParseToken(it, map_info.pEncounterMonster2Texture, StripQuotes);
-			SkipToken(it);
-			ParseToken(it, map_info.Dif_M2);
-			ParseToken(it, re_monster_encounter_counts, [&](const auto& mr)
-				{
-					Parse(mr[1], map_info.uEncounterMonster2AtLeast);
-					if (mr[3].matched)
-						Parse(mr[3], map_info.uEncounterMonster2AtMost);
-					else
-						map_info.uEncounterMonster2AtMost = map_info.uEncounterMonster2AtLeast;
-					return true;
-				});
-			ParseToken(it, map_info.pEncounterMonster3Texture, StripQuotes);
-			SkipToken(it);
-			ParseToken(it, map_info.Dif_M3);
-			ParseToken(it, re_monster_encounter_counts, [&](const auto& mr)
-				{
-					Parse(mr[1], map_info.uEncounterMonster3AtLeast);
-					if (mr[3].matched)
-						Parse(mr[3], map_info.uEncounterMonster3AtMost);
-					else
-						map_info.uEncounterMonster3AtMost = map_info.uEncounterMonster3AtLeast;
-					return true;
-				});
-			ParseToken(it, map_info.uRedbookTrackID);
-			ParseToken(it, eax_env);
-
-			{
-				auto it_eax_env = std::find_if(std::begin(location_type), std::end(location_type), [&](const char* const s)
+					switch (match.symbol)
 					{
-						return std::strcmp(s, eax_env.c_str()) == 0;
-					});
-				if (it_eax_env == std::end(location_type))
-					map_info.uEAXEnv = std::size(location_type) + 1;
-				else
-					map_info.uEAXEnv = std::distance(std::begin(location_type), it_eax_env);
-			}
+					case Symbol::ENCOUNTERRANGE:
+						SymbolParsers::ParseEncounterRange(match.value, minimum, maximum);
+						break;
+					case Symbol::INTEGER:
+						Parse(match.value, minimum);
+						maximum = minimum;
+						break;
+					default:
+						__debugbreak();
+						return false;
+					}
+					return true;
+				}, Trim);
+			ParseToken(it, map_info.pEncounterMonster2Texture, StripQuotes);
+			DropToken(it);
+			ParseToken(it, map_info.Dif_M2);
+			ParseTokenSymbol(it, [&minimum = map_info.uEncounterMonster2AtLeast, &maximum = map_info.uEncounterMonster2AtMost](const auto& match)
+				{
+					switch (match.symbol)
+					{
+					case Symbol::ENCOUNTERRANGE:
+						SymbolParsers::ParseEncounterRange(match.value, minimum, maximum);
+						break;
+					case Symbol::INTEGER:
+						Parse(match.value, minimum);
+						maximum = minimum;
+						break;
+					default:
+						__debugbreak();
+						return false;
+					}
+					return true;
+				}, Trim);
+			ParseToken(it, map_info.pEncounterMonster3Texture, StripQuotes);
+			DropToken(it);
+			ParseToken(it, map_info.Dif_M3);
+			ParseTokenSymbol(it, [&minimum = map_info.uEncounterMonster3AtLeast, &maximum = map_info.uEncounterMonster3AtMost](const auto& match)
+				{
+					switch (match.symbol)
+					{
+					case Symbol::ENCOUNTERRANGE:
+						SymbolParsers::ParseEncounterRange(match.value, minimum, maximum);
+						break;
+					case Symbol::INTEGER:
+						Parse(match.value, minimum);
+						maximum = minimum;
+						break;
+					default:
+						__debugbreak();
+						return false;
+					}
+					return true;
+				}, Trim);
+			ParseToken(it, map_info.uRedbookTrackID);
+			ParseTokenSymbol(it, map_info.uEAXEnv, EAXEnvMap, static_cast<uint8_t>(std::size(EAXEnvMap)));
 		}
 
 		++uNumMaps;

@@ -1,0 +1,61 @@
+##LANGUAGE 'C++'
+##TEMPLATE-NAME 'SymbolMatcher.hpp'
+##ENGINE-NAME 'OpenEnroth'
+##FILE-EXTENSION 'hpp'
+##NOTES
+##END-NOTES
+##ID-CASE 'UpperCase'
+##DELIMITER ','
+//
+// THIS FILE IS GENERATED
+//
+#include "SymbolMatcher.hpp"
+
+namespace SymbolMatcher::DFA
+{
+##CHAR-SET-TABLE
+##CHAR-SETS
+    static constexpr inline char Charset%Index%[%CharCount%] = { %Chars.List% };
+##END-CHAR-SETS
+##END-CHAR-SET-TABLE
+
+    template <std::size_t N>
+    constexpr inline bool MatchCharset(char c, const char (&charset)[N]) requires (N > 0)
+    {
+        if (c < charset[0])
+            return false;
+        if (c > charset[N - 1])
+            return false;
+        auto it = std::lower_bound(std::begin(charset), std::end(charset), c);
+        if (it == std::end(charset))
+            return false;
+        return *it == c;
+    }
+
+##DFA-TABLE
+    int Match(int& state, const char* (&it), const char* const (&it_end))
+    {
+        for (bool end = false; !end; )
+        {
+            if (it == it_end)
+                end = true;
+
+            switch (state)
+            {
+##DFA-STATES
+            case %Index%:
+##DFA-EDGES
+                if (MatchCharset(*it, Charset%CharSetIndex%)) { state = %Target%; ++it; continue; }
+##END-DFA-EDGES
+                return %AcceptIndex%;
+##END-DFA-STATES
+            default:
+                return -1;
+            }
+        }
+
+        // TODO: EOF?
+        return -1;
+    }
+##END-DFA-TABLE
+}

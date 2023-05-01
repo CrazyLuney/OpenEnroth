@@ -9,9 +9,7 @@ SET GOLD_BUILDER_TOOLS=c:\software\GOLD-Builder-5.2.0-Cmd\
 SET GOLD_BUILD=%GOLD_BUILDER_TOOLS%GOLDbuild.exe
 SET GOLD_PROGRAM=%GOLD_BUILDER_TOOLS%GOLDprog.exe
 
-IF EXIST gold-temp (
-    DEL /Q /F gold-temp\
-) ELSE (
+IF NOT EXIST gold-temp (
     MKDIR gold-temp
 )
 

@@ -68,19 +68,19 @@ signed int MonsterStats::FindMonsterByTextureName(const char* monster_textr_name
 //----- (00454F4E) --------------------------------------------------------
 void MonsterStats::InitializePlacements()
 {
+	using namespace MiniParser;
+
 	const auto blob = pEvents_LOD->LoadCompressedTexture("placemon.txt");
-	const auto blob_view = blob.string_view();
 
-	const auto data_view = MiniParser::SkipLines(blob_view, 1);
-
-	auto [tokens_begin, tokens_end] { MiniParser::Tokenize(data_view) };
-
-	for (auto it = tokens_begin; it != tokens_end; )
+	for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1))
 	{
+		auto tokens = GetTokens(data_line);
+		auto it = std::begin(tokens);
+
 		MonsterPlacementInfo info;
 
-		MiniParser::ParseToken(it, info.uID);
-		MiniParser::ParseToken(it, info.pName, MiniParser::TrimAndStripQuotes);
+		ParseToken(it, info.uID);
+		ParseToken(it, info.pName, TrimAndStripQuotes);
 
 		pPlaceStrings.emplace_back(std::move(info));
 	}
@@ -89,10 +89,11 @@ void MonsterStats::InitializePlacements()
 //----- (0045501E) --------------------------------------------------------
 void MonsterStats::Initialize()
 {
-	const auto blob = pEvents_LOD->LoadCompressedTexture("monsters.txt");
-	const auto blob_view = blob.string_view();
+	// TODO: rework
 
-	const auto data_view = Strings::SkipLines(blob_view, 4);
+	const auto blob = pEvents_LOD->LoadCompressedTexture("monsters.txt");
+
+	const auto data_view = MiniParser::DropLines(blob.string_view(), 4);
 
 	auto OnMonsterInfoReady = [this](MonsterInfo&& monster_info)
 	{
@@ -106,7 +107,7 @@ void MonsterStats::Initialize()
 	else
 	{
 		__debugbreak();
-		Error("Failed to parse monsters.txt!");
+		Error("Failed to parse monster stats!");
 	}
 }
 
