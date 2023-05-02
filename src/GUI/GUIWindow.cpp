@@ -866,7 +866,7 @@ GUIWindow::GUIWindow(WindowType windowType, Pointi position, Sizei dimensions, W
 void DrawJoinGuildWindow(GUILD_ID guild_id)
 {
 	uDialogueType = DIALOGUE_81_join_guild;
-	current_npc_text = (char*)pNPCTopics[guild_id + 99].pText;
+	current_npc_text = pNPCTopics[guild_id + 99].pText;
 	GetJoinGuildDialogueOption(guild_id);
 	pDialogueWindow->Release();
 	pDialogueWindow = new GUIWindow(WINDOW_Dialogue, { 0, 0 }, { render->GetRenderDimensions().w, 350 }, guild_id);
@@ -2210,7 +2210,7 @@ std::string BuildDialogueString(std::string& str, uint8_t uPlayerID, ItemGen* a3
 				}
 				else
 				{
-					pText = pNPCTopics[55].pText;
+					pText = pNPCTopics[55].pText.c_str();
 				}
 				result += pText;
 				break;
@@ -2791,23 +2791,23 @@ const char* GetJoinGuildDialogueOption(GUILD_ID guild_id)
 	{
 		if (_449B57_test_bit((uint8_t*)pPlayers[pParty->getActiveCharacter()]->_achieved_awards_bits, dword_F8B1AC_award_bit_number))
 		{
-			return pNPCTopics[dialogue_base + 13].pText;
+			return pNPCTopics[dialogue_base + 13].pText.c_str();
 		}
 		else
 		{
 			if (gold_transaction_amount <= pParty->GetGold())
 			{
 				guild_membership_approved = true;
-				return pNPCTopics[dialogue_base + guild_id].pText;
+				return pNPCTopics[dialogue_base + guild_id].pText.c_str();
 			}
 			else
 			{
-				return pNPCTopics[dialogue_base + 14].pText;
+				return pNPCTopics[dialogue_base + 14].pText.c_str();
 			}
 		}
 	}
 	else
 	{
-		return pNPCTopics[dialogue_base + 12].pText;
+		return pNPCTopics[dialogue_base + 12].pText.c_str();
 	}
 }

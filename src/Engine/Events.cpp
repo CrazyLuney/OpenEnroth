@@ -893,7 +893,7 @@ void EventProcessor(int uEventID, int targetObj, int canShowMessages,
 						current_npc_text = pNPCTopics[v90 - 1].pText;
 					if (canShowMessages == 1)
 					{
-						v91 = pNPCTopics[v90 - 1].pText;
+						v91 = pNPCTopics[v90 - 1].pText.c_str();
 						GameUI_SetStatusBar(v91);
 					}
 				}

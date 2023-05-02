@@ -289,29 +289,29 @@ namespace MonsterInfoParser
 	protected:
 		virtual bool OnPreReduce(const int rule, const int symbol, const TokenSpan& tokens) override
 		{
-	#define ACTION(S, Action) case S: Action(rule, symbol, tokens); return true
-	#define CONSUME(S) case S: return true
+#define ACTION(S, Action) case S: Action(rule, symbol, tokens); return true
+#define IGNORE(S) case S: return true
 
 			switch (symbol)
 			{
 
-			CONSUME(Symbols::S_AIType);
+			IGNORE(Symbols::S_AIType);
 			ACTION(Symbols::S_AttackDesc, OnAttackDesc);
 			ACTION(Symbols::S_AttackPreference, OnAttackPreference);
-			CONSUME(Symbols::S_Boolean);
-			CONSUME(Symbols::S_DamageType);
-			CONSUME(Symbols::S_MissileType);
-			CONSUME(Symbols::S_MovementType);
+			IGNORE(Symbols::S_Boolean);
+			IGNORE(Symbols::S_DamageType);
+			IGNORE(Symbols::S_MissileType);
+			IGNORE(Symbols::S_MovementType);
 			ACTION(Symbols::S_Resistance, OnResistance);
-			CONSUME(Symbols::S_Resistances);
-			CONSUME(Symbols::S_SkillMastery);
-			CONSUME(Symbols::S_SpecialAttack);
+			IGNORE(Symbols::S_Resistances);
+			IGNORE(Symbols::S_SkillMastery);
+			IGNORE(Symbols::S_SpecialAttack);
 			ACTION(Symbols::S_SpecialAttackType, OnSpecialAttackType);
-			CONSUME(Symbols::S_Spell);
-			CONSUME(Symbols::S_String2);
+			IGNORE(Symbols::S_Spell);
+			IGNORE(Symbols::S_String2);
 			ACTION(Symbols::S_TreasureChance, OnTreasureChance);
 			ACTION(Symbols::S_TreasureDice, OnTreasureDice);
-			CONSUME(Symbols::S_TreasureInfo);
+			IGNORE(Symbols::S_TreasureInfo);
 			ACTION(Symbols::S_TreasureType, OnTreasureType);
 
 			default:
@@ -324,29 +324,29 @@ namespace MonsterInfoParser
 			ACTION(Rules::R_SpecialAttack_x_Integer, OnSpecialAttackBonus);
 			ACTION(Rules::R_TreasureItem_l_Integer , OnTreasureItem);
 			ACTION(Rules::R_TreasureItem_l_Integer2, OnTreasureItem);
-			CONSUME(Rules::R_TreasureInfo_Integer);
-			CONSUME(Rules::R_DamageDice_Integer);
+			IGNORE(Rules::R_TreasureInfo_Integer);
+			IGNORE(Rules::R_DamageDice_Integer);
 			ACTION(Rules::R_SpellAttack_Comma_Integer, OnSpellAttack);
-			CONSUME(Rules::R_SpellAttack_Integer);
-			CONSUME(Rules::R_Number_Integer);
+			IGNORE(Rules::R_SpellAttack_Integer);
+			IGNORE(Rules::R_Number_Integer);
 			ACTION(Rules::R_MiscSpecial_explode_Comma_Comma, OnSpecialAbilityExplode);
 			ACTION(Rules::R_MiscSpecial_shot_Comma_x_Integer, OnSpecialAbilityShot);
 			ACTION(Rules::R_MiscSpecial_summon_Comma_Comma, OnSpecialAbilitySummon);
-			CONSUME(Rules::R_MiscSpecial_Integer);
-			CONSUME(Rules::R_nl_NewLine);
-			CONSUME(Rules::R_nl_NewLine2);
-			CONSUME(Rules::R_nlOpt_NewLine);
-			CONSUME(Rules::R_nlOpt);
-			CONSUME(Rules::R_Start);
-			CONSUME(Rules::R_StatementList);
-			CONSUME(Rules::R_StatementList2);
+			IGNORE(Rules::R_MiscSpecial_Integer);
+			IGNORE(Rules::R_nl_NewLine);
+			IGNORE(Rules::R_nl_NewLine2);
+			IGNORE(Rules::R_nlOpt_NewLine);
+			IGNORE(Rules::R_nlOpt);
+			IGNORE(Rules::R_Start);
+			IGNORE(Rules::R_StatementList);
+			IGNORE(Rules::R_StatementList2);
 
 			default:
 				break;
 			}
 
-	#undef ACTION
-	#undef CONSUME
+#undef ACTION
+#undef IGNORE
 
 			return ParserCore::OnPreReduce(rule, symbol, tokens);
 		}

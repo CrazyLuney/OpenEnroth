@@ -2765,7 +2765,7 @@ void SimpleHouseDialog()
 	GUIFont* pTextFont;           // ebx@64
 	int pTextHeight;
 	GUIWindow w;      // [sp+Ch] [bp-110h]@64
-	char* pInString;  // [sp+114h] [bp-8h]@12
+	const char* pInString;  // [sp+114h] [bp-8h]@12
 
 	GUIWindow house_window = *pDialogueWindow;
 	if (pDialogueNPCCount == uNumDialogueNPCPortraits && uHouse_ExitPic)
@@ -2818,7 +2818,7 @@ void SimpleHouseDialog()
 			{
 				house_window.uFrameWidth = game_viewport_width;
 				house_window.uFrameZ = 452;
-				pInString = pNPCStats->pNPCGreetings[pNPC->greet].pGreetings[((pNPC->uFlags & 3) == 2)];
+				pInString = pNPCStats->pNPCGreetings[pNPC->greet][((pNPC->uFlags & 3) == 2)].c_str();
 				// pInString = (char *)*(&pNPCStats->field_17884 +
 				// ((pNPC->uFlags & 3) == 2) + 2 * pNPC->greet);
 				render->DrawTextureCustomHeight(
@@ -2851,7 +2851,7 @@ void SimpleHouseDialog()
 		switch (pButton->msg_param)
 		{
 		case DIALOGUE_SCRIPTED_LINE_1:
-			v15 = (char*)pNPCTopics[pNPC->dialogue_1_evt_id].pTopic;
+			v15 = pNPCTopics[pNPC->dialogue_1_evt_id].pTopic.c_str();
 			if (!v15)
 			{
 				pButton->msg_param = 0;
@@ -2860,7 +2860,7 @@ void SimpleHouseDialog()
 			pButton->sLabel = v15;
 			continue;
 		case DIALOGUE_SCRIPTED_LINE_2:
-			v15 = (char*)pNPCTopics[pNPC->dialogue_2_evt_id].pTopic;
+			v15 = pNPCTopics[pNPC->dialogue_2_evt_id].pTopic.c_str();
 			if (!v15)
 			{
 				pButton->msg_param = 0;
@@ -2871,7 +2871,7 @@ void SimpleHouseDialog()
 			continue;
 
 		case DIALOGUE_SCRIPTED_LINE_3:
-			v15 = (char*)pNPCTopics[pNPC->dialogue_3_evt_id].pTopic;
+			v15 = pNPCTopics[pNPC->dialogue_3_evt_id].pTopic.c_str();
 			if (!v15)
 			{
 				pButton->msg_param = 0;
@@ -2880,7 +2880,7 @@ void SimpleHouseDialog()
 			pButton->sLabel = v15;
 			continue;
 		case DIALOGUE_SCRIPTED_LINE_4:
-			v15 = (char*)pNPCTopics[pNPC->dialogue_4_evt_id].pTopic;
+			v15 = pNPCTopics[pNPC->dialogue_4_evt_id].pTopic.c_str();
 			if (!v15)
 			{
 				pButton->msg_param = 0;
@@ -2889,7 +2889,7 @@ void SimpleHouseDialog()
 			pButton->sLabel = v15;
 			continue;
 		case DIALOGUE_SCRIPTED_LINE_5:
-			v15 = (char*)pNPCTopics[pNPC->dialogue_5_evt_id].pTopic;
+			v15 = pNPCTopics[pNPC->dialogue_5_evt_id].pTopic.c_str();
 			if (!v15)
 			{
 				pButton->msg_param = 0;
@@ -2898,7 +2898,7 @@ void SimpleHouseDialog()
 			pButton->sLabel = v15;
 			continue;
 		case DIALOGUE_SCRIPTED_LINE_6:
-			v15 = (char*)pNPCTopics[pNPC->dialogue_6_evt_id].pTopic;
+			v15 = pNPCTopics[pNPC->dialogue_6_evt_id].pTopic.c_str();
 			if (!v15)
 			{
 				pButton->msg_param = 0;

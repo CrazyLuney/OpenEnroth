@@ -728,13 +728,13 @@ void GameUI_DrawNPCPopup(void* _this)
 			if (pNPC)
 			{
 				if (a2 == 57)
-					pText = pNPCTopics[512].pText;  // Baby dragon
+					pText = pNPCTopics[512].pText.c_str();  // Baby dragon
 				else
-					pText = pNPCStats->pProfessions[pNPC->profession].pBenefits;
+					pText = pNPCStats->pProfessions[pNPC->profession].pBenefits.c_str();
 				lpsz = pText;
 				if (!pText)
 				{
-					lpsz = pNPCStats->pProfessions[pNPC->profession].pJoinText;
+					lpsz = pNPCStats->pProfessions[pNPC->profession].pJoinText.c_str();
 					if (!lpsz) lpsz = "";
 				}
 				popup_window.Init();
@@ -743,12 +743,7 @@ void GameUI_DrawNPCPopup(void* _this)
 				popup_window.uFrameY = 60;
 				popup_window.uFrameWidth = 276;
 				popup_window.uFrameZ = 313;
-				popup_window.uFrameHeight =
-					pFontArrus->CalcTextHeight(lpsz, popup_window.uFrameWidth,
-						0) +
-					2 * pFontArrus->GetHeight() + 24;
-				if ((signed int)popup_window.uFrameHeight < 130)
-					popup_window.uFrameHeight = 130;
+				popup_window.uFrameHeight = std::max(130, pFontArrus->CalcTextHeight(lpsz, popup_window.uFrameWidth, 0) + 2 * pFontArrus->GetHeight() + 24);
 				popup_window.uFrameWidth = 400;
 				popup_window.uFrameZ = popup_window.uFrameX + 399;
 				popup_window.DrawMessageBox(0);
@@ -1133,11 +1128,9 @@ void GameUI_WritePointedObjectStatusString()
 				{
 					const char* pText;                 // ecx@79
 					if (pLevelDecorations[pickedObjectID].IsInteractive())
-						pText = pNPCTopics[stru_5E4C90_MapPersistVars._decor_events
-						[pLevelDecorations[pickedObjectID]._idx_in_stru123 -
-						75] + 380].pTopic;  // неверно для костра
+						pText = pNPCTopics[stru_5E4C90_MapPersistVars._decor_events[pLevelDecorations[pickedObjectID]._idx_in_stru123 - 75] + 380].pTopic.c_str();  // неверно для костра
 					else
-						pText = pDecorationList->GetDecoration(pLevelDecorations[pickedObjectID].uDecorationDescID)->field_20.data();
+						pText = pDecorationList->GetDecoration(pLevelDecorations[pickedObjectID].uDecorationDescID)->field_20.c_str();
 					GameUI_StatusBar_Set(pText);
 				}
 				else

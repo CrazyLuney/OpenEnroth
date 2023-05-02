@@ -23,6 +23,8 @@
 
 #include "Library/Random/Random.h"
 
+#include "Engine/TextParsers/SymbolMatcher/SymbolMatcherMiniParser.hpp"
+
 
 
 int pDialogueNPCCount;
@@ -122,143 +124,91 @@ struct NPCData* GetNewNPCData(signed int npcid, int* npc_indx)
 //----- (00476977) --------------------------------------------------------
 void NPCStats::InitializeNPCText()
 {
-	int i;
-	char* test_string;
-	unsigned char c;
-	bool break_loop;
-	unsigned int temp_str_len;
-	char* tmp_pos;
-	int decode_step;
+	using namespace MiniParser;
 
-	pNPCTextTXT_Raw = pEvents_LOD->LoadCompressedTexture("npctext.txt").string_view();
-	strtok(pNPCTextTXT_Raw.data(), "\r");
-
-	for (i = 0; i < 789; ++i)
 	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
-		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{
-				if (decode_step == 1)
-					pNPCTopics[i].pText = removeQuotes(test_string);
-			}
-			else
-			{
-				break_loop = true;
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 2) && !break_loop);
-	}
-	pNPCTopicTXT_Raw = pEvents_LOD->LoadCompressedTexture("npctopic.txt").string_view();
-	strtok(pNPCTopicTXT_Raw.data(), "\r");
+		const auto blob = pEvents_LOD->LoadCompressedTexture("npctext.txt");
 
-	for (i = 1; i <= 579; ++i)
-	{  // NPC topics count limit
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
+		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1) | std::views::take(std::size(pNPCTopics)))
 		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{
-				if (decode_step == 1)
-					pNPCTopics[i].pTopic = removeQuotes(test_string);
-			}
-			else
-			{
-				break_loop = true;
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 2) && !break_loop);
-	}
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
 
-	pNPCDistTXT_Raw = pEvents_LOD->LoadCompressedTexture("npcdist.txt").string_view();
-	strtok(pNPCDistTXT_Raw.data(), "\r");
-	strtok(NULL, "\r");
+			std::size_t id;
 
-	for (i = 1; i < 59; ++i)
-	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
-		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{
-				if ((decode_step > 0) && (decode_step < 77))
-				{
-					pProfessionChance[decode_step].professionChancePerArea[i] =
-						atoi(test_string);
-				}
-				else if (decode_step == 0)
-				{
-					pProfessionChance[0].professionChancePerArea[i] = 10;
-				}
-			}
-			else
-			{
-				break_loop = true;
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 78) && !break_loop);
-	}
-
-	for (i = 0; i < 77; ++i)
-	{
-		pProfessionChance[i].uTotalprofChance = 0;
-		for (int ii = 1; ii < 59; ++ii)
-		{
-			pProfessionChance[i].uTotalprofChance +=
-				pProfessionChance[i].professionChancePerArea[ii];
+			ParseToken(it, id);
+			ParseToken(it, pNPCTopics[id].pText, StripQuotes);
 		}
-		pProfessionChance[i].professionChancePerArea[0] = 0;
-		pProfessionChance[i].professionChancePerArea[59] = 0;
 	}
 
-	pNPCDistTXT_Raw.clear();
+	{
+		const auto blob = pEvents_LOD->LoadCompressedTexture("npctopic.txt");
+
+		// NPC topics count limit
+		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1) | std::views::take(579))
+		{
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
+
+			std::size_t id;
+
+			ParseToken(it, id);
+			ParseToken(it, pNPCTopics[id].pTopic, StripQuotes);
+		}
+	}
+
+	{
+		const auto blob = pEvents_LOD->LoadCompressedTexture("npcdist.txt");
+
+		const auto areas_range = std::views::iota(1, 77);
+		const auto professions_range = std::views::iota(1, 59);
+
+		auto it_profession = std::begin(professions_range);
+
+		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(2) | std::views::take(58))
+		{
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
+
+			DropToken(it);
+
+			for (auto area : areas_range)
+			{
+				ParseToken(it, pProfessionChance[area].professionChancePerArea[*it_profession]);
+			}
+
+			++it_profession;
+		}
+
+		{
+			auto& record = pProfessionChance[0];
+
+			record.uTotalprofChance = 0;
+
+			std::fill(std::begin(record.professionChancePerArea), std::end(record.professionChancePerArea), 0);
+		}
+
+		for (auto area : areas_range)
+		{
+			auto& record = pProfessionChance[area];
+
+			record.uTotalprofChance = 0;
+			record.professionChancePerArea[0] = 0;
+			record.professionChancePerArea[59] = 0;
+
+			for (auto profession : professions_range)
+			{
+				record.uTotalprofChance += record.professionChancePerArea[profession];
+			}
+		}
+	}
 }
 
 //----- (00476C60) --------------------------------------------------------
 void NPCStats::OnLoadSetNPC_Names()
 {
 	for (unsigned int i = 1; i < uNumNewNPCs; ++i)
-		pNewNPCData[i].pName = pNPCUnicNames[i - 1];
+		pNewNPCData[i].pName = pNPCUniqueNames[i];
 
 	if (!pParty->pHirelings[0].pName.empty())
 		pParty->pHirelings[0].pName = pParty->pHireling1Name;
@@ -269,187 +219,97 @@ void NPCStats::OnLoadSetNPC_Names()
 //----- (00476CB5) --------------------------------------------------------
 void NPCStats::InitializeNPCData()
 {
-	int i;
-	char* test_string;
-	unsigned char c;
-	bool break_loop;
-	unsigned int temp_str_len;
-	char* tmp_pos;
-	int decode_step;
+	using namespace MiniParser;
 
-	pNPCDataTXT_Raw = pEvents_LOD->LoadCompressedTexture("npcdata.txt").string_view();
-	strtok(pNPCDataTXT_Raw.data(), "\r");
-	strtok(NULL, "\r");
-
-	for (i = 0; i < 500; ++i)
 	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
+		const auto blob = pEvents_LOD->LoadCompressedTexture("npcdata.txt");
+
+		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(2) | std::views::take(500))
 		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{  // i+1
-				switch (decode_step)
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
+
+			std::size_t id;
+
+			ParseToken(it, id);
+
+			auto& npc_data = pNPCData[id];
+
+			ParseToken(it, npc_data.pName, StripQuotes);
+			ParseToken(it, npc_data.uPortraitID);
+			DropTokens(it, 3);
+			ParseToken(it, npc_data.Location2D);
+			ParseToken(it, npc_data.profession);
+			ParseToken(it, npc_data.greet);
+			ParseTokenSymbol(it, [&](const auto& match)
 				{
-				case 1:
-					pNPCUnicNames[i] = removeQuotes(test_string);
-					pNPCData[i + 1].pName = pNPCUnicNames[i];
-					break;
-				case 2:
-					pNPCData[i + 1].uPortraitID = atoi(test_string);
-					break;
-				case 6:
-					pNPCData[i + 1].Location2D = atoi(test_string);
-					break;
-				case 7:
-					pNPCData[i + 1].profession = (NPCProf)atoi(test_string);
-					break;
-				case 8:
-					pNPCData[i + 1].greet = atoi(test_string);
-					break;
-				case 9:
-					pNPCData[i + 1].is_joinable = (*test_string == 'y') ? 1 : 0;
-					break;
-				case 10:
-					pNPCData[i + 1].dialogue_1_evt_id = atoi(test_string);
-					break;
-				case 11:
-					pNPCData[i + 1].dialogue_2_evt_id = atoi(test_string);
-					break;
-				case 12:
-					pNPCData[i + 1].dialogue_3_evt_id = atoi(test_string);
-					break;
-				case 13:
-					pNPCData[i + 1].dialogue_4_evt_id = atoi(test_string);
-					break;
-				case 14:
-					pNPCData[i + 1].dialogue_5_evt_id = atoi(test_string);
-					break;
-				case 15:
-					pNPCData[i + 1].dialogue_6_evt_id = atoi(test_string);
-					break;
-				}
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 16) && !break_loop);
+					return SymbolParsers::ParseBool(match, npc_data.is_joinable);
+				});
+			ParseToken(it, npc_data.dialogue_1_evt_id);
+			ParseToken(it, npc_data.dialogue_2_evt_id);
+			ParseToken(it, npc_data.dialogue_3_evt_id);
+			ParseToken(it, npc_data.dialogue_4_evt_id);
+			ParseToken(it, npc_data.dialogue_5_evt_id);
+			ParseToken(it, npc_data.dialogue_6_evt_id);
+
+			pNPCUniqueNames[id] = npc_data.pName;
+		}
 	}
+
 	uNumNewNPCs = 501;
-	pNPCGreetTXT_Raw = pEvents_LOD->LoadCompressedTexture("npcgreet.txt").string_view();
-	strtok(pNPCGreetTXT_Raw.data(), "\r");
-	for (i = 1; i <= 205; ++i)
+
 	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
+		const auto blob = pEvents_LOD->LoadCompressedTexture("npcgreet.txt");
+
+		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1) | std::views::take(205))
 		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{  // i+1
-				switch (decode_step)
-				{
-				case 1:
-					pNPCGreetings[i].pGreetings[0] =
-						removeQuotes(test_string);
-					break;
-				case 2:
-					pNPCGreetings[i].pGreetings[1] =
-						removeQuotes(test_string);
-					break;
-				}
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 3) && !break_loop);
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
+
+			std::size_t id;
+
+			ParseToken(it, id);
+			ParseToken(it, pNPCGreetings[id].pGreeting1, StripQuotes);
+			ParseToken(it, pNPCGreetings[id].pGreeting2, StripQuotes);
+		}
 	}
 
-	pNCPGroupTXT_Raw = pEvents_LOD->LoadCompressedTexture("npcgroup.txt").string_view();
-	strtok(pNCPGroupTXT_Raw.data(), "\r");
-
-	for (i = 0; i < 51; ++i)
 	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
+		const auto blob = pEvents_LOD->LoadCompressedTexture("npcgroup.txt");
+
+		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(2) | std::views::take(51))
 		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{  // i+1
-				if (decode_step == 1)
-				{
-					pGroups[i] = atoi(test_string);
-				}
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 2) && !break_loop);
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
+
+			std::size_t id;
+
+			ParseToken(it, id);
+			ParseToken(it, pGroups[id]);
+		}
 	}
 
-	pNPCNewsTXT_Raw = pEvents_LOD->LoadCompressedTexture("npcnews.txt").string_view();
-	strtok(pNPCNewsTXT_Raw.data(), "\r");
-
-	for (i = 0; i < 51; ++i)
 	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
+		const auto blob = pEvents_LOD->LoadCompressedTexture("npcnews.txt");
+
+		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(2) | std::views::take(50))
 		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{  // i+1
-				if (decode_step == 1)
-					pCatchPhrases[i] = removeQuotes(test_string);
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 2) && !break_loop);
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
+
+			std::size_t id;
+
+			ParseToken(it, id);
+			ParseToken(it, pCatchPhrases[id], StripQuotes);
+		}
 	}
 }
 
 //----- (0047702F) --------------------------------------------------------
 void NPCStats::Initialize()
 {
+	using namespace MiniParser;
+
 	int i;
 	char* test_string;
 	unsigned char c;
@@ -467,126 +327,71 @@ void NPCStats::Initialize()
 	InitializeMerchants();
 	InitializeScrolls();
 
-	pNPCNamesTXT_Raw = pEvents_LOD->LoadCompressedTexture("npcnames.txt").string_view();
-	strtok(pNPCNamesTXT_Raw.data(), "\r");
+	uNumNPCNames.fill(0);
+
+	{
+		const auto blob = pEvents_LOD->LoadCompressedTexture("npcnames.txt");
+
+		std::size_t i = 0;
+
+		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1) | std::views::take(std::size(pNPCNames)))
+		{
+			auto tokens = GetTokens(data_line);
+
+			auto it = std::begin(tokens);
+			auto it_end = std::end(tokens);
+
+			if (it != it_end)
+			{
+				ParseToken(it, pNPCNames[i][0]);
+				++uNumNPCNames[0];
+			}
+
+			if (it != it_end)
+			{
+				ParseToken(it, pNPCNames[i][1]);
+				++uNumNPCNames[1];
+			}
+
+			++i;
+		}
+	}
 
 	uNewlNPCBufPos = 0;
+	uNumNPCProfessions = 0;
 
-	for (i = 0; i < 540; ++i)
 	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
+		const auto blob = pEvents_LOD->LoadCompressedTexture("npcprof.txt");
+
+		const auto professions_range = std::views::iota(std::to_underlying(NPC_PROFESSION_FIRST_VALID), std::to_underlying(NPC_PROFESSION_LAST_VALID) + 1);
+
+		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(4))
 		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			if (c == '\t')
-			{
-				if ((decode_step == 1) && (!uNumNPCNames[1]))
-					uNumNPCNames[1] = i;
-			}
-			else
-			{
-				while ((c != '\n') && (c != '\t') && (c > 0))
-				{
-					++temp_str_len;
-					c = test_string[temp_str_len];
-				}
-				tmp_pos = test_string + temp_str_len;
-				if (*tmp_pos == 0) break_loop = true;
+			auto tokens = GetTokens(data_line);
+			auto it = std::begin(tokens);
 
-				if (temp_str_len)
-				{
-					*tmp_pos = 0;
-					if (decode_step == 0)
-						pNPCNames[i][0] = removeQuotes(test_string);
-					else if (decode_step == 1)
-						pNPCNames[i][1] = removeQuotes(test_string);
-				}
-				else
-				{
-					if ((decode_step == 1) && (!uNumNPCNames[1]))
-						uNumNPCNames[1] = i;
-				}
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 2) && !break_loop);
+			NPCProf id;
+
+			if (!ParseToken(it, id))
+				break;
+
+			auto& profession_info = pProfessions[id];
+
+			DropToken(it);
+			ParseToken(it, profession_info.uHirePrice);
+			ParseToken(it, profession_info.pActionText, StripQuotes);
+			ParseToken(it, profession_info.pBenefits, StripQuotes);
+			ParseToken(it, profession_info.pJoinText, StripQuotes);
+			ParseToken(it, profession_info.pDismissText, StripQuotes);
+
+			++uNumNPCProfessions;
+		}
 	}
-	uNumNPCNames[0] = i;
-
-	pNPCProfTXT_Raw = pEvents_LOD->LoadCompressedTexture("npcprof.txt").string_view();
-	strtok(pNPCProfTXT_Raw.data(), "\r");
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-	strtok(NULL, "\r");
-
-	for (NPCProf i : Segment(NPC_PROFESSION_FIRST_VALID, NPC_PROFESSION_LAST_VALID))
-	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
-		{
-			// while (*test_string == '\t')  // some steps are separated by
-			// multiple \t's
-			// ++test_string;
-
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{
-				switch (decode_step)
-				{
-				case 2:
-					pProfessions[i].uHirePrice = atoi(test_string);
-					break;
-				case 3:
-					pProfessions[i].pActionText = removeQuotes(test_string);
-					break;
-				case 4:
-					pProfessions[i].pBenefits = removeQuotes(test_string);
-					break;
-				case 5:
-					pProfessions[i].pJoinText = removeQuotes(test_string);
-					break;
-				case 6:
-					pProfessions[i].pDismissText =
-						removeQuotes(test_string);
-				}
-			}
-			else
-			{
-				if (!decode_step) break_loop = true;
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 7) && !break_loop);
-	}
-	uNumNPCProfessions = 59;
 }
 
 //----- (00477266) --------------------------------------------------------
 void NPCStats::Release()
 {
-	pNPCTopicTXT_Raw.clear();
-	pNPCTextTXT_Raw.clear();
-	pNPCNewsTXT_Raw.clear();
-	pNPCProfTXT_Raw.clear();
-	pNPCNamesTXT_Raw.clear();
-	pNPCDataTXT_Raw.clear();
-	pNPCDistTXT_Raw.clear();
-	pNPCGreetTXT_Raw.clear();
-	pNCPGroupTXT_Raw.clear();
 }
 
 //----- (0047730C) --------------------------------------------------------
@@ -753,8 +558,7 @@ void NPCStats::InitializeAdditionalNPCs(NPCData* pNPCDataBuff, int npc_uid,
 }
 
 //----- (00495366) --------------------------------------------------------
-char* NPCStats::sub_495366_MispronounceName(uint8_t firstLetter,
-	uint8_t genderId)
+const char* NPCStats::sub_495366_MispronounceName(uint8_t firstLetter, uint8_t genderId)
 {
 	int pickedName;  // edx@2
 
@@ -765,9 +569,9 @@ char* NPCStats::sub_495366_MispronounceName(uint8_t firstLetter,
 	else
 	{
 		dword_AE336C_LastMispronouncedNameFirstLetter = firstLetter;
-		if (this->uNumNPCNames[genderId] == 0)
+		if (uNumNPCNames[genderId] == 0)
 		{
-			pickedName = vrng->random(this->uNumNPCNames[(genderId + 1) % 2]);
+			pickedName = vrng->random(uNumNPCNames[(genderId + 1) % 2]);
 			// originally without " + 1) % 2", but
 			// that would yield a div by zero
 		}
@@ -775,9 +579,9 @@ char* NPCStats::sub_495366_MispronounceName(uint8_t firstLetter,
 		{
 			int rangeBottom = 0;
 			int rangeTop = 0;
-			for (uint i = 0; i < this->uNumNPCNames[genderId]; ++i)
+			for (uint i = 0; i < uNumNPCNames[genderId]; ++i)
 			{
-				if (tolower(this->pNPCNames[i][genderId][0]))
+				if (tolower(pNPCNames[i][genderId][0]))
 				{
 					if (rangeBottom)
 						rangeTop = i;
@@ -788,15 +592,18 @@ char* NPCStats::sub_495366_MispronounceName(uint8_t firstLetter,
 			if (rangeTop != 0)
 				pickedName = rangeBottom + vrng->random(rangeTop - rangeBottom);
 			else
-				pickedName = vrng->random(this->uNumNPCNames[genderId]);
+				pickedName = vrng->random(uNumNPCNames[genderId]);
 		}
 	}
 	dword_AE3370_LastMispronouncedNameResult = pickedName;
-	return this->pNPCNames[pickedName][genderId];
+	return pNPCNames[pickedName][genderId].c_str();
 }
 
 //----- (00476387) --------------------------------------------------------
-bool PartyHasDragon() { return pNPCStats->pNewNPCData[57].Hired(); }
+bool PartyHasDragon()
+{
+	return pNPCStats->pNewNPCData[57].Hired();
+}
 
 //----- (00476395) --------------------------------------------------------
 // 0x26 Wizard eye at skill level 2
@@ -1152,7 +959,7 @@ void NPCHireableDialogPrepare()
 		UIMSG_Escape, 0, InputAction::Invalid, localization->GetString(LSTR_CANCEL), { ui_exit_cancel_button_background }
 	);
 	pDialogueWindow->CreateButton({ 0, 0 }, { 0, 0 }, 1, 0, UIMSG_BuyInShop_Identify_Repair, 0);
-	if (pNPCStats->pProfessions[v1->profession].pBenefits)
+	if (!pNPCStats->pProfessions[v1->profession].pBenefits.empty())
 	{
 		pDialogueWindow->CreateButton({ 480, 160 }, { 140, 30 }, 1, 0,
 			UIMSG_ClickNPCTopic, DIALOGUE_PROFESSION_DETAILS, InputAction::Invalid, localization->GetString(LSTR_MORE_INFORMATION)
@@ -1365,12 +1172,12 @@ const char* GetProfessionActionText(NPCProf prof)
 	case WindMaster:
 	case WaterMaster:
 	case GateMaster:
-	case Acolyte:
+	case Chaplain:
 	case Piper:
 	case FallenWizard:
-		return pNPCStats->pProfessions[prof].pActionText;
+		return pNPCStats->pProfessions[prof].pActionText.c_str();
 	default:
-		return pNPCTopics[407].pTopic;
+		return pNPCTopics[407].pTopic.c_str();
 	}
 }
 
@@ -1481,7 +1288,7 @@ int UseNPCSkill(NPCProf profession, int id)
 		pNextFrameMessageQueue->AddGUIMessage(UIMSG_OnCastTownPortal, PID(OBJECT_Player, pParty->pPlayers.size() + id), 0);
 	} break;
 
-	case Acolyte:
+	case Chaplain:
 		pushNPCSpell(SPELL_SPIRIT_BLESS);
 		break;
 	case Piper:
@@ -1523,7 +1330,7 @@ int UseNPCSkill(NPCProf profession, int id)
 	case Diplomat:
 	case Duper:
 	case Burglar:
-	case Acolyte2:
+	case Acolyte:
 	case Initiate:
 	case Prelate:
 	case Monk:

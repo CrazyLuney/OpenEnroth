@@ -230,5 +230,52 @@ namespace MiniParser
 
 			return true;
 		}
+
+		template <std::integral ValueType>
+		inline bool ParseBool(const SymbolMatch& match, ValueType& value)
+		{
+			switch (match.symbol)
+			{
+			case Symbol::INTEGER:
+				Parse(match.value, value);
+				if (value != 0)
+					value = 1;
+				break;
+			case Symbol::N:
+				value = 0;
+				break;
+			case Symbol::Y:
+				value = 1;
+				break;
+			default:
+				__debugbreak();
+				return false;
+			}
+			return true;
+		}
+
+		inline bool ParseBool(const SymbolMatch& match, bool& value)
+		{
+			switch (match.symbol)
+			{
+			case Symbol::INTEGER:
+			{
+				int i;
+				Parse(match.value, i);
+				value = i != 0;
+			}
+			break;
+			case Symbol::N:
+				value = false;
+				break;
+			case Symbol::Y:
+				value = true;
+				break;
+			default:
+				__debugbreak();
+				return false;
+			}
+			return true;
+		}
 	}
 }

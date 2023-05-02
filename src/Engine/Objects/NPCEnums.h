@@ -72,7 +72,7 @@ enum class NPCProf : int32_t
 	WindMaster = 39,
 	WaterMaster = 40,
 	GateMaster = 41,
-	Acolyte = 42,
+	Chaplain = 42,
 	Piper = 43,
 	Explorer = 44,  // Travel by foot -1 day;     Travel by sea: -1 day;
 	Pirate = 45,    // Travel by sea: -2 days;    Gold finds: +10%; Reputation: +5;
@@ -83,7 +83,7 @@ enum class NPCProf : int32_t
 	Duper = 50,    // Merchant: +8;              Reputation: +5;
 	Burglar = 51,  // Traps: +8;                 Stealing: +8; Reputation: +5;
 	FallenWizard = 52,  // Reputation: +5;
-	Acolyte2 = 53,  // Spirit: +2;                Mind: +2;              Body: +2;
+	Acolyte = 53,  // Spirit: +2;                Mind: +2;              Body: +2;
 	Initiate = 54,  // Spirit: +3;                Mind: +3;              Body: +3;
 	Prelate = 55,      // Spirit: +4;                Mind: +4;              Body: +4;
 	Monk = 56,   // Unarmed: +2;               Dodge: +2;

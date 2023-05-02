@@ -173,7 +173,7 @@ void Localization::InitializeNpcProfessionNames()
 	npc_profession_names[WindMaster] = GetString(341);
 	npc_profession_names[WaterMaster] = GetString(342);
 	npc_profession_names[GateMaster] = GetString(343);
-	npc_profession_names[Acolyte] = GetString(596);
+	npc_profession_names[Chaplain] = GetString(596);
 	npc_profession_names[Piper] = GetString(345);
 	npc_profession_names[Explorer] = GetString(346);
 	npc_profession_names[Pirate] = GetString(347);
@@ -184,7 +184,7 @@ void Localization::InitializeNpcProfessionNames()
 	npc_profession_names[Duper] = GetString(352);
 	npc_profession_names[Burglar] = GetString(353);
 	npc_profession_names[FallenWizard] = GetString(598);
-	npc_profession_names[Acolyte2] = GetString(344);
+	npc_profession_names[Acolyte] = GetString(344);
 	npc_profession_names[Initiate] = GetString(26);
 	npc_profession_names[Prelate] = GetString(599);
 	npc_profession_names[Monk] = GetString(21);

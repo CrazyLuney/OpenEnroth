@@ -3403,19 +3403,19 @@ PLAYER_SKILL_LEVEL Player::GetActualSkillLevel(PLAYER_SKILL_TYPE uSkillType)
 		bonus_value += GetItemsBonus(CHARACTER_ATTRIBUTE_SKILL_WATER);
 		break;
 	case PLAYER_SKILL_SPIRIT:
-		if (CheckHiredNPCSpeciality(Acolyte2)) bonus_value = 2;
+		if (CheckHiredNPCSpeciality(Acolyte)) bonus_value = 2;
 		if (CheckHiredNPCSpeciality(Initiate)) bonus_value += 3;
 		if (CheckHiredNPCSpeciality(Prelate)) bonus_value += 4;
 		bonus_value += GetItemsBonus(CHARACTER_ATTRIBUTE_SKILL_SPIRIT);
 		break;
 	case PLAYER_SKILL_MIND:
-		if (CheckHiredNPCSpeciality(Acolyte2)) bonus_value = 2;
+		if (CheckHiredNPCSpeciality(Acolyte)) bonus_value = 2;
 		if (CheckHiredNPCSpeciality(Initiate)) bonus_value += 3;
 		if (CheckHiredNPCSpeciality(Prelate)) bonus_value += 4;
 		bonus_value += GetItemsBonus(CHARACTER_ATTRIBUTE_SKILL_MIND);
 		break;
 	case PLAYER_SKILL_BODY:
-		if (CheckHiredNPCSpeciality(Acolyte2)) bonus_value = 2;
+		if (CheckHiredNPCSpeciality(Acolyte)) bonus_value = 2;
 		if (CheckHiredNPCSpeciality(Initiate)) bonus_value += 3;
 		if (CheckHiredNPCSpeciality(Prelate)) bonus_value += 4;
 		bonus_value += GetItemsBonus(CHARACTER_ATTRIBUTE_SKILL_BODY);

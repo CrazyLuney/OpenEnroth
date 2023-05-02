@@ -153,11 +153,11 @@ void bountyHuntingDialogueOptionClicked()
 	{
 		if (pParty->monster_id_for_hunting[house])
 		{
-			bountyHunting_text = pNPCTopics[351].pText; // "This month's bounty is on a %s..."
+			bountyHunting_text = pNPCTopics[351].pText.c_str(); // "This month's bounty is on a %s..."
 		}
 		else
 		{
-			bountyHunting_text = pNPCTopics[353].pText; // "Someone has already claimed the bounty this month..."
+			bountyHunting_text = pNPCTopics[353].pText.c_str(); // "Someone has already claimed the bounty this month..."
 		}
 	}
 	else
@@ -177,7 +177,7 @@ void bountyHuntingDialogueOptionClicked()
 			pParty->monster_for_hunting_killed[house] = false;
 		}
 
-		bountyHunting_text = pNPCTopics[352].pText; // "Congratulations on defeating the %s! Here is the %lu gold reward..."
+		bountyHunting_text = pNPCTopics[352].pText.c_str(); // "Congratulations on defeating the %s! Here is the %lu gold reward..."
 	}
 }
 

@@ -6,8 +6,8 @@
 
 struct NPCTopic
 {
-	const char* pTopic;
-	const char* pText;
+	std::string pTopic;
+	std::string pText;
 };
 
 extern std::array<NPCTopic, 789> pNPCTopics;
@@ -45,20 +45,11 @@ struct NPCData
 #pragma pack(push, 1)
 struct NPCProfession
 {
-	inline NPCProfession()
-		: uHirePrice(0),
-		pBenefits(nullptr),
-		pActionText(nullptr),
-		pJoinText(nullptr),
-		pDismissText(nullptr)
-	{
-	}
-
-	unsigned int uHirePrice;
-	char* pBenefits;
-	char* pActionText;
-	char* pJoinText;
-	char* pDismissText;
+	uint32_t uHirePrice = 0;
+	std::string pBenefits;
+	std::string pActionText;
+	std::string pJoinText;
+	std::string pDismissText;
 };
 #pragma pack(pop)
 
@@ -75,15 +66,20 @@ struct NPCProfessionChance
 #pragma pack(push, 1)
 struct NPCGreeting
 {
-	union
+	std::string pGreeting1;  // at first meet
+	std::string pGreeting2;  // at latest meets
+
+	constexpr inline const std::string& operator[](const std::size_t& i) const noexcept
 	{
-		struct
+		assert(i < 2);
+		switch (i)
 		{
-			char* pGreeting1;  // at first meet
-			char* pGreeting2;  // at latest meets
-		};
-		char* pGreetings[2];
-	};
+		case 0:
+			return pGreeting1;
+		case 1:
+			return pGreeting2;
+		}
+	}
 };
 #pragma pack(pop)
 
@@ -93,26 +89,24 @@ struct NPCStats
 {
 	inline NPCStats()
 	{
-		uNumNPCNames[0] = uNumNPCNames[1] = 0;
+		uNumNPCNames.fill(0);
 	}
 
 	void InitializeNPCText();
 	void InitializeNPCData();
 	void Initialize();
 	void Release();
-	void InitializeAdditionalNPCs(NPCData* pNPCDataBuff, int npc_uid,
-		int uLocation2D, int uMapId);
+	void InitializeAdditionalNPCs(NPCData* pNPCDataBuff, int npc_uid, int uLocation2D, int uMapId);
 	void OnLoadSetNPC_Names();
-	char* sub_495366_MispronounceName(uint8_t firstLetter,
-		uint8_t genderId);
+	const char* sub_495366_MispronounceName(uint8_t firstLetter, uint8_t genderId);
 
 	std::array<NPCData, 501> pNPCData;     // 0 - 94BCh count from 1
 	std::array<NPCData, 501> pNewNPCData;  // 94BCh- 12978h count from 1
-	char* pNPCNames[540][2];
+	std::array<std::string[2], 540> pNPCNames;
 	IndexedArray<NPCProfession, NPC_PROFESSION_FIRST, NPC_PROFESSION_LAST> pProfessions = { {} };  // count from 1
 	std::array<NPCData, 100> pAdditionalNPC;
-	char* pCatchPhrases[52]{};   // 15CA4h
-	char* pNPCUnicNames[500]{};  // from first batch
+	std::array<std::string, 51> pCatchPhrases; // 15CA4h
+	std::array<std::string, 501> pNPCUniqueNames; // from first batch
 	NPCProfessionChance pProfessionChance[77];  // 16544h profession chance in each area
 	int field_17884 = 0;
 	int field_17888 = 0;
@@ -122,17 +116,8 @@ struct NPCStats
 	unsigned int uNewlNPCBufPos{};
 	unsigned int uNumNewNPCs{};
 	int field_17FC8 = 0;
-	unsigned int uNumNPCProfessions{};
-	unsigned int uNumNPCNames[2]{};  // 0 male 1 female
-	std::string pNPCDataTXT_Raw;
-	std::string pNPCNamesTXT_Raw;
-	std::string pNPCProfTXT_Raw;
-	std::string pNPCNewsTXT_Raw;
-	std::string pNPCTopicTXT_Raw;
-	std::string pNPCTextTXT_Raw;
-	std::string pNPCDistTXT_Raw;
-	std::string pNPCGreetTXT_Raw;
-	std::string pNCPGroupTXT_Raw;
+	size_t uNumNPCProfessions{};
+	std::array<size_t, 2> uNumNPCNames;
 
 	static int dword_AE336C_LastMispronouncedNameFirstLetter;
 	static int dword_AE3370_LastMispronouncedNameResult;
