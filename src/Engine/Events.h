@@ -332,8 +332,7 @@ extern std::array<char, 9216> pLevelStr;
 extern std::array<char, 9216> pLevelEVT;
 extern std::array<EventIndex, 4400> pLevelEVT_Index;
 
-unsigned int LoadEventsToBuffer(const std::string& pContainerName, char* pBuffer,
-	unsigned int uBufferSize);
+unsigned int LoadEventsToBuffer(const std::string& pContainerName, char* pBuffer, unsigned int uBufferSize);
 void Initialize_GlobalEVT();
 void LoadLevel_InitializeLevelEvt();
 void EventProcessor(int uEventID, int a2, int a3, int entry_line = 0);
@@ -350,6 +349,4 @@ struct ByteArray
 void init_event_triggers();
 void check_event_triggers();
 bool sub_4465DF_check_season(int a1);
-void sub_448CF4_spawn_monsters(int16_t typeindex, int16_t level, int count,
-	int x, int y, int z, int group,
-	unsigned int uUniqueName);
+void sub_448CF4_spawn_monsters(int16_t typeindex, int16_t level, int count, int x, int y, int z, int group, unsigned int uUniqueName);

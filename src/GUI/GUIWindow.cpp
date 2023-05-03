@@ -430,16 +430,14 @@ void GUIWindow::HouseDialogManager()
 
 	if (pDialogueNPCCount != uNumDialogueNPCPortraits || !uHouse_ExitPic)
 	{
-		const char* pHouseName = p2DEvents[window_SpeakInHouse->wData.val - 1].pName;
-		if (pHouseName)
+		if (!p2DEvents[window_SpeakInHouse->wData.val - 1].pName.empty())
 		{
 			if (current_screen_type != CURRENT_SCREEN::SCREEN_SHOP_INVENTORY)
 			{
-				int v3 = 2 * pFontCreate->GetHeight() - 6 -
-					pFontCreate->CalcTextHeight(pHouseName, 130, 0);
-				if (v3 < 0) v3 = 0;
-				pWindow.DrawTitleText(pFontCreate, 0x1EAu, v3 / 2 + 4, colorTable.White.c16(),
-					p2DEvents[window_SpeakInHouse->wData.val - 1].pName, 3);
+				int v3 = 2 * pFontCreate->GetHeight() - 6 - pFontCreate->CalcTextHeight(p2DEvents[window_SpeakInHouse->wData.val - 1].pName, 130, 0);
+				if (v3 < 0)
+					v3 = 0;
+				pWindow.DrawTitleText(pFontCreate, 0x1EAu, v3 / 2 + 4, colorTable.White.c16(), p2DEvents[window_SpeakInHouse->wData.val - 1].pName, 3);
 			}
 		}
 	}
@@ -451,18 +449,14 @@ void GUIWindow::HouseDialogManager()
 		if (in_current_building_type == BuildingType_Jail)
 		{
 			JailDialog();
-			if (pDialogueNPCCount == uNumDialogueNPCPortraits &&
-				uHouse_ExitPic)
+			if (pDialogueNPCCount == uNumDialogueNPCPortraits && uHouse_ExitPic)
 			{
-				render->DrawTextureNew(556 / 640.0f, 451 / 480.0f,
-					dialogue_ui_x_x_u);
-				render->DrawTextureNew(476 / 640.0f, 451 / 480.0f,
-					dialogue_ui_x_ok_u);
+				render->DrawTextureNew(556 / 640.0f, 451 / 480.0f, dialogue_ui_x_x_u);
+				render->DrawTextureNew(476 / 640.0f, 451 / 480.0f, dialogue_ui_x_ok_u);
 			}
 			else
 			{
-				render->DrawTextureNew(471 / 640.0f, 445 / 480.0f,
-					ui_exit_cancel_button_background);
+				render->DrawTextureNew(471 / 640.0f, 445 / 480.0f, ui_exit_cancel_button_background);
 			}
 			return;
 		}
@@ -525,7 +519,7 @@ void GUIWindow::HouseDialogManager()
 				{
 					if (!v8 && dword_591080)
 					{
-						pTitleText = (char*)p2DEvents[window_SpeakInHouse->wData.val - 1].pProprieterTitle;
+						pTitleText = p2DEvents[window_SpeakInHouse->wData.val - 1].pProprieterTitle;
 						pWindow.DrawTitleText(pFontCreate, 0x1E3u, 113, colorTable.EasternBlue.c16(), pTitleText, 3);
 						continue;
 					}
@@ -648,15 +642,12 @@ void GUIWindow::HouseDialogManager()
 	}
 	if (pDialogueNPCCount == uNumDialogueNPCPortraits && uHouse_ExitPic)
 	{
-		render->DrawTextureNew(556 / 640.0f, 451 / 480.0f,
-			dialogue_ui_x_x_u);
-		render->DrawTextureNew(476 / 640.0f, 451 / 480.0f,
-			dialogue_ui_x_ok_u);
+		render->DrawTextureNew(556 / 640.0f, 451 / 480.0f, dialogue_ui_x_x_u);
+		render->DrawTextureNew(476 / 640.0f, 451 / 480.0f, dialogue_ui_x_ok_u);
 	}
 	else
 	{
-		render->DrawTextureNew(471 / 640.0f, 445 / 480.0f,
-			ui_exit_cancel_button_background);
+		render->DrawTextureNew(471 / 640.0f, 445 / 480.0f, ui_exit_cancel_button_background);
 	}
 }
 
@@ -2192,8 +2183,7 @@ std::string BuildDialogueString(std::string& str, uint8_t uPlayerID, ItemGen* a3
 				v20 = (uint8_t*)pPlayer->_achieved_awards_bits;
 				for (uint _i = 0; _i < 28; ++_i)
 				{
-					if (_449B57_test_bit(
-						v20, word_4EE150[i]))
+					if (_449B57_test_bit(v20, word_4EE150[i]))
 					{
 						v21 = v63;
 						++v63;
@@ -2202,11 +2192,9 @@ std::string BuildDialogueString(std::string& str, uint8_t uPlayerID, ItemGen* a3
 				}
 				if (v63)
 				{
-					if (dword_A74CDC == -1) dword_A74CDC = vrng->random(v63);
-					pText =
-						pAwards[v55[dword_A74CDC]]
-						.pText;  // (char *)dword_723E80_award_related[2
-					// * v55[v24]];
+					if (dword_A74CDC == -1)
+						dword_A74CDC = vrng->random(v63);
+					pText = pAwards[v55[dword_A74CDC]].pText.c_str();
 				}
 				else
 				{
@@ -2332,16 +2320,16 @@ std::string BuildDialogueString(std::string& str, uint8_t uPlayerID, ItemGen* a3
 				}
 				if (shop_screen != 4)
 				{
-					if (shop_screen == 5)
-					{
+				if (shop_screen == 5)
+				{
 						v29 = pPlayer->GetPriceRepair(
 							a3->GetValue(),
 							p2DEvents[eventId - 1].fPriceMultiplier);
-					}
+				}
 					else
 					{
-						if (shop_screen == 6)
-						{
+				if (shop_screen == 6)
+				{
 							// v29 = pPlayer->GetPriceSell(a3->GetValue(),
 							// p2DEvents[(signed int)eventId -
 							// 1].fPriceMultiplier) / 2;
@@ -2349,14 +2337,14 @@ std::string BuildDialogueString(std::string& str, uint8_t uPlayerID, ItemGen* a3
 								*a3, p2DEvents[eventId - 1]
 								.fPriceMultiplier) /
 								2;
-							// if (a3->IsBroken())
-							// v29 = 1;
-							if (!v29)  // cannot be 0
-								v29 = 1;
-							sprintf(v1, "%u", v29);
-							result += v1;
-							break;
-						}
+					// if (a3->IsBroken())
+					// v29 = 1;
+					if (!v29)  // cannot be 0
+						v29 = 1;
+					sprintf(v1, "%u", v29);
+					result += v1;
+					break;
+				}
 					}
 					sprintf(v1, "%u", v29);
 					result += v1;

@@ -2351,12 +2351,7 @@ void OnMapLeave()
 			test_event = (_evt_raw*)&pLevelEVT[pLevelEVT_Index[i].uEventOffsetInEVT];
 			if (test_event->_e_type == EVENT_OnMapLeave)
 			{
-				EventProcessor(
-					pLevelEVT_Index[i].event_id,
-					0,
-					1,
-					pLevelEVT_Index[i].event_step
-				);
+				EventProcessor(pLevelEVT_Index[i].event_id, 0, 1, pLevelEVT_Index[i].event_step);
 			}
 		}
 	}

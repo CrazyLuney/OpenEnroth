@@ -905,7 +905,7 @@ void Game::processQueuedMessages()
 								continue;
 							case CURRENT_SCREEN::SCREEN_INPUT_BLV:  // click escape
 								if (uCurrentHouse_Animation == 153)
-									PlayHouseSound(0x99u, HouseSound_Greeting_2);
+									PlayHouseSound(static_cast<HOUSE_ID>(0x99), HouseSound_Greeting_2);
 								pMediaPlayer->Unload();
 								if (npcIdToDismissAfterDialogue)
 								{
@@ -1895,12 +1895,12 @@ void Game::processQueuedMessages()
 				if (quick_spell_at_page - 1 == uMessageParam)
 				{
 					GameUI_StatusBar_Set(localization->FormatString(LSTR_CAST_S,
-						pSpellStats->pInfos[static_cast<SPELL_TYPE>(uMessageParam + 11 * lastOpened + 1)].pName));
+						pSpellStats->pInfos[static_cast<SPELL_TYPE>(uMessageParam + 11 * lastOpened + 1)].pName.c_str()));
 				}
 				else
 				{
 					GameUI_StatusBar_Set(localization->FormatString(LSTR_SELECT_S,
-						pSpellStats->pInfos[static_cast<SPELL_TYPE>(uMessageParam + 11 * lastOpened + 1)].pName));
+						pSpellStats->pInfos[static_cast<SPELL_TYPE>(uMessageParam + 11 * lastOpened + 1)].pName.c_str()));
 				}
 				continue;
 			}

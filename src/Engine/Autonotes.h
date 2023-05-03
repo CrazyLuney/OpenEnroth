@@ -16,7 +16,7 @@ using enum AUTONOTE_TYPE;
 #pragma pack(push, 1)
 struct Autonote
 {
-	const char* pText;
+	std::string pText;
 	AUTONOTE_TYPE eType;
 };
 #pragma pack(pop)

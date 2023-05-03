@@ -66,7 +66,7 @@ extern std::array<unsigned int, 2> saveload_dlg_xs;
 extern std::array<unsigned int, 2> saveload_dlg_ys;
 extern std::array<unsigned int, 2> saveload_dlg_zs;
 extern std::array<unsigned int, 2> saveload_dlg_ws;
-extern std::array<const char*, 465> pTransitionStrings;  // 4EB080
+extern std::array<std::string, 465> pTransitionStrings;  // 4EB080
 extern std::array<int, 9> dword_4EC268;
 extern std::array<int, 7> dword_4EC28C;
 extern std::array<const char*, 25> pPlayerPortraitsNames;
@@ -309,18 +309,18 @@ extern std::array<int16_t, 104> odm_floor_face_vert_coord_Y;  // word_720F70
 extern std::array<int16_t, 104> odm_floor_face_vert_coord_X;  // word_721040
 extern Vec3i blv_prev_party_pos;
 extern char* dword_722F10;  // idb
-extern std::array<const char*, 513> pQuestTable;
+extern std::array<std::string, 513> pQuestTable;
 extern char* dword_723718_autonote_related;  // idb
-extern IndexedArray<const char*, ITEM_FIRST_MESSAGE_SCROLL, ITEM_LAST_MESSAGE_SCROLL> pScrolls;
+extern IndexedArray<std::string, ITEM_FIRST_MESSAGE_SCROLL, ITEM_LAST_MESSAGE_SCROLL> pScrolls;
 extern int dword_7241C8;
 
 extern std::string pAwardsTXT_Raw;
 extern std::string pScrollsTXT_Raw;
 extern std::string pMerchantsTXT_Raw;
-extern IndexedArray<const char*, MERCHANT_PHRASE_COUNT> pMerchantsBuyPhrases;
-extern IndexedArray<const char*, MERCHANT_PHRASE_COUNT> pMerchantsSellPhrases;
-extern IndexedArray<const char*, MERCHANT_PHRASE_COUNT> pMerchantsRepairPhrases;
-extern IndexedArray<const char*, MERCHANT_PHRASE_COUNT> pMerchantsIdentifyPhrases;
+extern IndexedArray<std::string, MERCHANT_PHRASE_COUNT> pMerchantsBuyPhrases;
+extern IndexedArray<std::string, MERCHANT_PHRASE_COUNT> pMerchantsSellPhrases;
+extern IndexedArray<std::string, MERCHANT_PHRASE_COUNT> pMerchantsRepairPhrases;
+extern IndexedArray<std::string, MERCHANT_PHRASE_COUNT> pMerchantsIdentifyPhrases;
 extern std::string pTransitionsTXT_Raw;
 extern std::string pAutonoteTXT_Raw;
 extern std::string pQuestsTXT_Raw;

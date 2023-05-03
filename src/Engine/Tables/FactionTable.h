@@ -2,9 +2,10 @@
 
 /*  174 */
 #pragma pack(push, 1)
-struct FactionTable {
-    void Initialize();
+struct FactionTable
+{
+	void Initialize();
 
-    char relations[89][89];
+	char relations[89][89];
 };
 #pragma pack(pop)

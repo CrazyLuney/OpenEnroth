@@ -4,7 +4,7 @@
 #pragma pack(push, 1)
 struct Award
 {
-	const char* pText;
+	std::string pText;
 	unsigned int uPriority;
 };
 #pragma pack(pop)

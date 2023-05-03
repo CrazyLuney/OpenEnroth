@@ -836,16 +836,13 @@ void GameUI_CharacterQuickRecord_Draw(GUIWindow* window, Player* player)
 	uint numActivePlayerBuffs = 0;
 	for (uint i = 0; i < 24; ++i)
 	{
-		if (player->pPlayerBuffs[i].Active()) ++numActivePlayerBuffs;
+		if (player->pPlayerBuffs[i].Active())
+			++numActivePlayerBuffs;
 	}
 
-	window->uFrameHeight =
-		((pFontArrus->GetHeight() + 162) +
-			((numActivePlayerBuffs - 1) * pFontArrus->GetHeight()));
+	window->uFrameHeight = ((pFontArrus->GetHeight() + 162) + ((numActivePlayerBuffs - 1) * pFontArrus->GetHeight()));
 	window->uFrameZ = window->uFrameWidth + window->uFrameX - 1;
-	window->uFrameW = ((pFontArrus->GetHeight() + 162) +
-		((numActivePlayerBuffs - 1) * pFontArrus->GetHeight())) +
-		window->uFrameY - 1;
+	window->uFrameW = ((pFontArrus->GetHeight() + 162) + ((numActivePlayerBuffs - 1) * pFontArrus->GetHeight())) + window->uFrameY - 1;
 	window->DrawMessageBox(0);
 
 	if (player->IsEradicated())
@@ -858,22 +855,18 @@ void GameUI_CharacterQuickRecord_Draw(GUIWindow* window, Player* player)
 	}
 	else
 	{
-		uFramesetID =
-			pPlayerFrameTable->GetFrameIdByExpression(player->expression);
-		if (!uFramesetID) uFramesetID = 1;
+		uFramesetID = pPlayerFrameTable->GetFrameIdByExpression(player->expression);
+		if (!uFramesetID)
+			uFramesetID = 1;
 		if (player->expression == CHARACTER_EXPRESSION_TALK)
-			v15 = pPlayerFrameTable->GetFrameBy_y(
-				&player->_expression21_frameset,
-				&player->_expression21_animtime, pMiscTimer->uTimeElapsed);
+			v15 = pPlayerFrameTable->GetFrameBy_y(&player->_expression21_frameset, &player->_expression21_animtime, pMiscTimer->uTimeElapsed);
 		else
-			v15 = pPlayerFrameTable->GetFrameBy_x(uFramesetID,
-				pMiscTimer->Time());
+			v15 = pPlayerFrameTable->GetFrameBy_x(uFramesetID, pMiscTimer->Time());
 		player->uExpressionImageIndex = v15->uTextureID - 1;
 		v13 = game_ui_player_faces[window->wData.val][v15->uTextureID - 1];
 	}
 
-	render->DrawTextureNew((window->uFrameX + 24) / 640.0f,
-		(window->uFrameY + 24) / 480.0f, v13);
+	render->DrawTextureNew((window->uFrameX + 24) / 640.0f, (window->uFrameY + 24) / 480.0f, v13);
 
 	// TODO(captainurist): do a 2nd rewrite here
 	auto str =
@@ -894,7 +887,7 @@ void GameUI_CharacterQuickRecord_Draw(GUIWindow* window, Player* player)
 			localization->GetCharacterConditionName(player->GetMajorConditionIdx()));
 
 	if (player->uQuickSpell != SPELL_NONE)
-		v29 = pSpellStats->pInfos[player->uQuickSpell].pShortName;
+		v29 = pSpellStats->pInfos[player->uQuickSpell].pShortName.c_str();
 	else
 		v29 = localization->GetString(LSTR_NONE);
 

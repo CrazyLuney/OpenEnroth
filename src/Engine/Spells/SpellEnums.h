@@ -137,7 +137,7 @@ enum SPELL_TYPE : uint8_t
 /**
  * @return                              All regular spell types.
  */
-inline Segment<SPELL_TYPE> allRegularSpells()
+inline Segment<SPELL_TYPE> AllRegularSpells()
 {
 	return { SPELL_FIRST_REGULAR, SPELL_LAST_REGULAR };
 }

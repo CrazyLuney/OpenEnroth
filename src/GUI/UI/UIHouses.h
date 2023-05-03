@@ -28,13 +28,13 @@ void TempleDialog();
 void TownHallDialog();
 void BankDialog();
 void TavernDialog();
-void PlayHouseSound(unsigned int uHouseID, HouseSoundID sound);  // idb
+void PlayHouseSound(const HOUSE_ID uHouseID, HouseSoundID sound);  // idb
 void WeaponShopDialog();
 void AlchemistDialog();
 void ArmorShopDialog();
 void SimpleHouseDialog();
 void OnSelectShopDialogueOption(DIALOGUE_TYPE option);
-void PrepareHouse(HOUSE_ID house);  // idb
+void PrepareHouse(const HOUSE_ID house);  // idb
 bool EnterHouse(HOUSE_ID uHouseID);
 void BackToHouseMenu();
 

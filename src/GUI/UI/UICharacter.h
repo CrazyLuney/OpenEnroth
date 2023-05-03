@@ -1,36 +1,37 @@
 #pragma once
 #include "GUI/GUIWindow.h"
 
-class GUIWindow_CharacterRecord : public GUIWindow {
- public:
-    GUIWindow_CharacterRecord(unsigned int uActiveCharacter, CURRENT_SCREEN screen);
-    virtual ~GUIWindow_CharacterRecord() {}
+class GUIWindow_CharacterRecord : public GUIWindow
+{
+public:
+	GUIWindow_CharacterRecord(unsigned int uActiveCharacter, CURRENT_SCREEN screen);
+	virtual ~GUIWindow_CharacterRecord() {}
 
-    virtual void Update();
+	virtual void Update();
 
-    void ShowStatsTab();
-    void ShowSkillsTab();
-    void ShowInventoryTab();
-    void ShowAwardsTab();
-    void ToggleRingsOverlay();
+	void ShowStatsTab();
+	void ShowSkillsTab();
+	void ShowInventoryTab();
+	void ShowAwardsTab();
+	void ToggleRingsOverlay();
 
- protected:
-    void CharacterUI_StatsTab_Draw(struct Player *);
-    void CharacterUI_SkillsTab_Draw(struct Player *);
-    void CharacterUI_AwardsTab_Draw(struct Player *);
+protected:
+	void CharacterUI_StatsTab_Draw(struct Player*);
+	void CharacterUI_SkillsTab_Draw(struct Player*);
+	void CharacterUI_AwardsTab_Draw(struct Player*);
 
-    void CharacterUI_SkillsTab_CreateButtons();
+	void CharacterUI_SkillsTab_CreateButtons();
 };
 
 bool ringscreenactive();
-static void CharacterUI_DrawItem(int x, int y, ItemGen *item, int id, Texture *item_texture = nullptr, bool doZDraw = false);
+static void CharacterUI_DrawItem(int x, int y, ItemGen* item, int id, Texture* item_texture = nullptr, bool doZDraw = false);
 
 class Image;
-extern Image *ui_character_skills_background;
-extern Image *ui_character_awards_background;
-extern Image *ui_character_stats_background;
-extern Image *ui_character_inventory_background;
-extern Image *ui_character_inventory_background_strip;
-extern Image *ui_character_inventory_paperdoll_background;
+extern Image* ui_character_skills_background;
+extern Image* ui_character_awards_background;
+extern Image* ui_character_stats_background;
+extern Image* ui_character_inventory_background;
+extern Image* ui_character_inventory_background_strip;
+extern Image* ui_character_inventory_paperdoll_background;
 
-extern std::array<Image *, 16> paperdoll_dbrds;
+extern std::array<Image*, 16> paperdoll_dbrds;

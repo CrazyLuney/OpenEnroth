@@ -15,6 +15,27 @@
 #include "Utility/Math/TrigLut.h"
 #include "Library/Random/Random.h"
 
+#include "Engine/TextParsers/SymbolMatcher/SymbolMatcherMiniParser.hpp"
+
+namespace
+{
+	using SymbolMatcher::Symbol;
+
+	static const std::map<Symbol, SPELL_SCHOOL> SpellSchoolMap
+	{
+		{ Symbol::FIRE, SPELL_SCHOOL_FIRE },
+		{ Symbol::AIR, SPELL_SCHOOL_AIR },
+		{ Symbol::WATER, SPELL_SCHOOL_WATER },
+		{ Symbol::EARTH, SPELL_SCHOOL_EARTH },
+		{ Symbol::SPIRIT, SPELL_SCHOOL_SPIRIT },
+		{ Symbol::MIND, SPELL_SCHOOL_MIND },
+		{ Symbol::BODY, SPELL_SCHOOL_BODY },
+		{ Symbol::LIGHT, SPELL_SCHOOL_LIGHT },
+		{ Symbol::DARK, SPELL_SCHOOL_DARK },
+		{ Symbol::MAGIC, SPELL_SCHOOL_MAGIC },
+	};
+}
+
 SpellFxRenderer* spell_fx_renderer = EngineIocContainer::ResolveSpellFxRenderer();
 
 std::array<TownPortalData, 6> TownPortalList =  // 4ECBB8
@@ -741,57 +762,74 @@ bool SpellBuff::Apply(GameTime expire_time, PLAYER_SKILL_MASTERY uSkillMastery,
 
 void SpellStats::Initialize()
 {
-	std::map<std::string, SPELL_SCHOOL, ILess> spellSchoolMaps;
-	spellSchoolMaps["fire"] = SPELL_SCHOOL_FIRE;
-	spellSchoolMaps["air"] = SPELL_SCHOOL_AIR;
-	spellSchoolMaps["water"] = SPELL_SCHOOL_WATER;
-	spellSchoolMaps["earth"] = SPELL_SCHOOL_EARTH;
-	spellSchoolMaps["spirit"] = SPELL_SCHOOL_SPIRIT;
-	spellSchoolMaps["mind"] = SPELL_SCHOOL_MIND;
-	spellSchoolMaps["body"] = SPELL_SCHOOL_BODY;
-	spellSchoolMaps["light"] = SPELL_SCHOOL_LIGHT;
-	spellSchoolMaps["dark"] = SPELL_SCHOOL_DARK;
-	spellSchoolMaps["magic"] = SPELL_SCHOOL_MAGIC;
+	using namespace MiniParser;
 
-	char* test_string;
+	const auto blob = pEvents_LOD->LoadCompressedTexture("spells.txt");
 
-	pSpellsTXT_Raw = pEvents_LOD->LoadCompressedTexture("spells.txt").string_view();
-
-	strtok(pSpellsTXT_Raw.data(), "\r");
-	for (SPELL_TYPE uSpellID : allRegularSpells())
+	for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(2))
 	{
-		if (((std::to_underlying(uSpellID) % 11) - 1) == 0)
+		auto tokens = GetTokens(data_line);
+		auto it = std::begin(tokens);
+
+		SPELL_TYPE id;
+
+		// skip school header line
+		if (!ParseToken(it, id))
+			continue;
+
+		auto& spell_info = pInfos[id];
+
+		DropToken(it); // Lvl
+		ParseToken(it, spell_info.pName, StripQuotes);
+		ParseTokenSymbol(it, spell_info.uSchool, SpellSchoolMap, SPELL_SCHOOL_NONE);
+		ParseToken(it, spell_info.pShortName, StripQuotes);
+		ParseToken(it, spell_info.pDescription, StripQuotes);
+		ParseToken(it, spell_info.pBasicSkillDesc, StripQuotes);
+		ParseToken(it, spell_info.pExpertSkillDesc, StripQuotes);
+		ParseToken(it, spell_info.pMasterSkillDesc, StripQuotes);
+		ParseToken(it, spell_info.pGrandmasterSkillDesc, StripQuotes);
+
 		{
-			strtok(NULL, "\r");
+			auto& spell_data = pSpellDatas[id];
+
+			std::string_view s;
+			ParseToken(it, s);
+			for (const auto& c : s)
+			{
+				switch (c)
+				{
+				case 'C':
+				case 'c':
+					spell_data.stats |= 0x04;
+					break;
+				case 'E':
+				case 'e':
+					spell_data.stats |= 0x02;
+					break;
+				case 'M':
+				case 'm':
+					spell_data.stats |= 0x01;
+					break;
+				case 'P':
+				case 'p':
+					// TODO: ???
+					break;
+				case 'X':
+				case 'x':
+					spell_data.stats |= 0x08;
+					break;
+				default:
+					__debugbreak();
+				}
+			}
 		}
-		test_string = strtok(NULL, "\r") + 1;
-
-		auto tokens = tokenize(test_string, '\t');
-
-		pInfos[uSpellID].pName = removeQuotes(tokens[2]);
-		auto findResult = spellSchoolMaps.find(tokens[3]);
-		pInfos[uSpellID].uSchool = findResult == spellSchoolMaps.end()
-			? SPELL_SCHOOL_NONE
-			: findResult->second;
-		pInfos[uSpellID].pShortName = removeQuotes(tokens[4]);
-		pInfos[uSpellID].pDescription = removeQuotes(tokens[5]);
-		pInfos[uSpellID].pBasicSkillDesc = removeQuotes(tokens[6]);
-		pInfos[uSpellID].pExpertSkillDesc = removeQuotes(tokens[7]);
-		pInfos[uSpellID].pMasterSkillDesc = removeQuotes(tokens[8]);
-		pInfos[uSpellID].pGrandmasterSkillDesc = removeQuotes(tokens[9]);
-		pSpellDatas[uSpellID].stats |= strchr(tokens[10], 'm') || strchr(tokens[10], 'M') ? 1 : 0;
-		pSpellDatas[uSpellID].stats |= strchr(tokens[10], 'e') || strchr(tokens[10], 'E') ? 2 : 0;
-		pSpellDatas[uSpellID].stats |= strchr(tokens[10], 'c') || strchr(tokens[10], 'C') ? 4 : 0;
-		pSpellDatas[uSpellID].stats |= strchr(tokens[10], 'x') || strchr(tokens[10], 'X') ? 8 : 0;
 	}
 }
 
-void EventCastSpell(SPELL_TYPE uSpellID, PLAYER_SKILL_MASTERY skillMastery, PLAYER_SKILL_LEVEL skillLevel, int fromx,
-	int fromy, int fromz, int tox, int toy, int toz)
+void EventCastSpell(SPELL_TYPE uSpellID, PLAYER_SKILL_MASTERY skillMastery, PLAYER_SKILL_LEVEL skillLevel, int fromx, int fromy, int fromz, int tox, int toy, int toz)
 {
 	// For bug catching
-	Assert(skillMastery >= PLAYER_SKILL_MASTERY_NOVICE && skillMastery <= PLAYER_SKILL_MASTERY_GRANDMASTER,
-		"EventCastSpell - Invalid mastery level");
+	Assert(skillMastery >= PLAYER_SKILL_MASTERY_NOVICE && skillMastery <= PLAYER_SKILL_MASTERY_GRANDMASTER, "EventCastSpell - Invalid mastery level");
 
 	Vec3i from(fromx, fromy, fromz);
 	Vec3i to(tox, toy, toz);

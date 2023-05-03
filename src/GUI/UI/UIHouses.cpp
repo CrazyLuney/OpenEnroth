@@ -46,6 +46,61 @@
 #include "Library/Random/Random.h"
 #include "Utility/Math/TrigLut.h"
 
+#include "Engine/TextParsers/SymbolMatcher/SymbolMatcherMiniParser.hpp"
+
+namespace
+{
+	using SymbolMatcher::Symbol;
+
+	static const std::map<Symbol, BuildingType> BuildingTypeMap
+	{
+		{ Symbol::AIRGUILD, BuildingType_AirGuild },
+		{ Symbol::ALCHEMIST, BuildingType_AlchemistShop },
+		{ Symbol::ARMORSHOP, BuildingType_ArmorShop },
+		{ Symbol::BANK, BuildingType_Bank },
+		{ Symbol::BOATS, BuildingType_Boats },
+		{ Symbol::BODYGUILD, BuildingType_BodyGuild },
+		{ Symbol::DARKGUILD, BuildingType_DarkGuild },
+		{ Symbol::EARTHGUILD, BuildingType_EarthGuild },
+		// { Symbol::, BuildingType_ElementalGuild }, // MM6
+		{ Symbol::FIREGUILD, BuildingType_FireGuild },
+		{ Symbol::LIGHTGUILD, BuildingType_LightGuild },
+		{ Symbol::MAGICSHOP, BuildingType_MagicShop },
+		// { Symbol::, BuildingType_MercenaryGuild }, // MM6
+		{ Symbol::MINDGUILD, BuildingType_MindGuild },
+		// { Symbol::, BuildingType_MirroredPath }, // not implemented
+		// { Symbol::SELFGUILD, BuildingType_SelfGuild }, // MM6
+		{ Symbol::SPIRITGUILD, BuildingType_SpiritGuild },
+		{ Symbol::STABLES, BuildingType_Stables },
+		{ Symbol::TAVERN, BuildingType_Tavern },
+		{ Symbol::TEMPLE, BuildingType_Temple },
+		{ Symbol::TOWNHALL, BuildingType_TownHall },
+		{ Symbol::TRAINING, BuildingType_Training },
+		{ Symbol::WATERGUILD, BuildingType_WaterGuild },
+		{ Symbol::WEAPONSHOP, BuildingType_WeaponShop },
+
+		{ Symbol::HARMONDYROOM, BuildingType_Castle },
+		{ Symbol::OUT01BOAT, BuildingType_Boats },
+		{ Symbol::CASTLEDUNENT, BuildingType_Dungeon },
+		{ Symbol::DUNGEONENT, BuildingType_Dungeon },
+		{ Symbol::CASTLEENTRANCE, BuildingType_Castle },
+		{ Symbol::HIVEENT, BuildingType_Dungeon },
+		{ Symbol::SEERGOOD, BuildingType_Seer },
+		{ Symbol::SEEREVIL, BuildingType_Seer },
+		{ Symbol::THESEER, BuildingType_Seer },
+		{ Symbol::JAIL, BuildingType_Jail },
+		{ Symbol::HOUSE, BuildingType_House },
+		{ Symbol::D_HOSUE, BuildingType_House },
+		{ Symbol::D_HOUSE, BuildingType_House },
+		{ Symbol::E_HOUSE, BuildingType_House },
+		{ Symbol::H_HOUSE, BuildingType_House },
+		{ Symbol::H_HUMAN, BuildingType_House },
+		{ Symbol::N_HOUSE, BuildingType_House },
+		{ Symbol::WA_HOUSE, BuildingType_House },
+		{ Symbol::WZ_HOUSE, BuildingType_House },
+	};
+}
+
 using Io::TextInputType;
 
 int uHouse_ExitPic;
@@ -842,8 +897,7 @@ bool EnterHouse(HOUSE_ID uHouseID)
 	render->ClearZBuffer();
 
 	if (((uCloseTime - 1 <= uOpenTime) && ((pParty->uCurrentHour < uOpenTime) && (pParty->uCurrentHour > (uCloseTime - 1)))) ||
-		((uCloseTime - 1 > uOpenTime) && ((pParty->uCurrentHour < uOpenTime) ||
-			(pParty->uCurrentHour > (uCloseTime - 1)))))
+		((uCloseTime - 1 > uOpenTime) && ((pParty->uCurrentHour < uOpenTime) || (pParty->uCurrentHour > (uCloseTime - 1)))))
 	{
 		int am_pm_flag_open = 0;
 		int am_pm_flag_close = 0;
@@ -869,10 +923,9 @@ bool EnterHouse(HOUSE_ID uHouseID)
 	else
 	{
 		if (uHouseID < 53)
-		{  // entering shops and guilds
-			if (!(pParty->PartyTimes._shop_ban_times[uHouseID]) ||
-				(pParty->PartyTimes._shop_ban_times[uHouseID] <=
-					pParty->GetPlayingTime()))
+		{
+			// entering shops and guilds
+			if (!(pParty->PartyTimes._shop_ban_times[uHouseID]) || (pParty->PartyTimes._shop_ban_times[uHouseID] <= pParty->GetPlayingTime()))
 			{
 				pParty->PartyTimes._shop_ban_times[uHouseID] = GameTime(0);
 			}
@@ -939,7 +992,7 @@ bool EnterHouse(HOUSE_ID uHouseID)
 }
 
 //----- (0044606A) --------------------------------------------------------
-void PrepareHouse(HOUSE_ID house)
+void PrepareHouse(const HOUSE_ID house)
 {
 	int16_t uExitMapID;  // ax@2
 	//  int v7; // ebx@11
@@ -978,11 +1031,8 @@ void PrepareHouse(HOUSE_ID house)
 		{
 			if (!(pNPCStats->pNewNPCData[i].uFlags & 0x80))
 			{
-				HouseNPCData[uNumDialogueNPCPortraits + 1 -
-					((dword_591080 != 0) ? 1 : 0)] =
-					&pNPCStats->pNewNPCData[i];
-				npc_id_arr[uNumDialogueNPCPortraits] =
-					pNPCStats->pNewNPCData[i].uPortraitID;
+				HouseNPCData[uNumDialogueNPCPortraits + 1 - ((dword_591080 != 0) ? 1 : 0)] = &pNPCStats->pNewNPCData[i];
+				npc_id_arr[uNumDialogueNPCPortraits] = pNPCStats->pNewNPCData[i].uPortraitID;
 				++uNumDialogueNPCPortraits;
 				if ((pNPCStats->pNewNPCData[i].uFlags & 3) != 2)
 					++pNPCStats->pNewNPCData[i].uFlags;
@@ -992,21 +1042,19 @@ void PrepareHouse(HOUSE_ID house)
 
 	for (int i = 0; i < uNumDialogueNPCPortraits; ++i)
 	{
-		pDialogueNPCPortraits[i] = assets->GetImage_ColorKey(
-			fmt::format("npc{:03}", npc_id_arr[i]));
+		pDialogueNPCPortraits[i] = assets->GetImage_ColorKey(fmt::format("npc{:03}", npc_id_arr[i]));
 	}
 
 	if (uHouse_ExitPic)
 	{
-		pDialogueNPCPortraits[uNumDialogueNPCPortraits] =
-			assets->GetImage_ColorKey(pHouse_ExitPictures[uHouse_ExitPic]);
+		pDialogueNPCPortraits[uNumDialogueNPCPortraits] = assets->GetImage_ColorKey(pHouse_ExitPictures[uHouse_ExitPic]);
 		++uNumDialogueNPCPortraits;
 		uHouse_ExitPic = p2DEvents[house - HOUSE_SMITH_EMERALD_ISLE].uExitMapID;
 	}
 }
 
 //----- (004B1E92) --------------------------------------------------------
-void PlayHouseSound(unsigned int uHouseID, HouseSoundID sound)
+void PlayHouseSound(const HOUSE_ID uHouseID, HouseSoundID sound)
 {
 	if (uHouseID > 0)
 	{
@@ -1026,7 +1074,8 @@ void OnSelectShopDialogueOption(DIALOGUE_TYPE option)
 	signed int v36;                 // esi@227
 	int pPrice;                     // ecx@227
 
-	if (!pDialogueWindow->pNumPresenceButton) return;
+	if (!pDialogueWindow->pNumPresenceButton)
+		return;
 	render->ClearZBuffer();
 
 	if (dialog_menu_id == DIALOGUE_MAIN)
@@ -1189,9 +1238,7 @@ void OnSelectShopDialogueOption(DIALOGUE_TYPE option)
 	case DIALOGUE_SHOP_BUY_STANDARD:
 	case DIALOGUE_SHOP_BUY_SPECIAL:
 	{
-		if (pParty->PartyTimes.Shops_next_generation_time
-			[window_SpeakInHouse->wData.val] <
-			pParty->GetPlayingTime())
+		if (pParty->PartyTimes.Shops_next_generation_time[window_SpeakInHouse->wData.val] < pParty->GetPlayingTime())
 		{
 			GenerateStandartShopItems();
 			GenerateSpecialShopItems();
@@ -1305,12 +1352,9 @@ void OnSelectShopDialogueOption(DIALOGUE_TYPE option)
 						GameUI_SetStatusBar(LSTR_NOT_ENOUGH_GOLD);
 						if (in_current_building_type == BuildingType_Training
 							|| in_current_building_type == BuildingType_Tavern)
-							PlayHouseSound(
-								window_SpeakInHouse->wData.val, HouseSound_Goodbye);
+							PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), HouseSound_Goodbye);
 						else
-							PlayHouseSound(
-								window_SpeakInHouse->wData.val,
-								HouseSound_NotEnoughMoney);
+							PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), HouseSound_NotEnoughMoney);
 					}
 					else
 					{
@@ -1450,7 +1494,7 @@ void TravelByTransport()
 			if (pParty->GetGold() < pPrice)
 			{
 				GameUI_SetStatusBar(LSTR_NOT_ENOUGH_GOLD);
-				PlayHouseSound(window_SpeakInHouse->wData.val, HouseSound_Greeting_2);
+				PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), HouseSound_Greeting_2);
 				pCurrentFrameMessageQueue->AddGUIMessage(UIMSG_Escape, 1, 0);
 				return;
 			}
@@ -1491,7 +1535,7 @@ void TravelByTransport()
 					pParty->_viewYaw = pTravel->arrival_view_yaw;
 				}
 
-				PlayHouseSound(window_SpeakInHouse->wData.val, HouseSound_NotEnoughMoney);
+				PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), HouseSound_NotEnoughMoney);
 				int traveltimedays = GetTravelTimeTransportDays(transport_routes[route_id][choice_id]);
 
 				PlayerSpeech pSpeech;
@@ -1640,7 +1684,7 @@ void TownHallDialog()
 				int party_gold = pParty->GetGold();
 				if (sum > party_gold)
 				{
-					PlayHouseSound(window_SpeakInHouse->wData.val, HouseSound_NotEnoughMoney);
+					PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), HouseSound_NotEnoughMoney);
 					sum = party_gold;
 				}
 
@@ -1719,7 +1763,7 @@ void BankDialog()
 			int party_gold = pParty->GetGold();
 			if (sum > party_gold)
 			{
-				PlayHouseSound(window_SpeakInHouse->wData.val, HouseSound_NotEnoughMoney);
+				PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), HouseSound_NotEnoughMoney);
 				sum = party_gold;
 			}
 
@@ -1760,7 +1804,7 @@ void BankDialog()
 			int bank_gold = pParty->GetBankGold();
 			if (sum > bank_gold)
 			{
-				PlayHouseSound(window_SpeakInHouse->wData.val, HouseSound_NotEnoughMoney);
+				PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), HouseSound_NotEnoughMoney);
 				sum = bank_gold;
 			}
 
@@ -1990,8 +2034,7 @@ void TavernDialog()
 		if (pParty->GetGold() >= pPriceRoom)
 		{
 			pParty->TakeGold(pPriceRoom);
-			PlayHouseSound(window_SpeakInHouse->wData.val,
-				HouseSound_NotEnoughMoney);
+			PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), HouseSound_NotEnoughMoney);
 			dialog_menu_id = DIALOGUE_NULL;
 			HouseDialogPressCloseBtn();
 			GetHouseGoodbyeSpeech();
@@ -2003,7 +2046,7 @@ void TavernDialog()
 			return;
 		}
 		GameUI_SetStatusBar(LSTR_NOT_ENOUGH_GOLD);
-		PlayHouseSound(window_SpeakInHouse->wData.val, HouseSound_Goodbye);
+		PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), HouseSound_Goodbye);
 		pCurrentFrameMessageQueue->AddGUIMessage(UIMSG_Escape, 1, 0);
 		break;
 	}
@@ -2053,12 +2096,12 @@ void TavernDialog()
 		{
 			pParty->TakeGold(pPriceFood);
 			pParty->SetFood(p2DEvents[window_SpeakInHouse->wData.val - 1].fPriceMultiplier);
-			PlayHouseSound(window_SpeakInHouse->wData.val, HouseSound_Greeting_2);
+			PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), HouseSound_Greeting_2);
 			pCurrentFrameMessageQueue->AddGUIMessage(UIMSG_Escape, 1, 0);
 			return;
 		}
 		GameUI_SetStatusBar(LSTR_NOT_ENOUGH_GOLD);
-		PlayHouseSound(window_SpeakInHouse->wData.val, HouseSound_Goodbye);
+		PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), HouseSound_Goodbye);
 		pCurrentFrameMessageQueue->AddGUIMessage(UIMSG_Escape, 1, 0);
 		break;
 	}
@@ -2212,7 +2255,7 @@ void TempleDialog()
 		if (pParty->GetGold() < pPrice)
 		{
 			GameUI_SetStatusBar(LSTR_NOT_ENOUGH_GOLD);
-			PlayHouseSound(window_SpeakInHouse->wData.val, HouseSound_NotEnoughMoney);
+			PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), HouseSound_NotEnoughMoney);
 			pCurrentFrameMessageQueue->AddGUIMessage(UIMSG_Escape, 1, 0);
 			return;
 		}
@@ -2332,8 +2375,7 @@ void TempleDialog()
 			return;
 		}
 		GameUI_SetStatusBar(LSTR_NOT_ENOUGH_GOLD);
-		PlayHouseSound(window_SpeakInHouse->wData.val,
-			HouseSound_NotEnoughMoney);
+		PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), HouseSound_NotEnoughMoney);
 		pCurrentFrameMessageQueue->AddGUIMessage(UIMSG_Escape, 1, 0);
 		return;
 	}
@@ -2543,9 +2585,7 @@ void TrainingDialog(const char* s)
 					if (pParty->GetGold() >= pPrice)
 					{
 						pParty->TakeGold(pPrice);
-						PlayHouseSound(
-							window_SpeakInHouse->wData.val,
-							HouseSound_NotEnoughMoney);
+						PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), HouseSound_NotEnoughMoney);
 						++pPlayers[pParty->getActiveCharacter()]->uLevel;
 						pPlayers[pParty->getActiveCharacter()]->uSkillPoints +=
 							pPlayers[pParty->getActiveCharacter()]->uLevel / 10 + 5;
@@ -2588,7 +2628,7 @@ void TrainingDialog(const char* s)
 					}
 
 					GameUI_SetStatusBar(LSTR_NOT_ENOUGH_GOLD);
-					PlayHouseSound(window_SpeakInHouse->wData.val, (HouseSoundID)4);
+					PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), (HouseSoundID)4);
 					pCurrentFrameMessageQueue->AddGUIMessage(UIMSG_Escape, 1, 0);
 					return;
 				}
@@ -2611,7 +2651,7 @@ void TrainingDialog(const char* s)
 			training_dialog_window.DrawTitleText(
 				pFontArrus, 0, v36, colorTable.Jonquil.c16(), label, 3);
 
-			PlayHouseSound(window_SpeakInHouse->wData.val, (HouseSoundID)3);
+			PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), (HouseSoundID)3);
 			pCurrentFrameMessageQueue->AddGUIMessage(UIMSG_Escape, 1, 0);
 			return;
 		}
@@ -2740,7 +2780,7 @@ void MercenaryGuildDialog()
 				*(short*)v6 = 1;
 				v27 = 2;
 			}
-			PlayHouseSound(window_SpeakInHouse->wData.val, (HouseSoundID)v27);
+			PlayHouseSound(static_cast<HOUSE_ID>(window_SpeakInHouse->wData.val), (HouseSoundID)v27);
 		}
 	}
 	else
@@ -2773,35 +2813,18 @@ void SimpleHouseDialog()
 		house_window.uFrameX = 493;
 		house_window.uFrameWidth = 126;
 		house_window.uFrameZ = 366;
-		house_window.DrawTitleText(pFontCreate, 0, 2, 0,
-			pMapStats->pInfos[uHouse_ExitPic].pName, 3);
+		house_window.DrawTitleText(pFontCreate, 0, 2, 0, pMapStats->pInfos[uHouse_ExitPic].pName, 3);
 		house_window.uFrameX = 483;
 		house_window.uFrameWidth = 143;
 		house_window.uFrameZ = 334;
-		if (!pTransitionStrings[uHouse_ExitPic])
+		if (pTransitionStrings[uHouse_ExitPic].empty())
 		{
-			auto str = localization->FormatString(
-				LSTR_FMT_ENTER_S,
-				pMapStats->pInfos[uHouse_ExitPic].pName.c_str()
-			);
-			house_window.DrawTitleText(
-				pFontCreate, 0,
-				(212 - pFontCreate->CalcTextHeight(
-					str, house_window.uFrameWidth, 0)) /
-				2 +
-				101,
-				0, str, 3);
+			auto str = localization->FormatString(LSTR_FMT_ENTER_S, pMapStats->pInfos[uHouse_ExitPic].pName.c_str());
+			house_window.DrawTitleText(pFontCreate, 0, (212 - pFontCreate->CalcTextHeight(str, house_window.uFrameWidth, 0)) / 2 + 101, 0, str, 3);
 			return;
 		}
 
-		house_window.DrawTitleText(
-			pFontCreate, 0,
-			(212 -
-				pFontCreate->CalcTextHeight(pTransitionStrings[uHouse_ExitPic],
-					house_window.uFrameWidth, 0)) /
-			2 +
-			101,
-			0, pTransitionStrings[uHouse_ExitPic], 3);
+		house_window.DrawTitleText(pFontCreate, 0, (212 - pFontCreate->CalcTextHeight(pTransitionStrings[uHouse_ExitPic], house_window.uFrameWidth, 0)) / 2 + 101, 0, pTransitionStrings[uHouse_ExitPic], 3);
 		return;
 	}
 	house_window.uFrameWidth -= 10;
@@ -2821,19 +2844,11 @@ void SimpleHouseDialog()
 				pInString = pNPCStats->pNPCGreetings[pNPC->greet][((pNPC->uFlags & 3) == 2)].c_str();
 				// pInString = (char *)*(&pNPCStats->field_17884 +
 				// ((pNPC->uFlags & 3) == 2) + 2 * pNPC->greet);
-				render->DrawTextureCustomHeight(
-					8 / 640.0f,
-					(352 - (pFontArrus->CalcTextHeight(
-						pInString, house_window.uFrameWidth, 13) +
-						7)) / 480.0f,
-					ui_leather_mm7,
-					(pFontArrus->CalcTextHeight(pInString,
-						house_window.uFrameWidth, 13) + 7));
+				render->DrawTextureCustomHeight(8 / 640.0f, (352 - (pFontArrus->CalcTextHeight(pInString, house_window.uFrameWidth, 13) + 7)) / 480.0f, ui_leather_mm7, (pFontArrus->CalcTextHeight(pInString, house_window.uFrameWidth, 13) + 7));
 
 				int h = (pFontArrus->CalcTextHeight(pInString, house_window.uFrameWidth, 13) + 7);
 				render->DrawTextureNew(8 / 640.0f, (347 - h) / 480.0f, _591428_endcap);
-				pDialogueWindow->DrawText(pFontArrus, { 13, 354 - h }, colorTable.Black.c16(),
-					pFontArrus->FitTextInAWindow(pInString, house_window.uFrameWidth, 13), 0, 0, 0);
+				pDialogueWindow->DrawText(pFontArrus, { 13, 354 - h }, colorTable.Black.c16(), pFontArrus->FitTextInAWindow(pInString, house_window.uFrameWidth, 13), 0, 0, 0);
 			}
 		}
 	}
@@ -3014,224 +3029,43 @@ void JailDialog()
 
 void InitializeBuildingResidents()
 {
-	int i;
-	char* test_string;
-	unsigned char c;
-	bool break_loop;
-	unsigned int temp_str_len;
-	char* tmp_pos;
-	int decode_step;
+	using namespace MiniParser;
 
-	p2DEventsTXT_Raw = pEvents_LOD->LoadCompressedTexture("2dEvents.txt").string_view();
-	strtok(p2DEventsTXT_Raw.data(), "\r");
-	strtok(NULL, "\r");
+	const auto blob = pEvents_LOD->LoadCompressedTexture("2dEvents.txt");
 
-	for (i = 0; i < 525; ++i)
+	for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(2) | std::views::take(525))
 	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
-		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{
-				switch (decode_step)
-				{
-				case 2:
-				{
-					if (istarts_with(test_string, "wea"))
-					{
-						p2DEvents[i].uType = BuildingType_WeaponShop;
-						break;
-					}
-					if (istarts_with(test_string, "arm"))
-					{
-						p2DEvents[i].uType = BuildingType_ArmorShop;
-						break;
-					}
-					if (istarts_with(test_string, "mag"))
-					{
-						p2DEvents[i].uType = BuildingType_MagicShop;
-						break;
-					}
-					if (istarts_with(test_string, "alc"))
-					{
-						p2DEvents[i].uType = BuildingType_AlchemistShop;
-						break;
-					}
-					if (istarts_with(test_string, "sta"))
-					{
-						p2DEvents[i].uType = BuildingType_Stables;
-						break;
-					}
-					if (istarts_with(test_string, "boa"))
-					{
-						p2DEvents[i].uType = BuildingType_Boats;
-						break;
-					}
-					if (istarts_with(test_string, "tem"))
-					{
-						p2DEvents[i].uType = BuildingType_Temple;
-						break;
-					}
-					if (istarts_with(test_string, "tra"))
-					{
-						p2DEvents[i].uType = BuildingType_Training;
-						break;
-					}
-					if (istarts_with(test_string, "tow"))
-					{
-						p2DEvents[i].uType = BuildingType_TownHall;
-						break;
-					}
+		auto tokens = GetTokens(data_line);
+		auto it = std::begin(tokens);
 
-					if (istarts_with(test_string, "tav"))
-					{
-						p2DEvents[i].uType = BuildingType_Tavern;
-						break;
-					}
-					if (istarts_with(test_string, "ban"))
-					{
-						p2DEvents[i].uType = BuildingType_Bank;
-						break;
-					}
-					if (istarts_with(test_string, "fir"))
-					{
-						p2DEvents[i].uType = BuildingType_FireGuild;
-						break;
-					}
-					if (istarts_with(test_string, "air"))
-					{
-						p2DEvents[i].uType = BuildingType_AirGuild;
-						break;
-					}
-					if (istarts_with(test_string, "wat"))
-					{
-						p2DEvents[i].uType = BuildingType_WaterGuild;
-						break;
-					}
-					if (istarts_with(test_string, "ear"))
-					{
-						p2DEvents[i].uType = BuildingType_EarthGuild;
-						break;
-					}
-					if (istarts_with(test_string, "spi"))
-					{
-						p2DEvents[i].uType = BuildingType_SpiritGuild;
-						break;
-					}
-					if (istarts_with(test_string, "min"))
-					{
-						p2DEvents[i].uType = BuildingType_MindGuild;
-						break;
-					}
-					if (istarts_with(test_string, "bod"))
-					{
-						p2DEvents[i].uType = BuildingType_BodyGuild;
-						break;
-					}
-					if (istarts_with(test_string, "lig"))
-					{
-						p2DEvents[i].uType = BuildingType_LightGuild;
-						break;
-					}
-					if (istarts_with(test_string, "dar"))
-					{
-						p2DEvents[i].uType = BuildingType_DarkGuild;
-						break;
-					}
-					if (istarts_with(test_string, "ele"))
-					{ // "Element Guild" from mm6
-						p2DEvents[i].uType = BuildingType_ElementalGuild;
-						break;
-					}
-					if (istarts_with(test_string, "sel"))
-					{
-						p2DEvents[i].uType = BuildingType_SelfGuild;
-						break;
-					}
-					if (istarts_with(test_string, "mir"))
-					{
-						p2DEvents[i].uType = BuildingType_MirroredPath;
-						break;
-					}
-					if (istarts_with(test_string, "mer"))
-					{ // "Thieves Guild" from mm6
-						p2DEvents[i].uType = BuildingType_TownHall; //TODO: Is this right and not Merc Guild (18)?
-						break;
-					}
-					p2DEvents[i].uType = BuildingType_MercenaryGuild;
-				} break;
+		std::size_t id;
 
-				case 4:
-					p2DEvents[i].uAnimationID = atoi(test_string);
-					break;
-				case 5:
-					p2DEvents[i].pName = removeQuotes(test_string);
-					break;
-				case 6:
-					p2DEvents[i].pProprieterName =
-						removeQuotes(test_string);
-					break;
-				case 7:
-					p2DEvents[i].pProprieterTitle =
-						removeQuotes(test_string);
-					break;
-				case 8:
-					p2DEvents[i].field_14 = atoi(test_string);
-					break;
-				case 9:
-					p2DEvents[i]._state = atoi(test_string);
-					break;
-				case 10:
-					p2DEvents[i]._rep = atoi(test_string);
-					break;
-				case 11:
-					p2DEvents[i]._per = atoi(test_string);
-					break;
-				case 12:
-					p2DEvents[i].fPriceMultiplier = atof(test_string);
-					break;
-				case 13:
-					p2DEvents[i].flt_24 = atof(test_string);
-					break;
-				case 15:
-					p2DEvents[i].generation_interval_days =
-						atoi(test_string);
-					break;
-				case 18:
-					p2DEvents[i].uOpenTime = atoi(test_string);
-					break;
-				case 19:
-					p2DEvents[i].uCloseTime = atoi(test_string);
-					break;
-				case 20:
-					p2DEvents[i].uExitPicID = atoi(test_string);
-					break;
-				case 21:
-					p2DEvents[i].uExitMapID = atoi(test_string);
-					break;
-				case 22:
-					p2DEvents[i]._quest_bit = atoi(test_string);
-					break;
-				case 23:
-					p2DEvents[i].pEnterText = removeQuotes(test_string);
-					break;
-				}
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 24) && !break_loop);
+		ParseToken(it, id);
+
+		auto& event_info = p2DEvents[id - 1];
+
+		DropToken(it);
+		ParseTokenSymbol(it, event_info.uType, BuildingTypeMap, BuildingType_Invalid);
+		DropToken(it);
+		ParseToken(it, event_info.uAnimationID);
+		ParseToken(it, event_info.pName, StripQuotes);
+		ParseToken(it, event_info.pProprieterName, StripQuotes);
+		ParseToken(it, event_info.pProprieterTitle, StripQuotes);
+		ParseToken(it, event_info.field_14);
+		ParseToken(it, event_info._state);
+		ParseToken(it, event_info._rep);
+		ParseToken(it, event_info._per);
+		ParseToken(it, event_info.fPriceMultiplier);
+		ParseToken(it, event_info.flt_24);
+		DropToken(it);
+		ParseToken(it, event_info.generation_interval_days);
+		DropTokens(it, 2);
+		ParseToken(it, event_info.uOpenTime);
+		ParseToken(it, event_info.uCloseTime);
+		ParseToken(it, event_info.uExitPicID);
+		ParseToken(it, event_info.uExitMapID);
+		ParseToken(it, event_info._quest_bit);
+		ParseToken(it, event_info.pEnterText, StripQuotes);
 	}
 }
 

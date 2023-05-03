@@ -3,12 +3,12 @@
 #pragma pack(push, 1)
 struct StorylineRecord
 {
-	char* pText;            // 0
-	char* pPageTitle;       // 4
-	uint8_t uTime;  // 8
-	char f_9;
-	char f_A;
-	char f_B;
+	std::string pText;            // 0
+	std::string pPageTitle;       // 4
+	uint8_t uTime = 0;  // 8
+	char f_9 = 0;
+	char f_A = 0;
+	char f_B = 0;
 };
 #pragma pack(pop)
 
@@ -17,7 +17,7 @@ struct StorylineRecord
 struct StorylineText
 {
 	void Initialize();
-	StorylineRecord StoreLine[29];
+	StorylineRecord StoryLine[29];
 	int field_15C;
 	// int field_0;
 	// int field_4[87];

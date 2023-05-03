@@ -25,7 +25,20 @@
 
 #include "Engine/TextParsers/SymbolMatcher/SymbolMatcherMiniParser.hpp"
 
+namespace
+{
+	using SymbolMatcher::Symbol;
 
+	static const std::map<Symbol, AUTONOTE_TYPE> AutonoteTypeMap
+	{
+		{ Symbol::POTION, AUTONOTE_POTION_RECEPIE },
+		{ Symbol::STAT, AUTONOTE_STAT_HINT },
+		{ Symbol::OBELISK, AUTONOTE_OBELISK },
+		{ Symbol::SEER, AUTONOTE_SEER },
+		{ Symbol::MISC, AUTONOTE_MISC },
+		{ Symbol::TEACHER, AUTONOTE_TEACHER },
+	};
+}
 
 int pDialogueNPCCount;
 std::array<class Image*, 6> pDialogueNPCPortraits;
@@ -129,7 +142,7 @@ void NPCStats::InitializeNPCText()
 	{
 		const auto blob = pEvents_LOD->LoadCompressedTexture("npctext.txt");
 
-		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1) | std::views::take(std::size(pNPCTopics)))
+		for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1) | std::views::take(std::size(pNPCTopics) - 1))
 		{
 			auto tokens = GetTokens(data_line);
 			auto it = std::begin(tokens);
@@ -137,7 +150,7 @@ void NPCStats::InitializeNPCText()
 			std::size_t id;
 
 			ParseToken(it, id);
-			ParseToken(it, pNPCTopics[id].pText, StripQuotes);
+			ParseToken(it, pNPCTopics[id - 1].pText, StripQuotes);
 		}
 	}
 
@@ -626,48 +639,23 @@ bool CheckHiredNPCSpeciality(NPCProf prof)
 //----- (004763E0) --------------------------------------------------------
 void InitializeAwards()
 {
-	int i;
-	char* test_string;
-	unsigned char c;
-	bool break_loop;
-	unsigned int temp_str_len;
-	char* tmp_pos;
-	int decode_step;
+	using namespace MiniParser;
 
-	pAwardsTXT_Raw = pEvents_LOD->LoadCompressedTexture("awards.txt").string_view();
-	strtok(pAwardsTXT_Raw.data(), "\r");
+	const auto blob = pEvents_LOD->LoadCompressedTexture("awards.txt");
 
-	for (i = 1; i < 105; ++i)
+	for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1) | std::views::take(104))
 	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
-		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{
-				if (decode_step == 1)
-					pAwards[i].pText = removeQuotes(test_string);
-				else if (decode_step == 2)
-					pAwards[i].uPriority = atoi(test_string);
-			}
-			else
-			{
-				break_loop = true;
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 3) && !break_loop);
+		auto tokens = GetTokens(data_line);
+		auto it = std::begin(tokens);
+
+		std::size_t id;
+
+		ParseToken(it, id);
+
+		auto& award_info = pAwards[id];
+
+		ParseToken(it, award_info.pText, StripQuotes);
+		ParseToken(it, award_info.uPriority);
 	}
 }
 // 7241C8: using guessed type int dword_7241C8;
@@ -675,273 +663,109 @@ void InitializeAwards()
 //----- (004764C2) --------------------------------------------------------
 void InitializeScrolls()
 {
-	char* test_string;
-	unsigned char c;
-	bool break_loop;
-	unsigned int temp_str_len;
-	char* tmp_pos;
-	int decode_step;
+	using namespace MiniParser;
 
-	pScrollsTXT_Raw = pEvents_LOD->LoadCompressedTexture("scroll.txt").string_view();
-	strtok(pScrollsTXT_Raw.data(), "\r");
-	for (ITEM_TYPE i : pScrolls.indices())
+	const auto blob = pEvents_LOD->LoadCompressedTexture("scroll.txt");
+
+	const auto scrolls_range = pScrolls.indices();
+
+	for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1) | std::views::take(std::ranges::size(scrolls_range)))
 	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
-		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{
-				if (decode_step == 1) pScrolls[i] = removeQuotes(test_string);
-			}
-			else
-			{
-				break_loop = true;
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 2) && !break_loop);
+		auto tokens = GetTokens(data_line);
+		auto it = std::begin(tokens);
+
+		ITEM_TYPE id;
+
+		if (!ParseToken(it, id))
+			break;
+
+		ParseToken(it, pScrolls[id], StripQuotes);
 	}
 }
 
 //----- (00476590) --------------------------------------------------------
 void InitializeMerchants()
 {
-	char* test_string;
-	unsigned char c;
-	bool break_loop;
-	unsigned int temp_str_len;
-	char* tmp_pos;
-	int decode_step;
+	using namespace MiniParser;
 
-	pMerchantsTXT_Raw = pEvents_LOD->LoadCompressedTexture("merchant.txt").string_view();
-	strtok(pMerchantsTXT_Raw.data(), "\r");
+	const auto blob = pEvents_LOD->LoadCompressedTexture("merchant.txt");
 
-	for (MERCHANT_PHRASE i : MerchantPhrases())
+	const auto merchant_phrases_range = MerchantPhrases();
+	auto it_phrase = std::begin(merchant_phrases_range);
+
+	for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1) | std::views::take(std::ranges::size(merchant_phrases_range)))
 	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
-		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{
-				switch (decode_step)
-				{
-				case 1:
-					pMerchantsBuyPhrases[i] = removeQuotes(test_string);
-					break;
-				case 2:
-					pMerchantsSellPhrases[i] = removeQuotes(test_string);
-					break;
-				case 3:
-					pMerchantsRepairPhrases[i] = removeQuotes(test_string);
-					break;
-				case 4:
-					pMerchantsIdentifyPhrases[i] = removeQuotes(test_string);
-					break;
-				}
-			}
-			else
-			{
-				break_loop = true;
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 5) && !break_loop);
+		auto tokens = GetTokens(data_line);
+		auto it = std::begin(tokens);
+
+		DropToken(it);
+		ParseToken(it, pMerchantsBuyPhrases[*it_phrase], StripQuotes);
+		ParseToken(it, pMerchantsSellPhrases[*it_phrase], StripQuotes);
+		ParseToken(it, pMerchantsRepairPhrases[*it_phrase], StripQuotes);
+		ParseToken(it, pMerchantsIdentifyPhrases[*it_phrase], StripQuotes);
+
+		++it_phrase;
 	}
 }
 
 //----- (00476682) --------------------------------------------------------
 void InitializeTransitions()
 {
-	int i;
-	char* test_string;
-	unsigned char c;
-	bool break_loop;
-	unsigned int temp_str_len;
-	char* tmp_pos;
-	int decode_step;
+	using namespace MiniParser;
 
-	pTransitionsTXT_Raw = pEvents_LOD->LoadCompressedTexture("trans.txt").string_view();
-	strtok(pTransitionsTXT_Raw.data(), "\r");
+	const auto blob = pEvents_LOD->LoadCompressedTexture("trans.txt");
 
-	for (i = 0; i < 464; ++i)
+	for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1) | std::views::take(std::size(pTransitionStrings)))
 	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
-		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{
-				if (decode_step == 1)
-					pTransitionStrings[i + 1] = removeQuotes(test_string);
-			}
-			else
-			{
-				break_loop = true;
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 2) && !break_loop);
+		auto tokens = GetTokens(data_line);
+		auto it = std::begin(tokens);
+
+		std::size_t id;
+
+		ParseToken(it, id);
+		ParseToken(it, pTransitionStrings[id], StripQuotes);
 	}
 }
 
 //----- (00476750) --------------------------------------------------------
 void InitializeAutonotes()
 {
-	int i;
-	char* test_string;
-	unsigned char c;
-	bool break_loop;
-	unsigned int temp_str_len;
-	char* tmp_pos;
-	int decode_step;
+	using namespace MiniParser;
 
-	pAutonoteTXT_Raw = pEvents_LOD->LoadCompressedTexture("autonote.txt").string_view();
-	strtok(pAutonoteTXT_Raw.data(), "\r");
+	const auto blob = pEvents_LOD->LoadCompressedTexture("autonote.txt");
 
-	for (i = 0; i < 195; ++i)
+	for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1) | std::views::take(std::size(pAutonoteTxt) - 1))
 	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
-		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{
-				switch (decode_step)
-				{
-				case 1:
-					pAutonoteTxt[i + 1].pText = removeQuotes(test_string);
-					break;
-				case 2:
-				{
-					if (iequals(test_string, "potion"))
-					{
-						pAutonoteTxt[i + 1].eType = AUTONOTE_POTION_RECEPIE;
-						break;
-					}
-					if (iequals(test_string, "stat"))
-					{
-						pAutonoteTxt[i + 1].eType = AUTONOTE_STAT_HINT;
-						break;
-					}
-					if (iequals(test_string, "seer"))
-					{
-						pAutonoteTxt[i + 1].eType = AUTONOTE_SEER;
-						break;
-					}
-					if (iequals(test_string, "obelisk"))
-					{
-						pAutonoteTxt[i + 1].eType = AUTONOTE_OBELISK;
-						break;
-					}
-					if (iequals(test_string, "teacher"))
-					{
-						pAutonoteTxt[i + 1].eType = AUTONOTE_TEACHER;
-						break;
-					}
-					pAutonoteTxt[i + 1].eType = AUTONOTE_MISC;
-					break;
-				}
-				}
-			}
-			else
-			{
-				break_loop = true;
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 3) && !break_loop);
+		auto tokens = GetTokens(data_line);
+		auto it = std::begin(tokens);
+
+		std::size_t id;
+
+		ParseToken(it, id);
+
+		auto& autonote_info = pAutonoteTxt[id];
+
+		ParseToken(it, autonote_info.pText, StripQuotes);
+		ParseTokenSymbol(it, autonote_info.eType, AutonoteTypeMap, AUTONOTE_MISC);
 	}
 }
 
 //----- (004768A9) --------------------------------------------------------
 void InitializeQuests()
 {
-	int i;
-	char* test_string;
-	unsigned char c;
-	bool break_loop;
-	unsigned int temp_str_len;
-	char* tmp_pos;
-	int decode_step;
+	using namespace MiniParser;
 
-	pQuestsTXT_Raw = pEvents_LOD->LoadCompressedTexture("quests.txt").string_view();
-	strtok(pQuestsTXT_Raw.data(), "\r");
-	memset(pQuestTable.data(), 0, sizeof(pQuestTable));
-	for (i = 0; i < 512; ++i)
+	const auto blob = pEvents_LOD->LoadCompressedTexture("quests.txt");
+
+	for (const auto& data_line : GetLines(blob.string_view()) | std::views::drop(1) | std::views::take(std::size(pQuestTable) - 1))
 	{
-		test_string = strtok(NULL, "\r") + 1;
-		break_loop = false;
-		decode_step = 0;
-		do
-		{
-			c = *(unsigned char*)test_string;
-			temp_str_len = 0;
-			while ((c != '\t') && (c > 0))
-			{
-				++temp_str_len;
-				c = test_string[temp_str_len];
-			}
-			tmp_pos = test_string + temp_str_len;
-			if (*tmp_pos == 0) break_loop = true;
-			*tmp_pos = 0;
-			if (temp_str_len)
-			{
-				if (decode_step == 1)
-					pQuestTable[i + 1] = removeQuotes(test_string);
-			}
-			else
-			{
-				break_loop = true;
-			}
-			++decode_step;
-			test_string = tmp_pos + 1;
-		} while ((decode_step < 2) && !break_loop);
+		auto tokens = GetTokens(data_line);
+		auto it = std::begin(tokens);
+
+		std::size_t id;
+
+		ParseToken(it, id);
+		ParseToken(it, pQuestTable[id], StripQuotes);
 	}
 }
 

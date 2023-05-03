@@ -501,6 +501,8 @@ void ItemTable::GenerateItem(ITEM_TREASURE_LEVEL treasure_level, unsigned int uT
 			v27 = 0;
 			while (v27 < v26)
 			{
+				if (out_item->uEnchantmentType + 1 == std::size(pEnchantments))
+					break;
 				++out_item->uEnchantmentType;
 				v27 += pEnchantments[out_item->uEnchantmentType].to_item[out_item->GetItemEquipType()];
 			}

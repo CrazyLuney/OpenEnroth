@@ -108,31 +108,33 @@ void Initialize_GlobalEVT()
 //----- (00443EF8) --------------------------------------------------------
 void LoadLevel_InitializeLevelEvt()
 {
+#pragma pack(push, 1)
 	struct raw_event_header
 	{
-		unsigned char evt_size;
-		unsigned char evt_id_l;
-		unsigned char evt_id_h;
-		unsigned char evt_sequence_num;
+		uint8_t evt_size;
+		uint16_t evt_id;
+		uint8_t evt_sequence_num;
 	};
+#pragma pack(pop)
+
 	uint events_count;
 	unsigned int offset_in;
 	raw_event_header* current_hdr;
 
-	if (!uLevelEVT_Size) return;
+	if (!uLevelEVT_Size)
+		return;
 
-	MapsLongTimersList.fill(MapsLongTimer());
-	pLevelEVT_Index.fill({ (int)0x80808080, (int)0x80808080, 0x80808080 }); // Fill with invalid data.
+	MapsLongTimersList.fill({});
+	pLevelEVT_Index.fill({ int(0x80808080), int(0x80808080), 0x80808080 }); // Fill with invalid data.
 
 	uLevelEVT_NumEvents = 0;
 	MapsLongTimers_count = 0;
 
 	current_hdr = (raw_event_header*)pLevelEVT.data();
 	offset_in = 0;
-	for (events_count = 0, offset_in = 0; offset_in < uLevelEVT_Size;
-		++events_count)
+	for (events_count = 0, offset_in = 0; offset_in < uLevelEVT_Size; ++events_count)
 	{
-		pLevelEVT_Index[events_count].event_id = current_hdr->evt_id_l + (current_hdr->evt_id_h << 8);
+		pLevelEVT_Index[events_count].event_id = current_hdr->evt_id;
 		pLevelEVT_Index[events_count].event_step = current_hdr->evt_sequence_num;
 		pLevelEVT_Index[events_count].uEventOffsetInEVT = offset_in;
 		offset_in += current_hdr->evt_size + 1;
@@ -477,12 +479,18 @@ void EventProcessor(int uEventID, int targetObj, int canShowMessages,
 				pNPC_ID = EVT_DWORD(_evt->v5);
 				pIndex = _evt->v9;
 				pNPC = &pNPCStats->pNewNPCData[pNPC_ID];
-				if (pIndex == 0) pNPC->dialogue_1_evt_id = pEventID;
-				if (pIndex == 1) pNPC->dialogue_2_evt_id = pEventID;
-				if (pIndex == 2) pNPC->dialogue_3_evt_id = pEventID;
-				if (pIndex == 3) pNPC->dialogue_4_evt_id = pEventID;
-				if (pIndex == 4) pNPC->dialogue_5_evt_id = pEventID;
-				if (pIndex == 5) pNPC->dialogue_6_evt_id = pEventID;
+				if (pIndex == 0)
+					pNPC->dialogue_1_evt_id = pEventID;
+				if (pIndex == 1)
+					pNPC->dialogue_2_evt_id = pEventID;
+				if (pIndex == 2)
+					pNPC->dialogue_3_evt_id = pEventID;
+				if (pIndex == 3)
+					pNPC->dialogue_4_evt_id = pEventID;
+				if (pIndex == 4)
+					pNPC->dialogue_5_evt_id = pEventID;
+				if (pIndex == 5)
+					pNPC->dialogue_6_evt_id = pEventID;
 				if (pNPC_ID == 8)
 				{
 					if (pEventID == 78)
@@ -505,13 +513,11 @@ void EventProcessor(int uEventID, int targetObj, int canShowMessages,
 				++curr_seq_num;
 			} break;
 			case EVENT_NPCSetItem:
-				sub_448518_npc_set_item(EVT_DWORD(_evt->v5),
-					ITEM_TYPE(EVT_DWORD(_evt->v9)), _evt->v13);
+				sub_448518_npc_set_item(EVT_DWORD(_evt->v5), ITEM_TYPE(EVT_DWORD(_evt->v9)), _evt->v13);
 				++curr_seq_num;
 				break;
 			case EVENT_SetActorItem:
-				Actor::GiveItem(EVT_DWORD(_evt->v5), ITEM_TYPE(EVT_DWORD(_evt->v9)),
-					_evt->v13);
+				Actor::GiveItem(EVT_DWORD(_evt->v5), ITEM_TYPE(EVT_DWORD(_evt->v9)), _evt->v13);
 				++curr_seq_num;
 				break;
 			case EVENT_SetNPCGroupNews:
@@ -520,10 +526,7 @@ void EventProcessor(int uEventID, int targetObj, int canShowMessages,
 				break;
 			case EVENT_SetActorGroup:
 				__debugbreak();
-				*(&pActors[0].uGroup + 0x11000000 * _evt->v8 +
-					209 * (_evt->v5 +
-						((_evt->v6 + ((uint)_evt->v7 << 8)) << 8))) =
-					EVT_DWORD(_evt->v9);
+				*(&pActors[0].uGroup + 0x11000000 * _evt->v8 + 209 * (_evt->v5 + ((_evt->v6 + ((uint)_evt->v7 << 8)) << 8))) = EVT_DWORD(_evt->v9);
 				++curr_seq_num;
 				break;
 			case EVENT_ChangeGroup:
@@ -550,8 +553,7 @@ void EventProcessor(int uEventID, int targetObj, int canShowMessages,
 				break;
 			case EVENT_MoveNPC:
 			{
-				pNPCStats->pNewNPCData[EVT_DWORD(_evt->v5)].Location2D =
-					EVT_DWORD(_evt->v9);
+				pNPCStats->pNewNPCData[EVT_DWORD(_evt->v5)].Location2D = EVT_DWORD(_evt->v9);
 				if (window_SpeakInHouse)
 				{
 					if (window_SpeakInHouse->wData.val == HOUSE_BODY_GUILD_ERATHIA)
@@ -586,44 +588,52 @@ void EventProcessor(int uEventID, int targetObj, int canShowMessages,
 				break;
 			case EVENT_ShowFace:
 				if (_evt->v5 <= 3u)
-				{  // someone
+				{
+					// someone
 					pParty->pPlayers[_evt->v5].playEmotion((CHARACTER_EXPRESSION_ID)_evt->v6, 0);
 				}
 				else if (_evt->v5 == 4)
-				{  // active
+				{
+					// active
 					pPlayers[pParty->getActiveCharacter()]->playEmotion((CHARACTER_EXPRESSION_ID)_evt->v6, 0);
 				}
 				else if (_evt->v5 == 5)
-				{  // all players
+				{
+					// all players
 					for (Player& player : pParty->pPlayers)
 					{
 						player.playEmotion((CHARACTER_EXPRESSION_ID)_evt->v6, 0);
 					}
 				}
 				else
-				{  // random player
+				{
+					// random player
 					pParty->pPlayers[vrng->random(4)].playEmotion((CHARACTER_EXPRESSION_ID)_evt->v6, 0);
 				}
 				++curr_seq_num;
 				break;
 			case EVENT_CharacterAnimation:
 				if (_evt->v5 <= 3)
-				{  // someone
+				{
+					// someone
 					pParty->pPlayers[_evt->v5].playReaction((PlayerSpeech)_evt->v6);
 				}
 				else if (_evt->v5 == 4)
-				{  // active
+				{
+					// active
 					pPlayers[pParty->getActiveCharacter()]->playReaction((PlayerSpeech)_evt->v6);
 				}
 				else if (_evt->v5 == 5)
-				{  // all
+				{
+					// all
 					for (Player& player : pParty->pPlayers)
 					{
 						player.playReaction((PlayerSpeech)_evt->v6);
 					}
 				}
 				else
-				{  // random
+				{
+					// random
 					pParty->pPlayers[vrng->random(4)].playReaction((PlayerSpeech)_evt->v6);
 				}
 				++curr_seq_num;
@@ -1187,8 +1197,9 @@ std::string GetEventHintString(unsigned int uEventID)
 	if (test_evt->_e_type == EVENT_SpeakInHouse)
 	{
 		str_index = EVT_DWORD(test_evt->v5);
-		if (p2DEvents[str_index - 1].pName != NULL)
-			result = p2DEvents[str_index - 1].pName;
+		const auto& event_info = p2DEvents[str_index - 1];
+		if (!event_info.pName.empty())
+			result = event_info.pName;
 
 		return result;
 	}
@@ -1202,9 +1213,11 @@ std::string GetEventHintString(unsigned int uEventID)
 			{
 				str_index = EVT_DWORD(test_evt->v5);
 				if (str_index < 525)
-				{  // 600
-					if (p2DEvents[str_index - 1].pName != NULL)
-						result = p2DEvents[str_index - 1].pName;
+				{
+					// 600
+					const auto& event_info = p2DEvents[str_index - 1];
+					if (!event_info.pName.empty())
+						result = event_info.pName;
 
 					return result;
 				}

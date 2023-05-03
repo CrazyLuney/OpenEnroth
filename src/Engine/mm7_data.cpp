@@ -277,7 +277,7 @@ char _4E94D0_light_type = 5;  // stationary??
 char _4E94D2_light_type = 6;
 char _4E94D3_light_type = 10;
 // char *off_4EB080; // idb
-std::array<const char*, 465> pTransitionStrings = { {"", nullptr} };
+std::array<std::string, 465> pTransitionStrings{};
 std::array<const char*, 25> pPlayerPortraitsNames = { {
 	"pc01-", "pc02",  "pc03",  "pc04",  "pc05-", "pc06", "pc07",
 	"pc08",  "pc09-", "pc10",  "pc11-", "pc12",  "pc13", "pc14",
@@ -2691,17 +2691,17 @@ std::array<int16_t, 104> odm_floor_face_vert_coord_Y;  // word_720F70
 std::array<int16_t, 104> odm_floor_face_vert_coord_X;  // word_721040
 Vec3i blv_prev_party_pos;
 std::array<NPCTopic, 789> pNPCTopics;
-std::array<const char*, 513> pQuestTable;
+std::array<std::string, 513> pQuestTable;
 char* dword_723718_autonote_related;  // idb
-IndexedArray<const char*, ITEM_FIRST_MESSAGE_SCROLL, ITEM_LAST_MESSAGE_SCROLL> pScrolls;
+IndexedArray<std::string, ITEM_FIRST_MESSAGE_SCROLL, ITEM_LAST_MESSAGE_SCROLL> pScrolls;
 int dword_7241C8;
 std::string pAwardsTXT_Raw;
 std::string pScrollsTXT_Raw;
 std::string pMerchantsTXT_Raw;
-IndexedArray<const char*, MERCHANT_PHRASE_COUNT> pMerchantsBuyPhrases;
-IndexedArray<const char*, MERCHANT_PHRASE_COUNT> pMerchantsSellPhrases;
-IndexedArray<const char*, MERCHANT_PHRASE_COUNT> pMerchantsRepairPhrases;
-IndexedArray<const char*, MERCHANT_PHRASE_COUNT> pMerchantsIdentifyPhrases;
+IndexedArray<std::string, MERCHANT_PHRASE_COUNT> pMerchantsBuyPhrases;
+IndexedArray<std::string, MERCHANT_PHRASE_COUNT> pMerchantsSellPhrases;
+IndexedArray<std::string, MERCHANT_PHRASE_COUNT> pMerchantsRepairPhrases;
+IndexedArray<std::string, MERCHANT_PHRASE_COUNT> pMerchantsIdentifyPhrases;
 std::string pTransitionsTXT_Raw;
 std::string pAutonoteTXT_Raw;
 std::string pQuestsTXT_Raw;

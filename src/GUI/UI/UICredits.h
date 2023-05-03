@@ -4,24 +4,25 @@
 
 class GUIFont;
 
-class GUICredits : public GUIWindow {
- public:
-    GUICredits();
-    virtual ~GUICredits();
+class GUICredits : public GUIWindow
+{
+public:
+	GUICredits();
+	virtual ~GUICredits();
 
-    virtual void Update();
+	virtual void Update();
 
-    static void ExecuteCredits();
-    void EventLoop();
+	static void ExecuteCredits();
+	void EventLoop();
 
- protected:
-    GUIFont *pFontQuick;
-    GUIFont *pFontCChar;
+protected:
+	GUIFont* pFontQuick;
+	GUIFont* pFontCChar;
 
-    Image *mm6title;
+	Image* mm6title;
 
-    int width;
-    int height;
-    Texture *cred_texture;
-    float move_Y;
+	int width;
+	int height;
+	Texture* cred_texture;
+	float move_Y;
 };

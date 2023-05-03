@@ -135,8 +135,9 @@ namespace MiniParser
 		enum class SplitStringIteratorPolicy
 		{
 			Default,
-			CombineNewLine,
-			CombineConsecutive,
+			StrictlyCRLF,
+			CombineCRLF,
+			CombineConsecutiveDelimiters,
 		};
 
 		template <StringOrStringView S, SplitStringIteratorPolicy Policy = SplitStringIteratorPolicy::Default>
@@ -163,7 +164,14 @@ namespace MiniParser
 				, _delim_last{ _first }
 				, _valid{ _first < _last }
 			{
-				if constexpr (Policy == SplitStringIteratorPolicy::CombineNewLine)
+				if constexpr (Policy == SplitStringIteratorPolicy::StrictlyCRLF)
+				{
+					assert(delim.length() == 2);
+					assert(delim[0] == '\r');
+					assert(delim[1] == '\n');
+				}
+
+				if constexpr (Policy == SplitStringIteratorPolicy::CombineCRLF)
 				{
 					assert(delim.find('\r') != string_type::npos);
 					assert(delim.find('\n') != string_type::npos);
@@ -253,7 +261,15 @@ namespace MiniParser
 					return;
 				}
 
-				_delim_first = _string->find_first_of(*_delim, _delim_last);
+				if constexpr (Policy == SplitStringIteratorPolicy::StrictlyCRLF)
+				{
+					_delim_first = _string->find(*_delim, _delim_last);
+				}
+				else
+				{
+					_delim_first = _string->find_first_of(*_delim, _delim_last);
+				}
+				
 
 				if (_delim_first >= _last)
 				{
@@ -262,9 +278,16 @@ namespace MiniParser
 					return;
 				}
 
-				_delim_last = _delim_first + 1;
+				if constexpr (Policy == SplitStringIteratorPolicy::StrictlyCRLF)
+				{
+					_delim_last = _delim_first + 2;
+				}
+				else
+				{
+					_delim_last = _delim_first + 1;
+				}
 
-				if constexpr (Policy == SplitStringIteratorPolicy::CombineNewLine)
+				if constexpr (Policy == SplitStringIteratorPolicy::CombineCRLF)
 				{
 					if (const auto& s = *_string; s[_delim_first] == '\r' && _delim_last < _last && s[_delim_last] == '\n')
 					{
@@ -272,7 +295,7 @@ namespace MiniParser
 					}
 				}
 
-				if constexpr (Policy == SplitStringIteratorPolicy::CombineConsecutive)
+				if constexpr (Policy == SplitStringIteratorPolicy::CombineConsecutiveDelimiters)
 				{
 					_delim_last = _string->find_first_not_of(*_delim, _delim_first + 1);
 				}
@@ -522,7 +545,7 @@ namespace MiniParser
 	inline auto GetLines(const auto& s)
 	{
 		using string_type = std::remove_cvref_t<decltype(s)>;
-		using iterator = Detail::SplitStringIterator<string_type, Detail::SplitStringIteratorPolicy::CombineNewLine>;
+		using iterator = Detail::SplitStringIterator<string_type, Detail::SplitStringIteratorPolicy::StrictlyCRLF>;
 
 		static const string_type delimiter{ "\r\n" };
 
@@ -559,7 +582,7 @@ namespace MiniParser
 	inline auto DropLines(const auto& s, std::size_t n)
 	{
 		using string_type = std::remove_cvref_t<decltype(s)>;
-		using iterator = Detail::SplitStringIterator<string_type, Detail::SplitStringIteratorPolicy::CombineNewLine>;
+		using iterator = Detail::SplitStringIterator<string_type, Detail::SplitStringIteratorPolicy::StrictlyCRLF>;
 
 		static const string_type delimiter{ "\r\n" };
 
