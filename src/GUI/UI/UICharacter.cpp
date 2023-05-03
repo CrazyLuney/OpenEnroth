@@ -1411,7 +1411,7 @@ static void CharacterUI_DrawItem(int x, int y, ItemGen* item, int id, Texture* i
 	{
 		render->DrawTransparentRedShade(x / 640.0f, y / 480.0f, item_texture);
 	}
-	else if (!item->IsIdentified() && (engine->config->gameplay.ShowUndentifiedItem.value() || id))
+	else if (!item->IsIdentified() && (engine->config->gameplay.ShowUnidentifiedItem.value() || id))
 	{
 		render->DrawTransparentGreenShade(x / 640.0f, y / 480.0f, item_texture);
 	}

@@ -159,7 +159,7 @@ public:
 									  "Distance from point of impact of Shrinking Ray cast at GM mastery. "
 									  "Monsters will be affected by this spell if they are close to point of impact by this value." };
 
-		Bool ShowUndentifiedItem = { this, "show_unidentified_item", true,
+		Bool ShowUnidentifiedItem = { this, "show_unidentified_item", true,
 									"Show unidentified items with a green tint in inventory. "
 									"If not set, vanilla behavior will be used with green tint applied in shops only." };
 

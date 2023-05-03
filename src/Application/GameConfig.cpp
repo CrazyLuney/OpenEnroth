@@ -21,10 +21,11 @@ MM_DEFINE_ENUM_SERIALIZATION_FUNCTIONS(PlatformWindowMode, CASE_INSENSITIVE, {
 	{ WINDOW_MODE_WINDOWED, "0" },
 	{ WINDOW_MODE_BORDERLESS, "1" },
 	{ WINDOW_MODE_FULLSCREEN, "2" },
-	{WINDOW_MODE_FULLSCREEN_BORDERLESS, "3" }
+	{ WINDOW_MODE_FULLSCREEN_BORDERLESS, "3" }
 })
 
-GameConfig::GameConfig(const std::string& path) : _path(path)
+GameConfig::GameConfig(const std::string& path)
+	: _path(path)
 {
 	_logger = EngineIocContainer::ResolveLogger();
 }

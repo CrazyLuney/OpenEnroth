@@ -374,8 +374,7 @@ void Camera3D::BuildViewFrustum()
 
 //----- (00437376) --------------------------------------------------------
 // culls vertices to face plane
-bool Camera3D::CullVertsToPlane(stru154* faceplane, RenderVertexSoft* vertices,
-	unsigned int* pOutNumVertices)
+bool Camera3D::CullVertsToPlane(stru154* faceplane, RenderVertexSoft* vertices, unsigned int* pOutNumVertices)
 {
 	double v6;             // st7@3
 	int previous;          // esi@6
@@ -449,10 +448,7 @@ bool Camera3D::CullVertsToPlane(stru154* faceplane, RenderVertexSoft* vertices,
 
 // TODO(pskelton): does this func need to copy verts or could it be eliminated
 //----- (00437285) --------------------------------------------------------
-bool Camera3D::CullFaceToCameraFrustum(RenderVertexSoft* pInVertices,
-	unsigned int* pOutNumVertices,
-	RenderVertexSoft* pVertices,
-	signed int NumFrustumPlanes)
+bool Camera3D::CullFaceToCameraFrustum(RenderVertexSoft* pInVertices, unsigned int* pOutNumVertices, RenderVertexSoft* pVertices, signed int NumFrustumPlanes)
 {
 	if (NumFrustumPlanes <= 0) return false;
 	if (*pOutNumVertices <= 0) return false;
