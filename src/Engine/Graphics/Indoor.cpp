@@ -187,20 +187,20 @@ unsigned int FaceFlowTextureOffset(unsigned int uFaceID)
 	// TODO(pskelton): check tickcount usage here
 	unsigned int offset = platform->tickCount() >> 3;
 
-	if (pIndoor->pFaces[uFaceID].uAttributes & FACE_FlowDown)
+	if (pIndoor->pFaces[uFaceID].uAttributes & FaceAttribute::FlowDown)
 	{
 		Lights.pDeltaUV[1] -= offset & (((Texture*)pIndoor->pFaces[uFaceID].resource)->GetHeight() - 1);
 	}
-	else if (pIndoor->pFaces[uFaceID].uAttributes & FACE_FlowUp)
+	else if (pIndoor->pFaces[uFaceID].uAttributes & FaceAttribute::FlowUp)
 	{
 		Lights.pDeltaUV[1] += offset & (((Texture*)pIndoor->pFaces[uFaceID].resource)->GetHeight() - 1);
 	}
 
-	if (pIndoor->pFaces[uFaceID].uAttributes & FACE_FlowRight)
+	if (pIndoor->pFaces[uFaceID].uAttributes & FaceAttribute::FlowRight)
 	{
 		Lights.pDeltaUV[0] -= offset & (((Texture*)pIndoor->pFaces[uFaceID].resource)->GetWidth() - 1);
 	}
-	else if (pIndoor->pFaces[uFaceID].uAttributes & FACE_FlowLeft)
+	else if (pIndoor->pFaces[uFaceID].uAttributes & FaceAttribute::FlowLeft)
 	{
 		Lights.pDeltaUV[0] += offset & (((Texture*)pIndoor->pFaces[uFaceID].resource)->GetWidth() - 1);
 	}
@@ -229,7 +229,7 @@ void BLVFace::SetTexture(const std::string& filename)
 			return;
 		}
 
-		this->ToggleIsTextureFrameTable();
+		this->ToggleTextureFrameTable();
 	}
 
 	this->resource = assets->GetBitmap(filename);
@@ -386,9 +386,9 @@ bool IndoorLocation::Load(const std::string& filename, int num_days_played,
 		if (pFaceExtra->uEventID)
 		{
 			if (pFaceExtra->HasEventHint())
-				pFace->uAttributes |= FACE_HAS_EVENT;
+				pFace->uAttributes |= FaceAttribute::Event;
 			else
-				pFace->uAttributes &= ~FACE_HAS_EVENT;
+				pFace->uAttributes &= ~FaceAttribute::Event;
 		}
 	}
 
@@ -564,9 +564,9 @@ bool IndoorLocation::Load(const std::string& filename, int num_days_played,
 		if (pFaceExtra->uEventID)
 		{
 			if (pFaceExtra->HasEventHint())
-				pFace->uAttributes |= FACE_HAS_EVENT;
+				pFace->uAttributes |= FaceAttribute::Event;
 			else
-				pFace->uAttributes &= ~FACE_HAS_EVENT;
+				pFace->uAttributes &= ~FaceAttribute::Event;
 		}
 	}
 
@@ -724,7 +724,7 @@ int IndoorLocation::GetSector(int sX, int sY, int sZ)
 				continue;
 
 			// add found faces into store
-			if (pFace->Contains(Vec3i(sX, sY, 0), MODEL_INDOOR, engine->config->gameplay.FloorChecksEps.value(), FACE_XY_PLANE))
+			if (pFace->Contains(Vec3i(sX, sY, 0), MODEL_INDOOR, engine->config->gameplay.FloorChecksEps.value(), FaceAttribute::XYPlane))
 				FoundFaceStore[NumFoundFaceStore++] = uFaceID;
 			if (NumFoundFaceStore >= 5)
 				break; // TODO(captainurist): we do get here sometimes (e.g. in dragon cave), increase limit?
@@ -845,13 +845,13 @@ void BLVFace::_get_normals(Vec3i* a2, Vec3i* a3)
 		}
 	}
 	// LABEL_12:
-	if (this->uAttributes & FACE_FlipNormalU)
+	if (this->uAttributes & FaceAttribute::FlipNormalU)
 	{
 		a2->x = -a2->x;
 		a2->y = -a2->y;
 		a2->z = -a2->z;
 	}
-	if (this->uAttributes & FACE_FlipNormalV)
+	if (this->uAttributes & FaceAttribute::FlipNormalV)
 	{
 		a3->x = -a3->x;
 		a3->y = -a3->y;
@@ -863,15 +863,15 @@ void BLVFace::_get_normals(Vec3i* a2, Vec3i* a3)
 void BLVFace::Flatten(FlatFace* points, int model_idx, FaceAttributes override_plane) const
 {
 	Assert(!override_plane ||
-		override_plane == FACE_XY_PLANE || override_plane == FACE_YZ_PLANE || override_plane == FACE_XZ_PLANE);
+		override_plane == FaceAttribute::XYPlane || override_plane == FaceAttribute::YZPlane || override_plane == FaceAttribute::XZPlane);
 
 	FaceAttributes plane = override_plane;
 	if (!plane)
-		plane = this->uAttributes & (FACE_XY_PLANE | FACE_YZ_PLANE | FACE_XZ_PLANE);
+		plane = this->uAttributes & (FaceAttribute::XYPlane | FaceAttribute::YZPlane | FaceAttribute::XZPlane);
 
 	auto do_flatten = [&](auto&& vertex_accessor)
 	{
-		if (plane & FACE_XY_PLANE)
+		if (plane & FaceAttribute::XYPlane)
 		{
 			for (int i = 0; i < this->uNumVertices; i++)
 			{
@@ -879,7 +879,7 @@ void BLVFace::Flatten(FlatFace* points, int model_idx, FaceAttributes override_p
 				points->v[i] = vertex_accessor(i).y;
 			}
 		}
-		else if (plane & FACE_XZ_PLANE)
+		else if (plane & FaceAttribute::XZPlane)
 		{
 			for (int i = 0; i < this->uNumVertices; i++)
 			{
@@ -915,27 +915,26 @@ void BLVFace::Flatten(FlatFace* points, int model_idx, FaceAttributes override_p
 
 bool BLVFace::Contains(const Vec3i& pos, int model_idx, int slack, FaceAttributes override_plane) const
 {
-	Assert(!override_plane ||
-		override_plane == FACE_XY_PLANE || override_plane == FACE_YZ_PLANE || override_plane == FACE_XZ_PLANE);
+	Assert(!override_plane || override_plane == FaceAttribute::XYPlane || override_plane == FaceAttribute::YZPlane || override_plane == FaceAttribute::XZPlane);
 
 	if (this->uNumVertices < 3)
 		return false; // This does happen.
 
 	FaceAttributes plane = override_plane;
 	if (!plane)
-		plane = this->uAttributes & (FACE_XY_PLANE | FACE_YZ_PLANE | FACE_XZ_PLANE);
+		plane = this->uAttributes & (FaceAttribute::XYPlane | FaceAttribute::YZPlane | FaceAttribute::XZPlane);
 
 	FlatFace points;
 	Flatten(&points, model_idx, plane);
 
 	int u;
 	int v;
-	if (plane & FACE_XY_PLANE)
+	if (plane & FaceAttribute::XYPlane)
 	{
 		u = pos.x;
 		v = pos.y;
 	}
-	else if (plane & FACE_YZ_PLANE)
+	else if (plane & FaceAttribute::YZPlane)
 	{
 		u = pos.y;
 		v = pos.z;
@@ -1139,13 +1138,13 @@ void BLV_UpdateDoors()
 				HEXRAYS_HIDWORD(v27) = face->pFacePlane_old.dist >> 16;
 				face->zCalc.c = -v27 / face->pFacePlane_old.vNormal.z;
 			}
-			// if ( face->uAttributes & FACE_TexMoveByDoor || render->pRenderD3D
+			// if ( face->uAttributes & TexMoveByDoor || render->pRenderD3D
 			// )
 			face->_get_normals(&v70, &v67);
 			v28 = &pIndoor->pFaceExtras[face->uFaceExtraID];
 			/*if ( !render->pRenderD3D )
 			{
-			if ( !(face->uAttributes & FACE_TexMoveByDoor) )
+			if ( !(face->uAttributes & TexMoveByDoor) )
 			continue;
 			v83 = (uint64_t)(door->vDirection.x * (int64_t)v70.x)
 			>> 16; v85 = (uint64_t)(door->vDirection.y * (signed
@@ -1193,13 +1192,13 @@ void BLV_UpdateDoors()
 				face->pVertexUIDs[j] = v76;
 				face->pVertexVIDs[j] = v77;
 			}
-			if (face->uAttributes & FACE_TexAlignLeft)
+			if (face->uAttributes & FaceAttribute::TexAlignLeft)
 			{
 				v28->sTextureDeltaU -= v39;
 			}
 			else
 			{
-				if (face->uAttributes & FACE_TexAlignRight)
+				if (face->uAttributes & FaceAttribute::TexAlignRight)
 				{
 					if (face->resource)
 					{
@@ -1210,13 +1209,13 @@ void BLV_UpdateDoors()
 					}
 				}
 			}
-			if (face->uAttributes & FACE_TexAlignDown)
+			if (face->uAttributes & FaceAttribute::TexAlignDown)
 			{
 				v28->sTextureDeltaV -= v40;
 			}
 			else
 			{
-				if (face->uAttributes & FACE_TexAlignBottom)
+				if (face->uAttributes & FaceAttribute::TexAlignBottom)
 				{
 					v28->sTextureDeltaV -=
 						v84 + ((Texture*)face->resource)->GetHeight();
@@ -1225,7 +1224,7 @@ void BLV_UpdateDoors()
 					//    pBitmaps_LOD->GetTexture(face->uBitmapID)->uTextureHeight;
 				}
 			}
-			if (face->uAttributes & FACE_TexMoveByDoor)
+			if (face->uAttributes & FaceAttribute::TexMoveByDoor)
 			{
 				v84 = fixpoint_mul(door->vDirection.x, v70.x);
 				v82 = fixpoint_mul(door->vDirection.y, v70.y);
@@ -1360,7 +1359,7 @@ void UpdateActors_BLV()
 		else
 		{
 			actor.vVelocity = Vec3s(0, 0, 0);
-			if (pIndoor->pFaces[uFaceID].uAttributes & FACE_INDOOR_SKY)
+			if (pIndoor->pFaces[uFaceID].uAttributes & FaceAttribute::IndoorSky)
 			{
 				if (actor.uAIState == Dead)
 					actor.uAIState = Removed;
@@ -1632,10 +1631,10 @@ int BLV_GetFloorLevel(const Vec3i& pos, unsigned int uSectorID, unsigned int* pF
 			break;
 
 		BLVFace* pFloor = &pIndoor->pFaces[pSector->pFloors[i]];
-		if (pFloor->Ethereal())
+		if (pFloor->IsEthereal())
 			continue;
 
-		if (!pFloor->Contains(pos, MODEL_INDOOR, engine->config->gameplay.FloorChecksEps.value(), FACE_XY_PLANE))
+		if (!pFloor->Contains(pos, MODEL_INDOOR, engine->config->gameplay.FloorChecksEps.value(), FaceAttribute::XYPlane))
 			continue;
 
 		// TODO: Does POLYGON_Ceiling really belong here?
@@ -1671,7 +1670,7 @@ int BLV_GetFloorLevel(const Vec3i& pos, unsigned int uSectorID, unsigned int* pF
 			if (portal->uPolygonType != PolygonType::Floor)
 				continue;
 
-			if (!portal->Contains(pos, MODEL_INDOOR, engine->config->gameplay.FloorChecksEps.value(), FACE_XY_PLANE))
+			if (!portal->Contains(pos, MODEL_INDOOR, engine->config->gameplay.FloorChecksEps.value(), FaceAttribute::XYPlane))
 				continue;
 
 			blv_floor_z[FacesFound] = -29000;
@@ -1933,7 +1932,7 @@ bool Check_LOS_Obscurred_Indoors(const Vec3i& target, const Vec3i& from)
 			bool FaceIsParallel = (sumdot == 0);
 
 			// skip further checks
-			if (face->Portal() || min_x > face->pBounding.x2 ||
+			if (face->IsPortal() || min_x > face->pBounding.x2 ||
 				max_x < face->pBounding.x1 || min_y > face->pBounding.y2 ||
 				max_y < face->pBounding.y1 || min_z > face->pBounding.z2 ||
 				max_z < face->pBounding.z1 || FaceIsParallel)
@@ -2118,7 +2117,7 @@ char DoInteractionWithTopmostZObject(int pid)
 			{
 				return 1;
 			}
-			if (pOutdoor->pBModels[bmodel_id].pFaces[face_id].uAttributes & FACE_HAS_EVENT ||
+			if (pOutdoor->pBModels[bmodel_id].pFaces[face_id].uAttributes & FaceAttribute::Event ||
 				pOutdoor->pBModels[bmodel_id].pFaces[face_id].sCogTriggeredID == 0)
 				return 1;
 			EventProcessor((int16_t)pOutdoor->pBModels[bmodel_id].pFaces[face_id].sCogTriggeredID,
@@ -2126,12 +2125,12 @@ char DoInteractionWithTopmostZObject(int pid)
 		}
 		else
 		{
-			if (!(pIndoor->pFaces[id].uAttributes & FACE_CLICKABLE))
+			if (!(pIndoor->pFaces[id].uAttributes & FaceAttribute::Clickable))
 			{
 				GameUI_StatusBar_NothingHere();
 				return 1;
 			}
-			if (pIndoor->pFaces[id].uAttributes & FACE_HAS_EVENT ||
+			if (pIndoor->pFaces[id].uAttributes & FaceAttribute::Event ||
 				!pIndoor->pFaceExtras[pIndoor->pFaces[id].uFaceExtraID].uEventID)
 				return 1;
 			if (current_screen_type != CURRENT_SCREEN::SCREEN_BRANCHLESS_NPC_DIALOG)
@@ -2232,7 +2231,7 @@ void BLV_ProcessPartyActions()
 		// TODO: but why is this condition under "below floor level" if above?
 		if (!hovering && pParty->floor_face_pid != uFaceID)
 		{
-			if (pIndoor->pFaces[uFaceID].uAttributes & FACE_PRESSURE_PLATE)
+			if (pIndoor->pFaces[uFaceID].uAttributes & FaceAttribute::PressurePlate)
 				uFaceEvent = pIndoor->pFaceExtras[pIndoor->pFaces[uFaceID].uFaceExtraID].uEventID;
 		}
 	}
@@ -2240,7 +2239,7 @@ void BLV_ProcessPartyActions()
 		pParty->floor_face_pid = uFaceID;
 
 	// party is on water?
-	if (pIndoor->pFaces[uFaceID].Fluid())
+	if (pIndoor->pFaces[uFaceID].IsFluid())
 		on_water = true;
 
 	// Party angle in XY plane.
@@ -2508,7 +2507,7 @@ void BLV_ProcessPartyActions()
 					party_dy = 0;
 					party_dx = 0;
 				}
-				if (pParty->floor_face_pid != PID_ID(collision_state.pid) && pFace->Pressure_Plate())
+				if (pParty->floor_face_pid != PID_ID(collision_state.pid) && pFace->IsPressurePlate())
 					uFaceEvent = pIndoor->pFaceExtras[pFace->uFaceExtraID].uEventID;
 			}
 			else
@@ -2536,14 +2535,14 @@ void BLV_ProcessPartyActions()
 						new_party_y += fixpoint_mul(-distance_to_face, pFace->pFacePlane_old.vNormal.y);
 						new_party_z_tmp += fixpoint_mul(-distance_to_face, pFace->pFacePlane_old.vNormal.z);
 					}
-					if (pParty->floor_face_pid != PID_ID(collision_state.pid) && pFace->Pressure_Plate())
+					if (pParty->floor_face_pid != PID_ID(collision_state.pid) && pFace->IsPressurePlate())
 						uFaceEvent = pIndoor->pFaceExtras[pFace->uFaceExtraID].uEventID;
 				}
 				else
 				{ // between floor & wall
 					if (party_dx * party_dx + party_dy * party_dy >= min_party_move_delta_sqr)
 					{
-						if (pParty->floor_face_pid != PID_ID(collision_state.pid) && pFace->Pressure_Plate())
+						if (pParty->floor_face_pid != PID_ID(collision_state.pid) && pFace->IsPressurePlate())
 							uFaceEvent = pIndoor->pFaceExtras[pFace->uFaceExtraID].uEventID;
 					}
 					else
@@ -2593,7 +2592,7 @@ void BLV_ProcessPartyActions()
 							{
 								sound = SOUND_RunWaterIndoor;
 							}
-							else if (pIndoor->pFaces[uFaceID].uAttributes & FACE_INDOOR_CARPET)
+							else if (pIndoor->pFaces[uFaceID].uAttributes & FaceAttribute::IndoorCarpet)
 							{
 								sound = SOUND_RunCarpet;
 							}
@@ -2613,7 +2612,7 @@ void BLV_ProcessPartyActions()
 							{
 								sound = SOUND_WalkWaterIndoor;
 							}
-							else if (pIndoor->pFaces[uFaceID].uAttributes & FACE_INDOOR_CARPET)
+							else if (pIndoor->pFaces[uFaceID].uAttributes & FaceAttribute::IndoorCarpet)
 							{
 								sound = SOUND_WalkCarpet;
 							}
@@ -2653,7 +2652,7 @@ void BLV_ProcessPartyActions()
 	pParty->vPosition.z = new_party_z;
 	// pParty->uFallSpeed = v89;
 
-	if (!hovering && pIndoor->pFaces[uFaceID].uAttributes & FACE_IsLava)
+	if (!hovering && pIndoor->pFaces[uFaceID].uAttributes & FaceAttribute::Lava)
 		pParty->uFlags |= PARTY_FLAGS_1_BURNING;
 
 	if (uFaceEvent)

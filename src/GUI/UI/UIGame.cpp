@@ -802,7 +802,7 @@ std::string GameUI_GetMinimapHintText()
 				{
 					if (face.sCogTriggeredID)
 					{
-						if (!(face.uAttributes & FACE_HAS_EVENT))
+						if (!(face.uAttributes & FaceAttribute::Event))
 						{
 							std::string hintString = GetEventHintString(face.sCogTriggeredID);
 							if (!hintString.empty())
@@ -1153,7 +1153,7 @@ void GameUI_WritePointedObjectStatusString()
 					else
 					{
 						pFace = &pIndoor->pFaces[pickedObjectID];
-						if (pFace->uAttributes & FACE_INDICATE)
+						if (pFace->uAttributes & FaceAttribute::Indicate)
 						{
 							unsigned short eventId =
 								pIndoor->pFaceExtras[pFace->uFaceExtraID]
@@ -1898,11 +1898,11 @@ void GameUI_DrawMinimap(unsigned int uX, unsigned int uY, unsigned int uZ,
 		{
 			BLVMapOutline* pOutline = &pIndoor->pMapOutlines[i];
 
-			if (pIndoor->pFaces[pOutline->uFace1ID].Visible() &&
-				pIndoor->pFaces[pOutline->uFace2ID].Visible())
+			if (pIndoor->pFaces[pOutline->uFace1ID].IsVisible() &&
+				pIndoor->pFaces[pOutline->uFace2ID].IsVisible())
 			{
-				if (pOutline->uFlags & 1 || pIndoor->pFaces[pOutline->uFace1ID].uAttributes & FACE_SeenByParty ||
-					pIndoor->pFaces[pOutline->uFace2ID].uAttributes & FACE_SeenByParty)
+				if (pOutline->uFlags & 1 || pIndoor->pFaces[pOutline->uFace1ID].uAttributes & FaceAttribute::SeenByParty ||
+					pIndoor->pFaces[pOutline->uFace2ID].uAttributes & FaceAttribute::SeenByParty)
 				{
 					pOutline->uFlags = pOutline->uFlags | 1;
 					pIndoor->_visible_outlines[i >> 3] |= 1 << (7 - i % 8);
@@ -1918,8 +1918,8 @@ void GameUI_DrawMinimap(unsigned int uX, unsigned int uY, unsigned int uZ,
 					int linew = uCenterY - fixpoint_mul(uZoom, Vert2Y);
 
 					if (bWizardEyeActive && uWizardEyeSkillLevel >= PLAYER_SKILL_MASTERY_MASTER &&
-						(pIndoor->pFaces[pOutline->uFace1ID].Clickable() ||
-							pIndoor->pFaces[pOutline->uFace2ID].Clickable()) &&
+						(pIndoor->pFaces[pOutline->uFace1ID].IsClickable() ||
+							pIndoor->pFaces[pOutline->uFace2ID].IsClickable()) &&
 						(pIndoor->pFaceExtras[pIndoor->pFaces[pOutline->uFace1ID].uFaceExtraID].uEventID ||
 							pIndoor->pFaceExtras[pIndoor->pFaces[pOutline->uFace2ID].uFaceExtraID].uEventID))
 					{

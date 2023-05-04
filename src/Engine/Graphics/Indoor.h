@@ -349,9 +349,10 @@ enum
 
 /*   93 */
 #pragma pack(push, 1)
-struct BLVFace
-{  // 60h
 //----- (0046ED02) --------------------------------------------------------
+struct BLVFace
+{
+	// 60h
 	BLVFace()
 	{
 		uNumVertices = 0;
@@ -369,36 +370,22 @@ struct BLVFace
 	void SetTexture(const std::string& filename);
 	Texture* GetTexture();
 
-	inline bool Invisible() const
-	{
-		return uAttributes & FACE_IsInvisible;
-	}
-	inline bool Visible() const { return !Invisible(); }
-	inline bool Portal() const { return uAttributes & FACE_IsPortal; } // TODO: rename IsPortal.
-	inline bool Fluid() const { return uAttributes & FACE_IsFluid; }
-	inline bool Indoor_sky() const
-	{
-		return uAttributes & FACE_INDOOR_SKY;
-	}
-	inline bool Clickable() const
-	{
-		return uAttributes & FACE_CLICKABLE;
-	}
-	inline bool Pressure_Plate() const
-	{
-		return uAttributes & FACE_PRESSURE_PLATE;
-	}
-	inline bool Ethereal() const { return uAttributes & FACE_ETHEREAL; }
+	bool IsInvisible() const { return uAttributes & FaceAttribute::Invisible; }
+	bool IsVisible() const { return !IsInvisible(); }
+	bool IsPortal() const { return uAttributes & FaceAttribute::Portal; }
+	bool IsFluid() const { return uAttributes & FaceAttribute::Fluid; }
+	bool IsIndoorSky() const { return uAttributes & FaceAttribute::IndoorSky; }
+	bool IsClickable() const { return uAttributes & FaceAttribute::Clickable; }
+	bool IsPressurePlate() const { return uAttributes & FaceAttribute::PressurePlate; }
+	bool IsEthereal() const { return uAttributes & FaceAttribute::Ethereal; }
+	bool IsTextureFrameTable() const { return uAttributes & FaceAttribute::TextureFrameTable; }
 
-	inline bool IsTextureFrameTable() const
+	void ToggleTextureFrameTable()
 	{
-		return this->uAttributes & FACE_TEXTURE_FRAME;
-	}
-	inline void ToggleIsTextureFrameTable()
-	{
-		this->uAttributes = this->uAttributes & FACE_TEXTURE_FRAME
-			? this->uAttributes & ~FACE_TEXTURE_FRAME
-			: this->uAttributes | FACE_TEXTURE_FRAME;
+		if (uAttributes & FaceAttribute::TextureFrameTable)
+			uAttributes &= ~FaceAttribute::TextureFrameTable;
+		else
+			uAttributes |= FaceAttribute::TextureFrameTable;
 	}
 
 	/**
@@ -533,10 +520,10 @@ struct IndoorLocation
 	//----- (00462592) --------------------------------------------------------
 	inline IndoorLocation()
 	{
-		this->log = EngineIocContainer::ResolveLogger();
-		this->decal_builder = EngineIocContainer::ResolveDecalBuilder();
-		this->spell_fx_renderer = EngineIocContainer::ResolveSpellFxRenderer();
-		this->particle_engine = EngineIocContainer::ResolveParticleEngine();
+		log = EngineIocContainer::ResolveLogger();
+		decal_builder = EngineIocContainer::ResolveDecalBuilder();
+		spell_fx_renderer = EngineIocContainer::ResolveSpellFxRenderer();
+		particle_engine = EngineIocContainer::ResolveParticleEngine();
 	}
 
 	/**

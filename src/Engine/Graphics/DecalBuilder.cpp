@@ -197,7 +197,7 @@ bool DecalBuilder::ApplyBloodsplatDecals_IndoorFace(unsigned int uFaceID) {
     uNumSplatsThisFace = 0;
     BLVFace *pFace = &pIndoor->pFaces[uFaceID];
 
-    if (pFace->Indoor_sky() || pFace->Fluid()) return true;
+    if (pFace->IsIndoorSky() || pFace->IsFluid()) return true;
     for (uint i = 0; i < bloodsplat_container->uNumBloodsplats; ++i) {
         Bloodsplat *pBloodsplat = &bloodsplat_container->pBloodsplats_to_apply[i];
         if (pFace->pBounding.intersectsCube(pBloodsplat->pos, pBloodsplat->radius)) {
@@ -219,7 +219,7 @@ bool DecalBuilder::ApplyBloodSplat_OutdoorFace(ODMFace *pFace) {
     this->uNumSplatsThisFace = 0;
 
     // loop through and check
-    if (!pFace->Indoor_sky() && !pFace->Fluid()) {
+    if (!pFace->IsIndoorSky() && !pFace->IsFluid()) {
         for (int i = 0; i < bloodsplat_container->uNumBloodsplats; i++) {
             Bloodsplat *pBloodsplat = &bloodsplat_container->pBloodsplats_to_apply[i];
             if (pFace->pBoundingBox.intersectsCube(pBloodsplat->pos, pBloodsplat->radius)) {

@@ -24,8 +24,8 @@ void BSPModelList::Load(Deserializer* stream)
 		BSPModel& new_model = this->back();
 
 		new_model.index = model_index;
-		new_model.pModelName = model.pModelName;
-		new_model.pModelName2 = model.pModelName2;
+		new_model.pModelName.assign(model.pModelName.data());
+		new_model.pModelName2.assign(model.pModelName2.data());
 		new_model.field_40 = model.field_40;
 		new_model.vCenter = model.vCenter;
 		new_model.vPosition = model.vPosition;
@@ -53,9 +53,9 @@ void BSPModelList::Load(Deserializer* stream)
 			if (new_model.pFaces[i].sCogTriggeredID)
 			{
 				if (new_model.pFaces[i].HasEventHint())
-					new_model.pFaces[i].uAttributes |= FACE_HAS_EVENT;
+					new_model.pFaces[i].uAttributes |= FaceAttribute::Event;
 				else
-					new_model.pFaces[i].uAttributes &= ~FACE_HAS_EVENT;
+					new_model.pFaces[i].uAttributes &= ~FaceAttribute::Event;
 			}
 		}
 
@@ -88,7 +88,7 @@ void ODMFace::SetTexture(const std::string& filename)
 			return;
 		}
 
-		this->ToggleIsTextureFrameTable();
+		this->ToggleTextureFrameTable();
 	}
 
 	this->resource = assets->GetBitmap(filename);

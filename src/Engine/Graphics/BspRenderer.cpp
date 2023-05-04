@@ -15,7 +15,7 @@ void BspRenderer::AddFaceToRenderList_d3d(unsigned int node_id, unsigned int uFa
     if (uFaceID >= pIndoor->pFaces.size()) return;
     BLVFace *pFace = &pIndoor->pFaces[uFaceID];
 
-    if (!pFace->Portal()) {
+    if (!pFace->IsPortal()) {
         if (num_faces < 1500) {
             // add face and return
             faces[num_faces].uFaceID = uFaceID;
@@ -199,7 +199,7 @@ void AddNodeBSPFaces(unsigned int node_id, unsigned int uFirstNode) {
              pCamera3D->vCameraPos.x * pFace->pFacePlane_old.vNormal.x +
              pCamera3D->vCameraPos.y * pFace->pFacePlane_old.vNormal.y +
              pCamera3D->vCameraPos.z * pFace->pFacePlane_old.vNormal.z;  // plane equation
-        if (pFace->Portal() && pFace->uSectorID != node->uSectorID) v5 = -v5;
+        if (pFace->IsPortal() && pFace->uSectorID != node->uSectorID) v5 = -v5;
 
         if (v5 <= 0)
             v6 = pNode->uFront;

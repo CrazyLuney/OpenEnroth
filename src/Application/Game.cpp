@@ -1214,12 +1214,12 @@ void Game::processQueuedMessages()
 					if (uCurrentlyLoadedLevelType == WorldType::Outdoor)
 					{
 						ODMFace* pODMFace = &pOutdoor->pBModels[pid >> 9].pFaces[id];
-						interactionPossible = (pODMFace->Clickable() && pODMFace->sCogTriggeredID);
+						interactionPossible = (pODMFace->IsClickable() && pODMFace->sCogTriggeredID);
 					}
 					else
 					{ // Indoor
 						BLVFace* pBLVFace = &pIndoor->pFaces[id];
-						if (pBLVFace->Clickable())
+						if (pBLVFace->IsClickable())
 						{
 							interactionPossible = pIndoor->pFaceExtras[pBLVFace->uFaceExtraID].uEventID != 0;
 						}

@@ -445,7 +445,7 @@ void Engine::OnGameViewportClick()
 	{
 		if (uCurrentlyLoadedLevelType == WorldType::Indoor)
 		{
-			if (!pIndoor->pFaces[PID_ID(pid)].Clickable())
+			if (!pIndoor->pFaces[PID_ID(pid)].IsClickable())
 			{
 				if (pParty->pPickedItem.uItemID == ITEM_NULL)
 				{
@@ -466,7 +466,7 @@ void Engine::OnGameViewportClick()
 		}
 		else if (uCurrentlyLoadedLevelType == WorldType::Outdoor)
 		{
-			if (!pOutdoor->pBModels[(signed int)(pid) >> 9].pFaces[PID_ID(pid) & 0x3F].Clickable())
+			if (!pOutdoor->pBModels[(signed int)(pid) >> 9].pFaces[PID_ID(pid) & 0x3F].IsClickable())
 			{
 				if (pParty->pPickedItem.uItemID == ITEM_NULL)
 				{

@@ -3872,7 +3872,7 @@ void RenderOpenGL::DrawOutdoorBuildings()
 			//    //model.field_40 |= 1;
 			//    if (!model.pFaces.empty()) {
 			//        for (ODMFace &face : model.pFaces) {
-			//            if (!face.Invisible()) {
+			//            if (!face.IsInvisible()) {
 			//                numoutbuildverts += 3 * (face.uNumVertices - 2);
 			//            }
 			//        }
@@ -3913,7 +3913,7 @@ void RenderOpenGL::DrawOutdoorBuildings()
 			{
 				for (ODMFace& face : model.pFaces)
 				{
-					if (!face.Invisible())
+					if (face.IsVisible())
 					{
 						//v53 = 0;
 						//auto poly = &array_77EC08[pODMRenderParams->uNumPolygons];
@@ -3931,17 +3931,17 @@ void RenderOpenGL::DrawOutdoorBuildings()
 						int texlayer = 0;
 						int attribflags = 0;
 
-						if (face.uAttributes & FACE_IsFluid) attribflags |= 2;
-						if (face.uAttributes & FACE_INDOOR_SKY) attribflags |= 0x400;
+						if (face.uAttributes & FaceAttribute::Fluid) attribflags |= 2;
+						if (face.uAttributes & FaceAttribute::IndoorSky) attribflags |= 0x400;
 
-						if (face.uAttributes & FACE_FlowDown)
+						if (face.uAttributes & FaceAttribute::FlowDown)
 							attribflags |= 0x400;
-						else if (face.uAttributes & FACE_FlowUp)
+						else if (face.uAttributes & FaceAttribute::FlowUp)
 							attribflags |= 0x800;
 
-						if (face.uAttributes & FACE_FlowRight)
+						if (face.uAttributes & FaceAttribute::FlowRight)
 							attribflags |= 0x2000;
-						else if (face.uAttributes & FACE_FlowLeft)
+						else if (face.uAttributes & FaceAttribute::FlowLeft)
 							attribflags |= 0x1000;
 
 						// check if tile->name is already in list
@@ -4123,7 +4123,7 @@ void RenderOpenGL::DrawOutdoorBuildings()
 			{
 				for (ODMFace& face : model.pFaces)
 				{
-					if (!face.Invisible())
+					if (!face.IsInvisible())
 					{
 						array_73D150[0].vWorldPosition = model.pVertices[face.pVertexIDs[0]];
 
@@ -4155,20 +4155,20 @@ void RenderOpenGL::DrawOutdoorBuildings()
 
 							int attribflags = 0;
 
-							if (face.uAttributes & FACE_IsFluid) attribflags |= 2;
-							if (face.uAttributes & FACE_INDOOR_SKY) attribflags |= 0x400;
+							if (face.uAttributes & FaceAttribute::Fluid) attribflags |= 2;
+							if (face.uAttributes & FaceAttribute::IndoorSky) attribflags |= 0x400;
 
-							if (face.uAttributes & FACE_FlowDown)
+							if (face.uAttributes & FaceAttribute::FlowDown)
 								attribflags |= 0x400;
-							else if (face.uAttributes & FACE_FlowUp)
+							else if (face.uAttributes & FaceAttribute::FlowUp)
 								attribflags |= 0x800;
 
-							if (face.uAttributes & FACE_FlowRight)
+							if (face.uAttributes & FaceAttribute::FlowRight)
 								attribflags |= 0x2000;
-							else if (face.uAttributes & FACE_FlowLeft)
+							else if (face.uAttributes & FaceAttribute::FlowLeft)
 								attribflags |= 0x1000;
 
-							if (face.uAttributes & (FACE_OUTLINED | FACE_IsSecret))
+							if (face.uAttributes & (FaceAttribute::Outlined | FaceAttribute::Secret))
 								attribflags |= 0x00010000;
 
 							// load up verts here
@@ -4447,7 +4447,7 @@ void RenderOpenGL::DrawOutdoorBuildings()
 
 		for (ODMFace& face : model.pFaces)
 		{
-			if (face.Invisible())
+			if (face.IsInvisible())
 			{
 				continue;
 			}
@@ -4573,7 +4573,7 @@ void RenderOpenGL::DrawIndoorFaces()
 		{
 			BLVFace* face = &pIndoor->pFaces[test];
 
-			if (face->Portal()) continue;
+			if (face->IsPortal()) continue;
 			if (!face->GetTexture()) continue;
 			//if (face->uAttributes & FACE_IS_DOOR) continue;
 
@@ -4584,20 +4584,20 @@ void RenderOpenGL::DrawIndoorFaces()
 			int texlayer = 0;
 			int attribflags = 0;
 
-			if (face->uAttributes & FACE_IsFluid) attribflags |= 2;
-			if (face->uAttributes & FACE_INDOOR_SKY) attribflags |= 0x400;
+			if (face->uAttributes & FaceAttribute::Fluid) attribflags |= 2;
+			if (face->uAttributes & FaceAttribute::IndoorSky) attribflags |= 0x400;
 
-			if (face->uAttributes & FACE_FlowDown)
+			if (face->uAttributes & FaceAttribute::FlowDown)
 				attribflags |= 0x400;
-			else if (face->uAttributes & FACE_FlowUp)
+			else if (face->uAttributes & FaceAttribute::FlowUp)
 				attribflags |= 0x800;
 
-			if (face->uAttributes & FACE_FlowRight)
+			if (face->uAttributes & FaceAttribute::FlowRight)
 				attribflags |= 0x2000;
-			else if (face->uAttributes & FACE_FlowLeft)
+			else if (face->uAttributes & FaceAttribute::FlowLeft)
 				attribflags |= 0x1000;
 
-			if (face->uAttributes & (FACE_OUTLINED | FACE_IsSecret))
+			if (face->uAttributes & (FaceAttribute::Outlined | FaceAttribute::Secret))
 				attribflags |= 0x00010000;
 
 			// check if tile->name is already in list
@@ -4767,14 +4767,14 @@ void RenderOpenGL::DrawIndoorFaces()
 			continue;
 		BLVFace* face = &pIndoor->pFaces[uFaceID];
 
-		if (face->Portal())
+		if (face->IsPortal())
 		{
 			continue;
 		}
 
 		if (face->uNumVertices < 3) continue;
 
-		if (face->Invisible())
+		if (face->IsInvisible())
 		{
 			continue;
 		}
@@ -4815,7 +4815,7 @@ void RenderOpenGL::DrawIndoorFaces()
 			// ceiling sky faces are not frustum culled
 			float skymodtimex{};
 			float skymodtimey{};
-			if (face->Indoor_sky())
+			if (face->IsIndoorSky())
 			{
 				if (face->uPolygonType != PolygonType::InBetweenFloorAndWall && face->uPolygonType != PolygonType::Floor)
 				{
@@ -4834,7 +4834,7 @@ void RenderOpenGL::DrawIndoorFaces()
 			// check if this face is visible through current portal node
 			if (pCamera3D->CullFaceToFrustum(static_vertices_buff_in, &uNumVerticesa, static_vertices_calc_out, portalfrustumnorm, 4))
 			{
-				face->uAttributes |= FACE_SeenByParty;
+				face->uAttributes |= FaceAttribute::SeenByParty;
 
 				// check face is towards camera
 				if (pCamera3D->is_face_faced_to_cameraBLV(face))
@@ -4845,19 +4845,19 @@ void RenderOpenGL::DrawIndoorFaces()
 					int texunit = 0;
 					int attribflags = 0;
 
-					if (face->uAttributes & FACE_IsFluid) attribflags |= 2;
+					if (face->uAttributes & FaceAttribute::Fluid) attribflags |= 2;
 
-					if (face->uAttributes & FACE_FlowDown)
+					if (face->uAttributes & FaceAttribute::FlowDown)
 						attribflags |= 0x400;
-					else if (face->uAttributes & FACE_FlowUp)
+					else if (face->uAttributes & FaceAttribute::FlowUp)
 						attribflags |= 0x800;
 
-					if (face->uAttributes & FACE_FlowRight)
+					if (face->uAttributes & FaceAttribute::FlowRight)
 						attribflags |= 0x2000;
-					else if (face->uAttributes & FACE_FlowLeft)
+					else if (face->uAttributes & FaceAttribute::FlowLeft)
 						attribflags |= 0x1000;
 
-					if (face->uAttributes & (FACE_OUTLINED | FACE_IsSecret))
+					if (face->uAttributes & (FaceAttribute::Outlined | FaceAttribute::Secret))
 						attribflags |= 0x00010000;
 
 					texlayer = face->texlayer;
@@ -4896,7 +4896,7 @@ void RenderOpenGL::DrawIndoorFaces()
 						thisvert->z = pIndoor->pVertices[face->pVertexIDs[0]].z;
 						thisvert->u = face->pVertexUIDs[0] + pIndoor->pFaceExtras[face->uFaceExtraID].sTextureDeltaU  /*+ face->sTextureDeltaU*/;
 						thisvert->v = face->pVertexVIDs[0] + pIndoor->pFaceExtras[face->uFaceExtraID].sTextureDeltaV  /*+ face->sTextureDeltaV*/;
-						if (face->Indoor_sky())
+						if (face->IsIndoorSky())
 						{
 							thisvert->u = (skymodtimex + thisvert->u) * 0.25f;
 							thisvert->v = (skymodtimey + thisvert->v) * 0.25f;
@@ -4918,7 +4918,7 @@ void RenderOpenGL::DrawIndoorFaces()
 							thisvert->z = pIndoor->pVertices[face->pVertexIDs[z + i]].z;
 							thisvert->u = face->pVertexUIDs[z + i] + pIndoor->pFaceExtras[face->uFaceExtraID].sTextureDeltaU  /*+ face->sTextureDeltaU*/;
 							thisvert->v = face->pVertexVIDs[z + i] + pIndoor->pFaceExtras[face->uFaceExtraID].sTextureDeltaV  /*+ face->sTextureDeltaV*/;
-							if (face->Indoor_sky())
+							if (face->IsIndoorSky())
 							{
 								thisvert->u = (skymodtimex + thisvert->u) * 0.25f;
 								thisvert->v = (skymodtimey + thisvert->v) * 0.25f;
@@ -5239,7 +5239,7 @@ void RenderOpenGL::DrawIndoorFaces()
 	{
 		BLVFace* pface = &pIndoor->pFaces[test];
 
-		if (pface->Portal()) continue;
+		if (pface->IsPortal()) continue;
 		if (!pface->GetTexture()) continue;
 
 		// check if faces is visible

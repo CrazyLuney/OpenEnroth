@@ -344,7 +344,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 				pSpriteObjects[uLayingItemID].vPosition.z = bmodel->pVertices[face->pVertexIDs[0]].z + 1;
 				if (Vec::length2_xy(pSpriteObjects[uLayingItemID].vVelocity) >= 400)
 				{
-					if (face->uAttributes & FACE_TriggerByObject)
+					if (face->uAttributes & FaceAttribute::TriggerByObject)
 					{
 						EventProcessor(face->sCogTriggeredID, 0, 1);
 					}
@@ -376,7 +376,7 @@ void SpriteObject::updateObjectODM(unsigned int uLayingItemID)
 					newZVel = fixpoint_mul(32000, newZVel);
 				}
 				pSpriteObjects[uLayingItemID].vVelocity.z += newZVel;
-				if (face->uAttributes & FACE_TriggerByObject)
+				if (face->uAttributes & FaceAttribute::TriggerByObject)
 				{
 					EventProcessor(face->sCogTriggeredID, 0, 1);
 				}
@@ -547,7 +547,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 						newZVel = fixpoint_mul(32000, newZVel);
 					}
 					pSpriteObject->vVelocity.z += newZVel;
-					if (pIndoor->pFaces[pidId].uAttributes & FACE_TriggerByObject)
+					if (pIndoor->pFaces[pidId].uAttributes & FaceAttribute::TriggerByObject)
 					{
 						EventProcessor(pIndoor->pFaceExtras[pIndoor->pFaces[pidId].uFaceExtraID].uEventID, 0, 1);
 					}
@@ -563,7 +563,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 					{
 						pSpriteObject->vVelocity.z = 0;
 					}
-					if (pIndoor->pFaces[pidId].uAttributes & FACE_TriggerByObject)
+					if (pIndoor->pFaces[pidId].uAttributes & FaceAttribute::TriggerByObject)
 					{
 						EventProcessor(pIndoor->pFaceExtras[pIndoor->pFaces[pidId].uFaceExtraID].uEventID, 0, 1);
 					}
@@ -575,7 +575,7 @@ void SpriteObject::updateObjectBLV(unsigned int uLayingItemID)
 				pSpriteObject->vVelocity.z = 0;
 				if (Vec::length2_xy(pSpriteObject->vVelocity) >= 400)
 				{
-					if (pIndoor->pFaces[pidId].uAttributes & FACE_TriggerByObject)
+					if (pIndoor->pFaces[pidId].uAttributes & FaceAttribute::TriggerByObject)
 					{
 						EventProcessor(pIndoor->pFaceExtras[pIndoor->pFaces[pidId].uFaceExtraID].uEventID, 0, 1);
 					}

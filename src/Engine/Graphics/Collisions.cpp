@@ -37,7 +37,7 @@ CollisionState collision_state;
 static bool CollideSphereWithFace(BLVFace* face, const Vec3f& pos, float radius, const Vec3f& dir,
 	float* out_move_distance, bool ignore_ethereal, int model_idx)
 {
-	if (ignore_ethereal && face->Ethereal())
+	if (ignore_ethereal && face->IsEthereal())
 		return false;
 
 	// dot_product(dir, normal) is a cosine of an angle between them.
@@ -108,10 +108,10 @@ static bool CollidePointWithFace(BLVFace* face, const Vec3f& pos, const Vec3f& d
 	if (fuzzyIsNull(cos_dir_normal))
 		return false; // dir is perpendicular to face normal.
 
-	if (face->uAttributes & FACE_ETHEREAL)
+	if (face->uAttributes & FaceAttribute::Ethereal)
 		return false;
 
-	if (cos_dir_normal > 0 && !face->Portal())
+	if (cos_dir_normal > 0 && !face->IsPortal())
 		return false; // We're facing away && face is not a portal.
 
 	float pos_face_distance = face->pFacePlane.signedDistanceTo(pos);
@@ -336,7 +336,7 @@ void CollideIndoorWithGeometry(bool ignore_ethereal)
 		for (int j = 0; j < totalFaces; j++)
 		{
 			BLVFace* face = &pIndoor->pFaces[pSector->pFloors[j]];
-			if (face->Portal() || !collision_state.bbox.intersects(face->pBounding))
+			if (face->IsPortal() || !collision_state.bbox.intersects(face->pBounding))
 				continue;
 
 			int face_id = pSector->pFloors[j];
@@ -372,7 +372,7 @@ void CollideOutdoorWithModels(bool ignore_ethereal)
 			face.resource = mface.resource;
 			face.pVertexIDs = mface.pVertexIDs.data();
 
-			if (face.Ethereal() || face.Portal()) // TODO: this doesn't respect ignore_ethereal parameter
+			if (face.IsEthereal() || face.IsPortal()) // TODO: this doesn't respect ignore_ethereal parameter
 				continue;
 
 			int pid = PID(OBJECT_Face, (mface.index | (model.index << 6)));
@@ -554,7 +554,7 @@ void ProcessActorCollisionsBLV(Actor& actor, bool isAboveGround, bool isFlying)
 		if (newFloorZ == -30000)
 			break; // New pos is out of bounds, running more iterations won't help.
 
-		if (pIndoor->pFaces[newFaceID].uAttributes & FACE_INDOOR_SKY)
+		if (pIndoor->pFaces[newFaceID].uAttributes & FaceAttribute::IndoorSky)
 		{
 			if (actor.uAIState == Dead)
 			{
@@ -720,7 +720,7 @@ void ProcessActorCollisionsBLV(Actor& actor, bool isAboveGround, bool isFlying)
 					actor.uYawAngle = TrigLUT.atan2(actor.vVelocity.x, actor.vVelocity.y);
 				}
 			}
-			if (pIndoor->pFaces[id].uAttributes & FACE_TriggerByMonster)
+			if (pIndoor->pFaces[id].uAttributes & FaceAttribute::TriggerByMonster)
 				EventProcessor(pIndoor->pFaceExtras[pIndoor->pFaces[id].uFaceExtraID].uEventID, 0, 1);
 		}
 
@@ -849,7 +849,7 @@ void ProcessActorCollisionsODM(Actor& actor, bool isFlying)
 		case OBJECT_Face:
 		{
 			ODMFace* face = &pOutdoor->pBModels[collision_state.pid >> 9].pFaces[v39 & 0x3F];
-			if (!face->Ethereal())
+			if (!face->IsEthereal())
 			{
 				if (face->uPolygonType == PolygonType::Floor)
 				{

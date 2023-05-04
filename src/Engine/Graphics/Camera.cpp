@@ -174,7 +174,7 @@ bool Camera3D::GetFacetOrientation(PolygonType polyType, Vec3f* a2, Vec3f* a3, V
 //----- (00438258) --------------------------------------------------------
 bool Camera3D::is_face_faced_to_cameraBLV(BLVFace* pFace)
 {
-	// if (pFace->Portal()) return false;
+	// if (pFace->IsPortal()) return false;
 
 	if (pFace->uNumVertices == 0)
 		return false; // TODO(captainurist): would be great to just filter these our on load & assert instead.
@@ -194,7 +194,7 @@ bool Camera3D::is_face_faced_to_cameraBLV(BLVFace* pFace)
 
 bool Camera3D::is_face_faced_to_cameraODM(ODMFace* pFace, RenderVertexSoft* a2)
 {
-	// if (pFace->Portal()) return false;
+	// if (pFace->IsPortal()) return false;
 
 	if ((a2->vWorldPosition.z - pCamera3D->vCameraPos.z) * pFace->pFacePlane.vNormal.z +
 		(a2->vWorldPosition.y - pCamera3D->vCameraPos.y) * pFace->pFacePlane.vNormal.y +

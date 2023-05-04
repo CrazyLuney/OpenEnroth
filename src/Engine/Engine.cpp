@@ -468,7 +468,7 @@ bool Engine::_44EEA7()
 //----- (0044EDE4) --------------------------------------------------------
 bool Engine::AlterGamma_BLV(BLVFace* pFace, unsigned int* pColor)
 {
-	if (engine->IsSaturateFaces() && pFace->uAttributes & FACE_IsSecret)
+	if (engine->IsSaturateFaces() && pFace->uAttributes & FaceAttribute::Secret)
 	{
 		*pColor = ReplaceHSV(*pColor, 1.0, fSaturation, -1.0);
 		return true;
@@ -481,7 +481,7 @@ bool Engine::AlterGamma_BLV(BLVFace* pFace, unsigned int* pColor)
 
 bool Engine::AlterGamma_ODM(ODMFace* pFace, unsigned int* pColor)
 {
-	if (engine->IsSaturateFaces() && pFace->uAttributes & FACE_IsSecret)
+	if (engine->IsSaturateFaces() && pFace->uAttributes & FaceAttribute::Secret)
 	{
 		*pColor = ReplaceHSV(*pColor, 1.0, fSaturation, -1.0);
 		return true;
@@ -538,7 +538,7 @@ int Engine::_44EC23_saturate_face_odm(Polygon* a2, int* a3, signed int a4)
 	float a4b;  // [sp+1Ch] [bp+10h]@11
 
 	if (engine->IsSaturateFaces() && a2->field_59 == 5 &&
-		a2->pODMFace->uAttributes & FACE_IsSecret)
+		a2->pODMFace->uAttributes & FaceAttribute::Secret)
 	{
 		v4 = (double)a4;
 		a2a = v4;
@@ -602,7 +602,7 @@ int Engine::_44ED0A_saturate_face_blv(BLVFace* a2, int* a3, signed int a4)
 	float v14;  // [sp+1Ch] [bp+10h]@8
 	float v15;  // [sp+1Ch] [bp+10h]@10
 
-	if (engine->IsSaturateFaces() && a2->uAttributes & FACE_IsSecret)
+	if (engine->IsSaturateFaces() && a2->uAttributes & FaceAttribute::Secret)
 	{
 		v4 = (double)a4;
 		v11 = v4;
@@ -791,18 +791,18 @@ void Engine::OutlineSelection()
 			if (uCurrentlyLoadedLevelType == WorldType::Outdoor)
 			{
 				ODMFace* face = std::get<ODMFace*>(object_info->object);
-				if (face->uAttributes & FACE_OUTLINED)
-					face->uAttributes &= ~FACE_OUTLINED;
+				if (face->uAttributes & FaceAttribute::Outlined)
+					face->uAttributes &= ~FaceAttribute::Outlined;
 				else
-					face->uAttributes |= FACE_OUTLINED;
+					face->uAttributes |= FaceAttribute::Outlined;
 			}
 			else if (uCurrentlyLoadedLevelType == WorldType::Indoor)
 			{
 				BLVFace* face = std::get<BLVFace*>(object_info->object);
-				if (face->uAttributes & FACE_OUTLINED)
-					face->uAttributes &= ~FACE_OUTLINED;
+				if (face->uAttributes & FaceAttribute::Outlined)
+					face->uAttributes &= ~FaceAttribute::Outlined;
 				else
-					face->uAttributes |= FACE_OUTLINED;
+					face->uAttributes |= FaceAttribute::Outlined;
 			}
 			else
 			{

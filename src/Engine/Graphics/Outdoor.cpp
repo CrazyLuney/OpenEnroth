@@ -1085,11 +1085,11 @@ bool OutdoorLocation::Load(const std::string& filename, int days_played,
 			{
 				if (face.HasEventHint())
 				{
-					face.uAttributes |= FACE_HAS_EVENT;
+					face.uAttributes |= FaceAttribute::Event;
 				}
 				else
 				{
-					face.uAttributes &= ~FACE_HAS_EVENT;
+					face.uAttributes &= ~FaceAttribute::Event;
 				}
 			}
 		}
@@ -1783,7 +1783,7 @@ int ODM_GetFloorLevel(const Vec3i& pos, int unused, bool* pIsOnWater, int* bmode
 
 		for (ODMFace& face : model.pFaces)
 		{
-			if (face.Ethereal())
+			if (face.IsEthereal())
 				continue;
 
 			if (face.uNumVertices == 0)
@@ -1796,7 +1796,7 @@ int ODM_GetFloorLevel(const Vec3i& pos, int unused, bool* pIsOnWater, int* bmode
 				continue;
 
 			int slack = engine->config->gameplay.FloorChecksEps.value();
-			if (!face.Contains(pos, model.index, slack, FACE_XY_PLANE))
+			if (!face.Contains(pos, model.index, slack, FaceAttribute::XYPlane))
 				continue;
 
 			int floor_level;
@@ -1850,7 +1850,7 @@ int ODM_GetFloorLevel(const Vec3i& pos, int unused, bool* pIsOnWater, int* bmode
 	if (current_idx)
 	{
 		*pIsOnWater = false;
-		if (pOutdoor->pBModels[current_BModel_id[current_idx]].pFaces[current_Face_id[current_idx]].Fluid())
+		if (pOutdoor->pBModels[current_BModel_id[current_idx]].pFaces[current_Face_id[current_idx]].IsFluid())
 			*pIsOnWater = true;
 	}
 
@@ -2054,7 +2054,7 @@ void ODM_ProcessPartyActions()
 			if (BModel_id < pOutdoor->pBModels.size())
 			{
 				int face_id = modelStandingOnPID & 0x3F;
-				if (pOutdoor->pBModels[BModel_id].pFaces[face_id].uAttributes & FACE_PRESSURE_PLATE)
+				if (pOutdoor->pBModels[BModel_id].pFaces[face_id].uAttributes & FaceAttribute::PressurePlate)
 				{
 					triggerID = pOutdoor->pBModels[BModel_id].pFaces[face_id].sCogTriggeredID;
 				}
@@ -2592,7 +2592,7 @@ void ODM_ProcessPartyActions()
 				partyInputYSpeed = 0;
 			}
 
-			if (pParty->floor_face_pid != collisionPID && pODMFace->Pressure_Plate())
+			if (pParty->floor_face_pid != collisionPID && pODMFace->IsPressurePlate())
 			{
 				pParty->floor_face_pid = collisionPID;
 				triggerID = pODMFace->sCogTriggeredID;  // this one triggers tour events / traps
@@ -2684,7 +2684,7 @@ void ODM_ProcessPartyActions()
 				{
 					int modelId = pParty->floor_face_pid >> 9;
 					int faceId = (pParty->floor_face_pid >> 3) & 0x3F;
-					bool isModelWalk = !partyNotOnModel && pOutdoor->pBModels[modelId].pFaces[faceId].Visible();
+					bool isModelWalk = !partyNotOnModel && pOutdoor->pBModels[modelId].pFaces[faceId].IsVisible();
 					SoundID sound = SOUND_Invalid;
 					if (partyIsRunning)
 					{
@@ -2915,7 +2915,7 @@ int GetCeilingHeight(int Party_X, signed int Party_Y, int Party_ZHeight, int* pF
 
 		for (ODMFace& face : model.pFaces)
 		{
-			if (face.Ethereal())
+			if (face.IsEthereal())
 				continue;
 
 			if (face.uPolygonType != PolygonType::Ceiling && face.uPolygonType != PolygonType::InBetweenCeilingAndWall)
@@ -2925,7 +2925,7 @@ int GetCeilingHeight(int Party_X, signed int Party_Y, int Party_ZHeight, int* pF
 				continue;
 
 			int slack = engine->config->gameplay.FloorChecksEps.value();
-			if (!face.Contains(Vec3i(Party_X, Party_Y, 0), model.index, slack, FACE_XY_PLANE))
+			if (!face.Contains(Vec3i(Party_X, Party_Y, 0), model.index, slack, FaceAttribute::XYPlane))
 				continue;
 
 			if (ceiling_count >= 20)

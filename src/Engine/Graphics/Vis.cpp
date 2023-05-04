@@ -23,7 +23,7 @@ Vis_SelectionFilter vis_sprite_filter_2 = {
 Vis_SelectionFilter vis_face_filter = {
 	VisObjectType_Face, OBJECT_None, -1, 0, None };  // 00F93E44
 Vis_SelectionFilter vis_door_filter = {
-	VisObjectType_Face, OBJECT_Door, -1, static_cast<int>(FACE_HAS_EVENT), None };  // 00F93E58
+	VisObjectType_Face, OBJECT_Door, -1, static_cast<int>(FaceAttribute::Event), None };  // 00F93E58
 Vis_SelectionFilter vis_sprite_filter_3 = {
 	VisObjectType_Sprite, OBJECT_Decoration, -1, 0, ExclusionIfNoEvent };  // 00F93E6C
 Vis_SelectionFilter vis_sprite_filter_4 = {
@@ -353,11 +353,11 @@ void Vis::PickIndoorFaces_Mouse(float fDepth, RenderVertexSoft* pRay,
 			}
 		}
 
-		if (face->uAttributes & FACE_IsPicked)
-			face->uAttributes |= FACE_OUTLINED;
+		if (face->uAttributes & FaceAttribute::Picked)
+			face->uAttributes |= FaceAttribute::Outlined;
 		else
-			face->uAttributes &= ~FACE_OUTLINED;
-		face->uAttributes &= ~FACE_IsPicked;
+			face->uAttributes &= ~FaceAttribute::Outlined;
+		face->uAttributes &= ~FaceAttribute::Picked;
 
 		v5 = v17 + 1;
 	}
@@ -466,11 +466,11 @@ void Vis::PickOutdoorFaces_Mouse(float fDepth, RenderVertexSoft* pRay,
 						intersection.vWorldViewPosition.x, pid);
 				}
 
-				if (blv_face.uAttributes & FACE_IsPicked)
-					face.uAttributes |= FACE_OUTLINED;
+				if (blv_face.uAttributes & FaceAttribute::Picked)
+					face.uAttributes |= FaceAttribute::Outlined;
 				else
-					face.uAttributes &= ~FACE_OUTLINED;
-				blv_face.uAttributes &= ~FACE_IsPicked;
+					face.uAttributes &= ~FaceAttribute::Outlined;
+				blv_face.uAttributes &= ~FaceAttribute::Picked;
 			}
 		}
 	}
@@ -592,7 +592,7 @@ bool Vis::Intersect_Ray_Face(RenderVertexSoft* pRayStart,
 	float c2;                    // st7@11
 	static Vec3s IntersectPoint;  // ST04_6@11
 
-	if (pFace->Portal() || pFace->Invisible()) return false;
+	if (pFace->IsPortal() || pFace->IsInvisible()) return false;
 
 	int ray_dir_x = pRayEnd->vWorldPosition.x -
 		pRayStart->vWorldPosition
@@ -656,7 +656,7 @@ bool Vis::CheckIntersectBModel(BLVFace* pFace, Vec3s IntersectPoint, signed int 
 
 	if (engine->config->debug.ShowPickedFace.value())
 	{
-		pFace->uAttributes |= FACE_IsPicked;
+		pFace->uAttributes |= FaceAttribute::Picked;
 
 		// save debug pick line for later
 		debugpick.vWorldPosition.x = IntersectPoint.x;
