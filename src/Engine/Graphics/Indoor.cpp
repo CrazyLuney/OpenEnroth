@@ -54,8 +54,6 @@ BLVRenderParams* pBLVRenderParams = new BLVRenderParams;
 WorldType uCurrentlyLoadedLevelType = WorldType::None;
 
 LightsData Lights;
-stru337_unused _DLV_header_unused;
-// std::array<stru352, 480> stru_F83B80;
 
 uint16_t pDoorSoundIDsByLocationID[78] = {
 	300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300,
@@ -65,10 +63,10 @@ uint16_t pDoorSoundIDsByLocationID[78] = {
 	300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 404, 304,
 	400, 300, 300, 404, 304, 400, 300, 300, 404, 304, 400, 300, 300 };
 
-// all locations which should have special tranfer message
+// all locations which should have special transfer message
 // dragon caves, markham, bandit cave, haunted mansion
 // barrow 7, barrow 9, barrow 10, setag tower
-// wromthrax cave, toberti, hidden tomb
+// wromthrax cave, tolberti, hidden tomb
 std::array<const char*, 11> _4E6BDC_loc_names = {
 	"mdt12.blv", "d18.blv",   "mdt14.blv", "d37.blv",
 	"mdk01.blv", "mdt01.blv", "mdr01.blv", "mdt10.blv",

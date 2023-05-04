@@ -146,24 +146,6 @@ struct stru337_stru0
 };
 #pragma pack(pop)
 
-/*  377 */
-#pragma pack(push, 1)
-struct stru337_unused
-{
-	stru337_stru0 field_0;
-	int32_t field_14;
-	int32_t field_18;
-	int32_t field_1C;
-	int32_t field_20;
-	int32_t field_24;
-	int32_t field_28;
-	int32_t field_2C;
-	int32_t field_30;
-	stru337_stru0 field_34;
-};
-#pragma pack(pop)
-extern stru337_unused _DLV_header_unused;
-
 /*  147 */
 #pragma pack(push, 1)
 
